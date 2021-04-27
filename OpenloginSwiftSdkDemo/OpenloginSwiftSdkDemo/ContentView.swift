@@ -11,9 +11,8 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Button("Login") {
-                let op = OpenloginSdk()
-                op.help(message: "aheke")
-                op.noHelp(message: "dkd")
+                let op = Openlogin()
+                
             }
             Text("Hello, world!")
                 .padding()
