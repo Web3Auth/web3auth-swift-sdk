@@ -8,21 +8,22 @@
 import SwiftUI
  import OpenloginSwiftSdk
 struct ContentView: View {
+    @EnvironmentObject var authentication: Authentication
+
     var body: some View {
         VStack {
-            Button("Login") {
-                let op = Openlogin()
+            Button("Login with google") {
+                print("hello")
+                authentication.openlogin.login(loginProvider: "google")
                 
             }
-            Text("Hello, world!")
-                .padding()
         }
        
     }
 }
 
-struct CotentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//struct CotentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
