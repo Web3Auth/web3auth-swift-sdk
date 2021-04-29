@@ -8,11 +8,11 @@
 import Foundation
 import UIKit
 
-public protocol TorusURLHandlerTypes{
+public protocol OpenloginURLHandlerTypes{
     func handle(_ url: URL, modalPresentationStyle: UIModalPresentationStyle)
 }
 
 public enum URLOpenerTypes : String{
     case external = "external"
-//    case sfsafari = "sfsafari"
+    case sfsafari = "sfsafari"
 }

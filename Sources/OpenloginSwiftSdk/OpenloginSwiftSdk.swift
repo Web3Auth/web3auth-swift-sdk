@@ -49,10 +49,10 @@ public class Openlogin {
     }
     
     
-    public func login(loginProvider: String) -> Promise<[String:Any]> {
+    public func login(controller: UIViewController? = nil,loginProvider: String) -> Promise<[String:Any]> {
         let (tempPromise, seal) = Promise<[String:Any]>.pending()
 
-        self.authorizeURLHandler = .external
+        self.authorizeURLHandler = .sfsafari
         var redirectOriginComponents = URLComponents()
         redirectOriginComponents.scheme = redirectUrl.scheme
         redirectOriginComponents.host = redirectUrl.host
@@ -107,7 +107,7 @@ public class Openlogin {
 
        }
         
-       openURL(url: iframeComponents.url!.absoluteString, modalPresentationStyle: .fullScreen)
+        openURL(url: iframeComponents.url!.absoluteString,view: controller, modalPresentationStyle: .fullScreen)
        return tempPromise
     }
         

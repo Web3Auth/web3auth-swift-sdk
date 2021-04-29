@@ -43,11 +43,18 @@ extension Openlogin{
         }
     }
     
-    public func openURL(url: String, modalPresentationStyle: UIModalPresentationStyle) {
+    public func openURL(url: String,view: UIViewController?, modalPresentationStyle: UIModalPresentationStyle) {
         
       switch self.authorizeURLHandler {
         case .external:
             let handler = ExternalURLHandler()
+            handler.handle(URL(string: url)!, modalPresentationStyle: modalPresentationStyle)
+        case .sfsafari:
+            guard let controller = view else{
+              print("UIViewController not available.")
+              return
+            }
+            let handler = SFURLHandler(viewController: controller)
             handler.handle(URL(string: url)!, modalPresentationStyle: modalPresentationStyle)
         case .none:
             print("Cannot access specified browser")
