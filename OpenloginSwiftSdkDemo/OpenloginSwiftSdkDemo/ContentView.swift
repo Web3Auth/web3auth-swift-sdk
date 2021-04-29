@@ -14,7 +14,11 @@ struct ContentView: View {
         VStack {
             Button("Login with google") {
                 print("hello")
-                authentication.openlogin.login(loginProvider: "google")
+                authentication.openlogin.login(loginProvider: "google").done{ data in
+                    print("private key rebuild", data)
+                }.catch{ err in
+                    print(err)
+                }
                 
             }
         }

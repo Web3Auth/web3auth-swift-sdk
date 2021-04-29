@@ -14,5 +14,5 @@ public protocol TorusURLHandlerTypes{
 
 public enum URLOpenerTypes : String{
     case external = "external"
-    case sfsafari = "sfsafari"
+//    case sfsafari = "sfsafari"
 }

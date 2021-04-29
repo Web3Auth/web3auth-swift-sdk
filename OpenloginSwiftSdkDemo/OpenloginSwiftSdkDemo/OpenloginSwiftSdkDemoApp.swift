@@ -21,7 +21,7 @@ struct OpenloginSwiftSdkDemoApp: App {
                 .environmentObject(authenticationObj)
                 .onOpenURL { url in
                     print("redirectUrl", url)
-                    authenticationObj.openlogin.handleOpenloginCallback(callbackUrl: url.absoluteString)
+                    Openlogin.handle(url: url)
                     
                 }
             

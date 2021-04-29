@@ -1,11 +1,16 @@
 import Foundation
 import UIKit
+import PromiseKit
+
+@available(iOS 11.0, *)
 public class Openlogin {
     let iframeUrl: URL;
     let clientId: String;
     let redirectUrl: URL;
     public var privKey: String = "";
-    
+    var observer: NSObjectProtocol? // useful for Notifications
+    var authorizeURLHandler: URLOpenerTypes?
+
     public init(clientId: String, network: Network, redirectUrl: String, iframeUrl: String? = nil) throws {
         self.clientId = clientId
         self.redirectUrl =  URL(string: redirectUrl)!
@@ -44,7 +49,10 @@ public class Openlogin {
     }
     
     
-    public func login(loginProvider: String) {
+    public func login(loginProvider: String) -> Promise<[String:Any]> {
+        let (tempPromise, seal) = Promise<[String:Any]>.pending()
+
+        self.authorizeURLHandler = .external
         var redirectOriginComponents = URLComponents()
         redirectOriginComponents.scheme = redirectUrl.scheme
         redirectOriginComponents.host = redirectUrl.host
@@ -66,9 +74,41 @@ public class Openlogin {
         iframeComponents.port = iframeUrl.port
         iframeComponents.path = "/start"
         iframeComponents.fragment = tempUrlComponents.query
+        
+        observeCallback{ url in
+           var responseParameters = [String: String]()
+           if let query = url.query,!query.isEmpty {
+               responseParameters += query.parametersFromQueryString
+           }
+           if let fragment = url.fragment, !fragment.isEmpty {
+               responseParameters += fragment.parametersFromQueryString
+           }
+        
+           print("params received", responseParameters)
+         
+            let result = responseParameters["result"]
+            let decodedData = Data(base64Encoded: result!)!
+            let decodedString = String(data: decodedData, encoding: .utf8)!
+            let jsonData = Data(decodedString.utf8)
+            do {
+                if let json = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                    self.privKey = json["privKey"] as! String
+                    seal.fulfill(["privKey": self.privKey])
+                } else {
+                    seal.reject(OpenloginError.failedToFetchPrivateKey)
+                }
+                
+            } catch {
+                print("error", error)
+                self.privKey = ""
+                seal.reject(error)
+            }
+            print("self priv", self.privKey)
 
-       let externalUrlHandler = ExternalURLHanlder()
-        externalUrlHandler.handle(iframeComponents.url!, modalPresentationStyle: .fullScreen)
+       }
+        
+       openURL(url: iframeComponents.url!.absoluteString, modalPresentationStyle: .fullScreen)
+       return tempPromise
     }
         
 }

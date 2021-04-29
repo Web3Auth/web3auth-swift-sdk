@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 
-class ExternalURLHanlder: TorusURLHandlerTypes{
+class ExternalURLHandler: TorusURLHandlerTypes{
     
     open func handle(_ url: URL, modalPresentationStyle: UIModalPresentationStyle) {
         if #available(iOS 10.0, *) {
