@@ -7,14 +7,17 @@
 
 import Foundation
 import OpenloginSwiftSdk
-
+import UIKit
 class Authentication: ObservableObject {
     @Published var openlogin: Openlogin
-    @Published var isInitialized: Bool = false
     
-    init() {
+    init(controller: UIViewController?) {
         print("initiailzied")
-        self.openlogin = try! Openlogin(clientId: "skdk", network: .testnet, redirectUrl: "openlogin://localhost", iframeUrl: nil)
-        self.isInitialized = true
+        let initParams = ["clientId":"","network":"testnet", "redirectUrl": "openlogin://localhost"]
+        self.openlogin = Openlogin(controller: controller, params: initParams)
+    }
+    init() {
+        let initParams = ["clientId":"","network":"testnet", "redirectUrl": "openlogin://localhost"]
+        self.openlogin = Openlogin(params: initParams)
     }
 }

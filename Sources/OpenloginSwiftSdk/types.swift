@@ -15,6 +15,6 @@ public enum Network : String{
 
 
 public enum OPENLOGIN_METHOD : String {
-  case LOGIN = "openlogin_login"
-  case LOGOUT = "openlogin_logout"
+  case LOGIN = "/login.html"
+  case LOGOUT = "/logout.html"
 }

@@ -12,18 +12,19 @@ import OpenloginSwiftSdk
 class SFViewController: UIViewController {
     public var authentication: Authentication = Authentication()
     override func viewDidLoad() {
-           super.viewDidLoad()
-           // Do any additional setup after loading the view.
-           let button:UIButton = UIButton(frame: CGRect(x: 100, y: 400, width: 200, height: 50))
-           button.backgroundColor = .blue
-           button.setTitle("Google Login", for: .normal)
-           button.addTarget(self, action:#selector(self.buttonAction), for: .touchUpInside)
-           self.view.addSubview(button)
+       super.viewDidLoad()
+       // Do any additional setup after loading the view.
+       let button:UIButton = UIButton(frame: CGRect(x: 100, y: 400, width: 200, height: 50))
+       button.backgroundColor = .blue
+       button.setTitle("Google Login", for: .normal)
+       button.addTarget(self, action:#selector(self.loginAction), for: .touchUpInside)
+       self.view.addSubview(button)
+       self.authentication =  Authentication(controller: self)
     }
        
-    @objc func buttonAction(sender: UIButton!) {
+    @objc func loginAction(sender: UIButton!) {
         print("button clicked")
-        authentication.openlogin.login(controller: self,loginProvider: "google")
+        authentication.openlogin.login(params: [:])
         .done{ data in
             print("private key rebuild", data)
           }.catch{ err in
@@ -33,12 +34,10 @@ class SFViewController: UIViewController {
 }
 
 struct SFViewControllerRepresentation: UIViewControllerRepresentable {
-    var authentication: Authentication
     typealias UIViewControllerType = SFViewController
 
     func makeUIViewController(context: Context) -> SFViewController {
         let local = SFViewController()
-        local.authentication = self.authentication
         return local
     }
     
@@ -52,14 +51,14 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            SFViewControllerRepresentation(authentication: authentication)
+            SFViewControllerRepresentation()
         }
        
     }
 }
 
-//struct CotentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView()
-//    }
-//}
+struct CotentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
