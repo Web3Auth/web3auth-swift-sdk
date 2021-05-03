@@ -24,7 +24,7 @@ class SFViewController: UIViewController {
        
     @objc func loginAction(sender: UIButton!) {
         print("button clicked")
-        authentication.openlogin.login(params: [:])
+        authentication.openlogin.login(params: ["loginProvider":"google"])
         .done{ data in
             print("private key rebuild", data)
           }.catch{ err in

@@ -13,11 +13,11 @@ class Authentication: ObservableObject {
     
     init(controller: UIViewController?) {
         print("initiailzied")
-        let initParams = ["clientId":"","network":"testnet", "redirectUrl": "openlogin://localhost"]
+        let initParams = ["clientId":"BHD5EIewKquwKJqjktMZ6Fru5PdAz3ujIJcMDWLjCRlK655oZo5OKlc4wG6mHzdp41G1AzLgCwPueREQl7Rb5kE","network":"testnet", "redirectUrl": "openlogin://localhost"]
         self.openlogin = Openlogin(controller: controller, params: initParams)
     }
     init() {
-        let initParams = ["clientId":"","network":"testnet", "redirectUrl": "openlogin://localhost"]
+        let initParams = ["clientId":"BHD5EIewKquwKJqjktMZ6Fru5PdAz3ujIJcMDWLjCRlK655oZo5OKlc4wG6mHzdp41G1AzLgCwPueREQl7Rb5kE","network":"testnet", "redirectUrl": "openlogin://localhost"]
         self.openlogin = Openlogin(params: initParams)
     }
 }

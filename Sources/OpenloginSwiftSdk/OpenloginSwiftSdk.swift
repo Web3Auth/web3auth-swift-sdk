@@ -11,7 +11,7 @@ public class Openlogin {
     var initParams: [String: Any]
     var _state: [String:Any] = [:]
 
-    public init(controller: UIViewController? = nil,browserType:URLOpenerTypes? = .external, params:[String:Any], sdkUrl:String = "https://sdk.openlogin.com") {
+    public init(controller: UIViewController? = nil,browserType:URLOpenerTypes? = .sfsafari, params:[String:Any], sdkUrl:String = "https://sdk.openlogin.com") {
         self.sdkUrl =  URL(string: sdkUrl)!
         self.controller = controller
         self.authorizeURLHandler = browserType
