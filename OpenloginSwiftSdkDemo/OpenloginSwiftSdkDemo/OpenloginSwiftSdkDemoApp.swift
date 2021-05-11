@@ -16,9 +16,7 @@ struct OpenloginSwiftSdkDemoApp: App {
                 .onOpenURL { url in
                     print("redirectUrl", url)
                     Openlogin.handle(url: url)
-                    
                 }
-            
         }
     }
 }

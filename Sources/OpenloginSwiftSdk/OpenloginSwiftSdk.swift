@@ -16,7 +16,6 @@ public class Openlogin {
         self.controller = controller
         self.authorizeURLHandler = browserType
         self.initParams = params
-        
     }
     
     func request(method: OPENLOGIN_METHOD, params:[String:Any]) -> Promise<[String:Any]> {
