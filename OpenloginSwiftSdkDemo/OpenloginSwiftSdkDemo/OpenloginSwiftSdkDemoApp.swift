@@ -1,10 +1,3 @@
-//
-//  OpenloginSwiftSdkDemoApp.swift
-//  OpenloginSwiftSdkDemo
-//
-//  Created by himanshu Chawla on 27/04/21.
-//
-
 import SwiftUI
 import OpenloginSwiftSdk
 
@@ -14,7 +7,6 @@ struct OpenloginSwiftSdkDemoApp: App {
         WindowGroup {
             ContentView()
                 .onOpenURL { url in
-                    print("redirectUrl", url)
                     Openlogin.handle(url: url)
                 }
         }
