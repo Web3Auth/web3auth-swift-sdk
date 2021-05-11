@@ -1,59 +1,52 @@
-//
-//  ContentView.swift
-//  OpenloginSwiftSdkDemo
-//
-//  Created by himanshu Chawla on 27/04/21.
-//
-
 import SwiftUI
 import OpenloginSwiftSdk
 
-
 class SFViewController: UIViewController {
-    public var authentication: Authentication = Authentication()
+    var authentication = Authentication()
+    
     override func viewDidLoad() {
-       super.viewDidLoad()
-       // Do any additional setup after loading the view.
-       let button:UIButton = UIButton(frame: CGRect(x: 100, y: 400, width: 200, height: 50))
-       button.backgroundColor = .blue
-       button.setTitle("Google Login", for: .normal)
-       button.addTarget(self, action:#selector(self.loginAction), for: .touchUpInside)
-       self.view.addSubview(button)
-       self.authentication =  Authentication(controller: self)
+        super.viewDidLoad()
+        
+        // Setup UI
+        let button = UIButton(frame: CGRect(x: 100, y: 400, width: 200, height: 50))
+        button.backgroundColor = .blue
+        button.setTitle("Sign in", for: .normal)
+        button.addTarget(self, action:#selector(self.signIn), for: .touchUpInside)
+        self.view.addSubview(button)
+        
+        // Configure auth
+        self.authentication =  Authentication(controller: self)
     }
-       
-    @objc func loginAction(sender: UIButton!) {
-        print("button clicked")
+    
+    @objc func signIn(sender: UIButton!) {
         authentication.openlogin.login(params: ["loginProvider":"google"])
-        .done{ data in
-            print("private key rebuild", data)
-          }.catch{ err in
-              print(err)
-        }
+            .done{ data in
+                print("Signed in", data)
+            }.catch{ err in
+                print(err)
+            }
     }
 }
 
 struct SFViewControllerRepresentation: UIViewControllerRepresentable {
     typealias UIViewControllerType = SFViewController
-
+    
     func makeUIViewController(context: Context) -> SFViewController {
-        let local = SFViewController()
-        return local
+        return SFViewController()
     }
     
     func updateUIViewController(_ uiViewController: SFViewController, context: Context) {
-        
     }
 }
+
 struct ContentView: View {
     @EnvironmentObject var authentication: Authentication
     @Environment(\.presentationMode) var presentationMode
-
+    
     var body: some View {
         VStack {
             SFViewControllerRepresentation()
         }
-       
     }
 }
 
