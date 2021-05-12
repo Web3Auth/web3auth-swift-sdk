@@ -36,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F0785723264B59680067D8A4 /* OpenloginSwiftSdkDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OpenloginSwiftSdkDemo.entitlements; sourceTree = "<group>"; };
 		FAA49C9F2639DB4A00933137 /* Authentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Authentication.swift; sourceTree = "<group>"; };
 		FAD9BC23263823A500439779 /* OpenloginSwiftSdkDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenloginSwiftSdkDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAD9BC26263823A500439779 /* OpenloginSwiftSdkDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenloginSwiftSdkDemoApp.swift; sourceTree = "<group>"; };
@@ -102,6 +103,7 @@
 		FAD9BC25263823A500439779 /* OpenloginSwiftSdkDemo */ = {
 			isa = PBXGroup;
 			children = (
+				F0785723264B59680067D8A4 /* OpenloginSwiftSdkDemo.entitlements */,
 				FAD9BC26263823A500439779 /* OpenloginSwiftSdkDemoApp.swift */,
 				FAD9BC28263823A500439779 /* ContentView.swift */,
 				FAD9BC2A263823A600439779 /* Assets.xcassets */,
@@ -438,6 +440,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = OpenloginSwiftSdkDemo/OpenloginSwiftSdkDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 2Q63NCPY55;
@@ -460,6 +463,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = OpenloginSwiftSdkDemo/OpenloginSwiftSdkDemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 2Q63NCPY55;
