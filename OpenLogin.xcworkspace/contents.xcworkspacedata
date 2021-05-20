@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:">
+      location = "group:App/App.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:OpenLogin">
    </FileRef>
 </Workspace>

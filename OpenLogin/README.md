@@ -1,3 +1,3 @@
-# OpenloginSwiftSdk
+# OpenLogin
 
 A description of this package.
