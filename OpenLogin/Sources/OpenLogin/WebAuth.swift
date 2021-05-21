@@ -6,17 +6,12 @@ class WebAuth: WebAuthenticatable {
     let clientId: String
     let network: Network
     
-    private var shouldUseUniversalLink: Bool = false
-    private var shouldUseEphemeralSession: Bool = false
-    
     private lazy var redirectURL: URL? = {
         guard
             let bundleIdentifier = Bundle.main.bundleIdentifier,
             let url = URL(string: "https://sdk.openlogin.com"),
             var components = URLComponents(url: url, resolvingAgainstBaseURL: true)
         else { return nil }
-        
-        components.scheme = self.shouldUseUniversalLink ? "https" : bundleIdentifier
         return components.url
     }()
 
@@ -25,18 +20,8 @@ class WebAuth: WebAuthenticatable {
         self.network = network
     }
     
-    func useUniversalLink() -> Self {
-        self.shouldUseUniversalLink = true
-        return self
-    }
-    
     func redirectURL(_ redirectURL: URL) -> Self {
         self.redirectURL = redirectURL
-        return self
-    }
-    
-    func useEphemeralSession() -> Self {
-        self.shouldUseEphemeralSession = true
         return self
     }
     
@@ -58,7 +43,7 @@ class WebAuth: WebAuthenticatable {
             "init": [
                 "clientId": clientId,
                 "network": network.rawValue,
-                "redirectUrl": "openlogin://localhost"
+                "redirectUrl": "http://localhost"
             ]
         ]
         

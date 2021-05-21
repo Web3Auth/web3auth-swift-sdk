@@ -1,7 +1,7 @@
 import Foundation
 
 /**
- Network to run OpenLogin, either  "mainnet" or "testnet".
+ List of networks that run OpenLogin.
  */
 public enum Network: String {
     case mainnet

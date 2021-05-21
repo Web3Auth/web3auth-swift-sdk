@@ -7,7 +7,7 @@ import Foundation
  OpenLogin.webAuth()
  ```
 
- Parameters are loaded from `OpenLogin.plist` in your bundle with the following content:
+ Parameters are loaded from the file `OpenLogin.plist` in your bundle with the following content:
 
  ```
  <?xml version="1.0" encoding="UTF-8"?>
@@ -22,10 +22,10 @@ import Foundation
  </plist>
  ```
 
- - parameter bundle: Bundle used to locate `OpenLogin.plist`. Default is the main bundle.
+ - parameter bundle: Bundle to locate the file `OpenLogin.plist`. Default is the main bundle.
 
  - returns: OpenLogin WebAuth component.
- - important: Calling this method without a valid `OpenLogin.plist` will crash your application.
+ - important: Calling this method without a valid file `OpenLogin.plist` in your bundle will crash your application.
  */
 public func webAuth(bundle: Bundle = Bundle.main) -> WebAuthenticatable {
     let values = plistValues(bundle: bundle)!
@@ -33,14 +33,14 @@ public func webAuth(bundle: Bundle = Bundle.main) -> WebAuthenticatable {
 }
 
 /**
- OpenLogin  component for authenticating with web-based flow.
+ OpenLogin component for authenticating with web-based flow.
 
  ```
- OpenLogin.webAuth(clientId: clientId, network: "mainnet")
+ OpenLogin.webAuth(clientId: clientId, network: .mainnet)
  ```
 
  - parameter clientId: Your OpenLogin project ID.
- - parameter network:  Network to run OpenLogin, either  "mainnet" or "testnet".
+ - parameter network:  Network to run OpenLogin.
 
  - returns: OpenLogin WebAuth component.
  */
@@ -48,75 +48,65 @@ public func webAuth(clientId: String, network: Network) -> WebAuthenticatable {
     return WebAuth(clientId: clientId, network: network)
 }
 
-/// WebAuth Authentication using OpenLogin.
+/// WebAuth authentication using OpenLogin.
 public protocol WebAuthenticatable {
     var clientId: String { get }
     var network: Network { get }
-
-    /**
-     For redirect url instead of a custom scheme it will use `https` and Universal Links.
-
-     Before enabling this flag you'll need to configure Universal Links
-
-     - returns: the same WebAuth instance to allow method chaining
-     */
-    func useUniversalLink() -> Self
-
-    /// Specify a redirect url to be used instead of a custom scheme
-    ///
-    /// - Parameter redirectURL: custom redirect url
-    /// - Returns: the same WebAuth instance to allow method chaining
-    func redirectURL(_ redirectURL: URL) -> Self
-
-    #if swift(>=5.1)
-    /**
-     Disable Single Sign On (SSO) on iOS 13+ and macOS.
-     Has no effect on older versions of iOS.
-
-     - returns: the same WebAuth instance to allow method chaining
-     */
-    func useEphemeralSession() -> Self
-    #endif
 
     /**
      Starts the WebAuth flow by modally presenting a ViewController in the top-most controller.
 
      ```
      OpenLogin
-         .webAuth(clientId: clientId, network: "mainnet")
-         .start { result in
-             print(result)
+         .webAuth()
+         .start {
+             switch $0 {
+             case .success(let credentials):
+                 signedIn(credentials)
+             case .failure(let error):
+                 print("Error: \(error)")
+             }
          }
      ```
 
-     Then from `AppDelegate` we just need to resume the WebAuth Auth like this
+     Then you just need to resume the WebAuh session from `AppDelegate`:
 
      ```
      func application(app: UIApplication, openURL url: NSURL, options: [String : Any]) -> Bool {
-         return OpenLogin.resumeAuth(url, options: options)
+         return OpenLogin.resumeAuth(url)
+     }
+     ```
+     
+     Or `App` if you're using SwiftUI lifecycle:
+     
+     ```
+     var body: some Scene {
+         WindowGroup {
+             ContentView()
+                .onOpenURL { url in
+                    OpenLogin.resumeAuth(url)
+                }
+         }
      }
      ```
 
-     Any on going WebAuth Auth session will be automatically cancelled when starting a new one,
-     and it's corresponding callback with be called with a failure result of `Authentication.Error.Cancelled`
+     Any ongoing WebAuth session will be automatically cancelled when starting a new one,
+     and its corresponding callback with be called with a failure result of `OpenLogin.WebAuthError.cancelled`.
 
-     - parameter callback: callback called with the result of the WebAuth flow
+     - parameter callback: Callback called with the result of the WebAuth flow.
      */
     func start(_ callback: @escaping (Result<Credentials>) -> Void)
 
     /**
-     Logs out and removes OpenLogin session
-     
-     For iOS 11+ you will need to ensure that the **Callback URL** has been added
-     to the **Whitelist URLs** section of your application in the [OpenLogin Project](https://developer.tor.us).
+     Logs out and clears current OpenLogin session.
 
      ```
      OpenLogin
          .webAuth()
-         .clearSession { print($0) }
+         .clearSession { signedOut() }
      ```
 
-     - parameter callback: callback called with bool outcome of the call
+     - parameter callback: Callback called with bool outcome of the call.
      */
     func clearSession(callback: @escaping (Bool) -> Void)
 }

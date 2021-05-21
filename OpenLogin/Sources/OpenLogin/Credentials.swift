@@ -2,7 +2,7 @@ import Foundation
 
 /**
  User's credentials obtained from OpenLogin.
- What values are available depends on what type of Auth request you perfomed.
+ What values are available depends on what type of authentication you perfomed.
  */
 @objc(OpenLoginCredentials)
 public class Credentials: NSObject, JSONObjectPayload, NSSecureCoding {
