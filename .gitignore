@@ -1,8 +1,23 @@
 # macOS
+
+## General
 .DS_Store
 .AppleDouble
 .LSOverride
 
 # Xcode
+
+## User settings
 xcuserdata/
-/*.gcno
+
+## Obj-C/Swift specific
+*.hmap
+
+## App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace

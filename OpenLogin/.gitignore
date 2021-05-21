@@ -1,6 +1,5 @@
 # Swift Package Manager
 
-.DS_Store
 /.build
 /Packages
 /*.xcodeproj
