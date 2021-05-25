@@ -1,6 +1,9 @@
 import UIKit
 import AuthenticationServices
 
+/**
+ WebAuth Authentication using OpenLogin.
+ */
 @available(iOS 12.0, *)
 public class WebAuth: NSObject {
     static let sdkURL = URL(string: "https://sdk.openlogin.com")!
@@ -13,6 +16,34 @@ public class WebAuth: NSObject {
         self.network = network
     }
     
+    /**
+     Starts the WebAuth flow by modally presenting a ViewController in the top-most controller.
+
+     ```
+     OpenLogin
+         .webAuth()
+         .start {
+             switch $0 {
+             case .success(let result):
+                 print("""
+                     Signed in successfully!
+                         Private key: \(result.privKey)
+                         User info:
+                             Name: \(result.userInfo.name)
+                             Profile image: \(result.userInfo.profileImage ?? "N/A")
+                             Type of login: \(result.userInfo.typeOfLogin)
+                     """)
+             case .failure(let error):
+                 print("Error: \(error)")
+             }
+         }
+     ```
+
+     Any on going WebAuth auth session will be automatically cancelled when starting a new one,
+     and it's corresponding callback with be called with a failure result of `WebAuthError.appCancelled`
+
+     - parameter callback: Callback called with the result of the WebAuth flow.
+     */
     public func start(_ callback: @escaping (Result<State>) -> Void) {
         guard
             let bundleId = Bundle.main.bundleIdentifier,
