@@ -103,7 +103,9 @@ public protocol WebAuthenticatable {
      ```
      OpenLogin
          .webAuth()
-         .clearSession { signedOut() }
+         .clearSession {
+            signedOut()
+        }
      ```
 
      - parameter callback: Callback called with bool outcome of the call.
