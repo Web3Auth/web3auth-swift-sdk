@@ -2,10 +2,10 @@ import Foundation
 
 #if swift(<5.0)
 /**
- Result object for OpenLogin APIs requests.
-
- - Success: Request completed successfuly with it's response body.
- - Failure: Request failed with a specific error.
+ Result object for OpenLogin APIs requests
+ 
+ - Success: Request completed successfuly with it's response body
+ - Failure: Request failed with a specific error
  */
 public enum Result<T> {
     case success(T)
@@ -18,7 +18,7 @@ extension Result {
     public static func success(result: T) -> Self {
         return .success(result)
     }
-
+    
     @available(*, deprecated, renamed: "failure(_:)")
     public static func failure(error: Error) -> Self {
         return .failure(error)
@@ -26,10 +26,10 @@ extension Result {
 }
 #else
 /**
- Result object for OpenLogin APIs requests.
-
- - Success: Request completed successfuly with it's response body.
- - Failure: Request failed with a specific error.
+ Result object for OpenLogin APIs requests
+ 
+ - Success: Request completed successfuly with it's response body
+ - Failure: Request failed with a specific error
  */
 public typealias Result<T> = Swift.Result<T, Error>
 
@@ -39,7 +39,7 @@ extension Result {
     public static func success(result: Success) -> Self {
         return .success(result)
     }
-
+    
     @available(*, deprecated, renamed: "failure(_:)")
     public static func failure(error: Failure) -> Self {
         return .failure(error)

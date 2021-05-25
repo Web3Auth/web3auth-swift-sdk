@@ -7,78 +7,76 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F010732426566ED00039C47A /* OpenLogin.plist in Resources */ = {isa = PBXBuildFile; fileRef = F010732326566ED00039C47A /* OpenLogin.plist */; };
-		F0E7CFDD26564ACB009ED956 /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E7CFDC26564ACB009ED956 /* MainApp.swift */; };
-		F0E7CFDF26564ACB009ED956 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E7CFDE26564ACB009ED956 /* ContentView.swift */; };
-		F0E7CFE126564ACB009ED956 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F0E7CFE026564ACB009ED956 /* Assets.xcassets */; };
-		F0E7CFE426564ACB009ED956 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F0E7CFE326564ACB009ED956 /* Preview Assets.xcassets */; };
-		F0E7CFED26564AF6009ED956 /* OpenLogin in Frameworks */ = {isa = PBXBuildFile; productRef = F0E7CFEC26564AF6009ED956 /* OpenLogin */; };
+		F016B52A265CE33F00CE71AD /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F016B529265CE33F00CE71AD /* MainApp.swift */; };
+		F016B52C265CE33F00CE71AD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F016B52B265CE33F00CE71AD /* ContentView.swift */; };
+		F016B52E265CE33F00CE71AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F016B52D265CE33F00CE71AD /* Assets.xcassets */; };
+		F016B531265CE33F00CE71AD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F016B530265CE33F00CE71AD /* Preview Assets.xcassets */; };
+		F0F509DA265CE3C800E01550 /* OpenLogin in Frameworks */ = {isa = PBXBuildFile; productRef = F0F509D9265CE3C800E01550 /* OpenLogin */; };
+		F0F509DC265CE57200E01550 /* OpenLogin.plist in Resources */ = {isa = PBXBuildFile; fileRef = F0F509DB265CE57200E01550 /* OpenLogin.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F010732326566ED00039C47A /* OpenLogin.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = OpenLogin.plist; sourceTree = "<group>"; };
-		F010732526567AD40039C47A /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
-		F0E7CFD926564ACB009ED956 /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F0E7CFDC26564ACB009ED956 /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
-		F0E7CFDE26564ACB009ED956 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		F0E7CFE026564ACB009ED956 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F0E7CFE326564ACB009ED956 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		F0E7CFE526564ACB009ED956 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F016B526265CE33F00CE71AD /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F016B529265CE33F00CE71AD /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
+		F016B52B265CE33F00CE71AD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F016B52D265CE33F00CE71AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F016B530265CE33F00CE71AD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		F016B532265CE33F00CE71AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F0F509DB265CE57200E01550 /* OpenLogin.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = OpenLogin.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		F0E7CFD626564ACB009ED956 /* Frameworks */ = {
+		F016B523265CE33F00CE71AD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0E7CFED26564AF6009ED956 /* OpenLogin in Frameworks */,
+				F0F509DA265CE3C800E01550 /* OpenLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F0E7CFD026564ACB009ED956 = {
+		F016B51D265CE33F00CE71AD = {
 			isa = PBXGroup;
 			children = (
-				F0E7CFDB26564ACB009ED956 /* App */,
-				F0E7CFDA26564ACB009ED956 /* Products */,
-				F0E7CFEB26564AF6009ED956 /* Frameworks */,
+				F016B528265CE33F00CE71AD /* App */,
+				F016B527265CE33F00CE71AD /* Products */,
+				F0F509D8265CE3C800E01550 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 			wrapsLines = 0;
 		};
-		F0E7CFDA26564ACB009ED956 /* Products */ = {
+		F016B527265CE33F00CE71AD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F0E7CFD926564ACB009ED956 /* App.app */,
+				F016B526265CE33F00CE71AD /* App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F0E7CFDB26564ACB009ED956 /* App */ = {
+		F016B528265CE33F00CE71AD /* App */ = {
 			isa = PBXGroup;
 			children = (
-				F010732526567AD40039C47A /* App.entitlements */,
-				F0E7CFDC26564ACB009ED956 /* MainApp.swift */,
-				F0E7CFDE26564ACB009ED956 /* ContentView.swift */,
-				F0E7CFE026564ACB009ED956 /* Assets.xcassets */,
-				F0E7CFE526564ACB009ED956 /* Info.plist */,
-				F0E7CFE226564ACB009ED956 /* Preview Content */,
-				F010732326566ED00039C47A /* OpenLogin.plist */,
+				F016B529265CE33F00CE71AD /* MainApp.swift */,
+				F016B52B265CE33F00CE71AD /* ContentView.swift */,
+				F016B52D265CE33F00CE71AD /* Assets.xcassets */,
+				F016B532265CE33F00CE71AD /* Info.plist */,
+				F016B52F265CE33F00CE71AD /* Preview Content */,
+				F0F509DB265CE57200E01550 /* OpenLogin.plist */,
 			);
 			path = App;
 			sourceTree = "<group>";
 		};
-		F0E7CFE226564ACB009ED956 /* Preview Content */ = {
+		F016B52F265CE33F00CE71AD /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				F0E7CFE326564ACB009ED956 /* Preview Assets.xcassets */,
+				F016B530265CE33F00CE71AD /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		F0E7CFEB26564AF6009ED956 /* Frameworks */ = {
+		F0F509D8265CE3C800E01550 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -88,13 +86,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F0E7CFD826564ACB009ED956 /* App */ = {
+		F016B525265CE33F00CE71AD /* App */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F0E7CFE826564ACB009ED956 /* Build configuration list for PBXNativeTarget "App" */;
+			buildConfigurationList = F016B535265CE33F00CE71AD /* Build configuration list for PBXNativeTarget "App" */;
 			buildPhases = (
-				F0E7CFD526564ACB009ED956 /* Sources */,
-				F0E7CFD626564ACB009ED956 /* Frameworks */,
-				F0E7CFD726564ACB009ED956 /* Resources */,
+				F016B522265CE33F00CE71AD /* Sources */,
+				F016B523265CE33F00CE71AD /* Frameworks */,
+				F016B524265CE33F00CE71AD /* Resources */,
 			);
 			buildRules = (
 			);
@@ -102,27 +100,27 @@
 			);
 			name = App;
 			packageProductDependencies = (
-				F0E7CFEC26564AF6009ED956 /* OpenLogin */,
+				F0F509D9265CE3C800E01550 /* OpenLogin */,
 			);
 			productName = App;
-			productReference = F0E7CFD926564ACB009ED956 /* App.app */;
+			productReference = F016B526265CE33F00CE71AD /* App.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		F0E7CFD126564ACB009ED956 /* Project object */ = {
+		F016B51E265CE33F00CE71AD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
-					F0E7CFD826564ACB009ED956 = {
+					F016B525265CE33F00CE71AD = {
 						CreatedOnToolsVersion = 12.5;
 					};
 				};
 			};
-			buildConfigurationList = F0E7CFD426564ACB009ED956 /* Build configuration list for PBXProject "App" */;
+			buildConfigurationList = F016B521265CE33F00CE71AD /* Build configuration list for PBXProject "App" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -130,43 +128,43 @@
 				en,
 				Base,
 			);
-			mainGroup = F0E7CFD026564ACB009ED956;
-			productRefGroup = F0E7CFDA26564ACB009ED956 /* Products */;
+			mainGroup = F016B51D265CE33F00CE71AD;
+			productRefGroup = F016B527265CE33F00CE71AD /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F0E7CFD826564ACB009ED956 /* App */,
+				F016B525265CE33F00CE71AD /* App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		F0E7CFD726564ACB009ED956 /* Resources */ = {
+		F016B524265CE33F00CE71AD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F010732426566ED00039C47A /* OpenLogin.plist in Resources */,
-				F0E7CFE426564ACB009ED956 /* Preview Assets.xcassets in Resources */,
-				F0E7CFE126564ACB009ED956 /* Assets.xcassets in Resources */,
+				F0F509DC265CE57200E01550 /* OpenLogin.plist in Resources */,
+				F016B531265CE33F00CE71AD /* Preview Assets.xcassets in Resources */,
+				F016B52E265CE33F00CE71AD /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		F0E7CFD526564ACB009ED956 /* Sources */ = {
+		F016B522265CE33F00CE71AD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0E7CFDF26564ACB009ED956 /* ContentView.swift in Sources */,
-				F0E7CFDD26564ACB009ED956 /* MainApp.swift in Sources */,
+				F016B52C265CE33F00CE71AD /* ContentView.swift in Sources */,
+				F016B52A265CE33F00CE71AD /* MainApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		F0E7CFE626564ACB009ED956 /* Debug */ = {
+		F016B533265CE33F00CE71AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -227,7 +225,7 @@
 			};
 			name = Debug;
 		};
-		F0E7CFE726564ACB009ED956 /* Release */ = {
+		F016B534265CE33F00CE71AD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -282,12 +280,11 @@
 			};
 			name = Release;
 		};
-		F0E7CFE926564ACB009ED956 /* Debug */ = {
+		F016B536265CE33F00CE71AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = 2Q63NCPY55;
@@ -301,16 +298,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.openlogin.sdkapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		F0E7CFEA26564ACB009ED956 /* Release */ = {
+		F016B537265CE33F00CE71AD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"App/Preview Content\"";
 				DEVELOPMENT_TEAM = 2Q63NCPY55;
@@ -324,27 +320,27 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.openlogin.sdkapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F0E7CFD426564ACB009ED956 /* Build configuration list for PBXProject "App" */ = {
+		F016B521265CE33F00CE71AD /* Build configuration list for PBXProject "App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F0E7CFE626564ACB009ED956 /* Debug */,
-				F0E7CFE726564ACB009ED956 /* Release */,
+				F016B533265CE33F00CE71AD /* Debug */,
+				F016B534265CE33F00CE71AD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F0E7CFE826564ACB009ED956 /* Build configuration list for PBXNativeTarget "App" */ = {
+		F016B535265CE33F00CE71AD /* Build configuration list for PBXNativeTarget "App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F0E7CFE926564ACB009ED956 /* Debug */,
-				F0E7CFEA26564ACB009ED956 /* Release */,
+				F016B536265CE33F00CE71AD /* Debug */,
+				F016B537265CE33F00CE71AD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -352,11 +348,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F0E7CFEC26564AF6009ED956 /* OpenLogin */ = {
+		F0F509D9265CE3C800E01550 /* OpenLogin */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = OpenLogin;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = F0E7CFD126564ACB009ED956 /* Project object */;
+	rootObject = F016B51E265CE33F00CE71AD /* Project object */;
 }

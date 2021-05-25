@@ -1,57 +1,76 @@
-import Foundation
-
+import UIKit
 import AuthenticationServices
 
-class WebAuth: WebAuthenticatable {
-    let clientId: String
-    let network: Network
+@available(iOS 12.0, *)
+public class WebAuth: NSObject {
+    static let sdkURL = URL(string: "https://sdk.openlogin.com")!
     
-    private lazy var redirectURL: URL? = {
-        guard
-            let bundleIdentifier = Bundle.main.bundleIdentifier,
-            let url = URL(string: "https://sdk.openlogin.com"),
-            var components = URLComponents(url: url, resolvingAgainstBaseURL: true)
-        else { return nil }
-        return components.url
-    }()
-
-    init(clientId: String, network: Network) {
+    private let clientId: String
+    private let network: Network
+    
+    public init(clientId: String, network: Network) {
         self.clientId = clientId
         self.network = network
     }
     
-    func redirectURL(_ redirectURL: URL) -> Self {
-        self.redirectURL = redirectURL
-        return self
-    }
-    
-    func start(_ callback: @escaping (Result<Credentials>) -> Void) {
-        guard let redirectURL = redirectURL else { return callback(.failure(WebAuthError.noBundleIdentifierFound)) }
-        guard let url = buildStartURL(redirectURL: redirectURL) else { return callback(.failure(WebAuthError.unknown)) }
+    public func start(_ callback: @escaping (Result<State>) -> Void) {
+        guard
+            let bundleId = Bundle.main.bundleIdentifier,
+            let redirectURL = URL(string: "\(bundleId)://openlogin")
+        else { return callback(.failure(WebAuthError.noBundleIdentifierFound)) }
         
-        print("Going to \(url)")
-        print("Redirecting to \(redirectURL)")
-        callback(.success(Credentials(privKey: "<private key>")))
-    }
-    
-    func clearSession(callback: @escaping (Bool) -> Void) {
-        callback(true)
-    }
-    
-    func buildStartURL(redirectURL: URL) -> URL? {
         let params: [String: Any] = [
             "init": [
                 "clientId": clientId,
                 "network": network.rawValue,
-                "redirectUrl": "http://localhost"
+                "redirectUrl": redirectURL.absoluteString
             ]
         ]
         
-        guard let paramsData = try? JSONSerialization.data(withJSONObject: params) else { return nil }
+        guard
+            let data = try? JSONSerialization.data(withJSONObject: params),
+            var components = URLComponents(string: WebAuth.sdkURL.absoluteString)
+        else { return callback(.failure(WebAuthError.unknownError)) }
         
-        guard var components = URLComponents(string: "https://sdk.openlogin.com/login") else { return nil }
-        components.fragment = paramsData.base64EncodedString()
+        components.path = "/login"
+        components.fragment = data.base64EncodedString()
         
-        return components.url
+        guard let url = components.url
+        else { return callback(.failure(WebAuthError.unknownError)) }
+        
+        let authSession = ASWebAuthenticationSession(
+            url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
+            guard
+                authError == nil,
+                let callbackURL = callbackURL,
+                let callbackFragment = callbackURL.fragment,
+                let callbackData = decodedBase64(callbackFragment),
+                let callbackState = try? JSONDecoder().decode(State.self, from: callbackData)
+            else {
+                let authError = authError ?? WebAuthError.unknownError
+                if case ASWebAuthenticationSessionError.canceledLogin = authError {
+                    return callback(.failure(WebAuthError.userCancelled))
+                } else {
+                    return callback(.failure(authError))
+                }
+            }
+            callback(.success(callbackState))
+        }
+        
+        if #available(iOS 13.0, *) {
+            authSession.presentationContextProvider = self
+        }
+        
+        if !authSession.start() {
+            callback(.failure(WebAuthError.unknownError))
+        }
+    }
+}
+
+@available(iOS 12.0, *)
+extension WebAuth: ASWebAuthenticationPresentationContextProviding {
+    public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
+        return window ?? ASPresentationAnchor()
     }
 }
