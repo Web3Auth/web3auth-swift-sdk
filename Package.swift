@@ -16,6 +16,6 @@ let package = Package(
         .target(
             name: "OpenLogin",
             dependencies: [],
-            path: "OpenLogin/Sources/OpenLogin",),
+            path: "OpenLogin/Sources/OpenLogin"),
     ]
 )
