@@ -51,5 +51,6 @@ public func webAuth(clientId: String, network: Network) -> WebAuth {
 }
 
 public func resumeAuth(_ url: URL) {
+    // TODO: Support login via redirects (Universal Links/Custom Schemes)
     print("OpenLogin.resumeAuth: \(url)")
 }
