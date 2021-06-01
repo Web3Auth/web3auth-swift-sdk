@@ -21,12 +21,12 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.himanshu.OpenloginSwiftSdkDemo</string>
+			<string></string>
 			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>openlogin</string>
-			</array>
+			<array/>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
