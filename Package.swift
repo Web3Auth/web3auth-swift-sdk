@@ -10,11 +10,10 @@ let package = Package(
             targets: ["OpenLogin"]),
     ],
     dependencies: [
-          .package(url: "https://github.com/mxcl/PromiseKit", from: "6.8.0")
     ],
     targets: [
         .target(
             name: "OpenLogin",
-            dependencies: ["PromiseKit"]),
+            dependencies: []),
     ]
 )
