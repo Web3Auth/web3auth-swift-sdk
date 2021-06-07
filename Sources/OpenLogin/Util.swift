@@ -11,8 +11,8 @@ func plistValues(_ bundle: Bundle) -> (clientId: String, network: Network)? {
     
     guard
         let clientId = values["ClientId"] as? String,
-        let network = values["Network"] as? String,
-        let network = Network(rawValue: network)
+        let networkValue = values["Network"] as? String,
+        let network = Network(rawValue: networkValue)
     else {
         print("OpenLogin.plist file at \(path) is missing or having incorrect 'ClientId' and/or 'Network' entries!")
         print("File currently has the following entries: \(values)")
