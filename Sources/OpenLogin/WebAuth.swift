@@ -1,5 +1,6 @@
 import UIKit
 import AuthenticationServices
+import SafariServices
 
 /**
  WebAuth Authentication using OpenLogin.
@@ -7,6 +8,8 @@ import AuthenticationServices
 @available(iOS 12.0, *)
 public class WebAuth: NSObject {
     static let sdkURL = URL(string: "https://sdk.openlogin.com")!
+    
+    let configFastLoginKey = "TORUS_OPENLOGIN_USE_FASTLOGIN"
     
     private let clientId: String
     private let network: Network
@@ -50,14 +53,24 @@ public class WebAuth: NSObject {
             let redirectURL = URL(string: "\(bundleId)://openlogin")
         else { return callback(.failure(WebAuthError.noBundleIdentifierFound)) }
         
+        // Get the current config of fastLogin, defaults to false
+        let fastLogin = UserDefaults.standard.bool(forKey: configFastLoginKey)
+        
+        // Enable fastLogin for subsequent logins
+        UserDefaults.standard.set(true, forKey: configFastLoginKey)
+        
         let params: [String: Any] = [
             "init": [
                 "clientId": clientId,
                 "network": network.rawValue,
                 "redirectUrl": redirectURL.absoluteString
+            ],
+            "params": [
+                "fastLogin": fastLogin
+
             ]
         ]
-        
+                
         guard
             let data = try? JSONSerialization.data(withJSONObject: params),
             var components = URLComponents(string: WebAuth.sdkURL.absoluteString)
@@ -96,6 +109,15 @@ public class WebAuth: NSObject {
             callback(.failure(WebAuthError.unknownError))
         }
     }
+    
+    /**
+     Sign the user out. This methods does not actually sign the user out from the server-side. Instead, it disables fastLogin in the next login actions.
+     */
+    public func signout(){
+        // Disable fastLogin for subsequent logins
+        UserDefaults.standard.set(false, forKey: configFastLoginKey)
+    }
+    
 }
 
 @available(iOS 12.0, *)
