@@ -113,7 +113,7 @@ public class WebAuth: NSObject {
     /**
      Sign the user out. This methods does not actually sign the user out from the server-side. Instead, it disables fastLogin in the next login actions.
      */
-    public func signout(){
+    public func signOut(){
         // Disable fastLogin for subsequent logins
         UserDefaults.standard.set(false, forKey: configFastLoginKey)
     }

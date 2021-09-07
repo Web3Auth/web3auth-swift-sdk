@@ -32,7 +32,7 @@ struct ContentView: View {
             action: {
                 OpenLogin
                     .webAuth()
-                    .signout()
+                    .signOut()
                 print("signed out.")
             },
             label: {
