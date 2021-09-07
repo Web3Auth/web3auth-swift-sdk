@@ -28,6 +28,19 @@ struct ContentView: View {
                     .padding()
             }
         )
+        Button(
+            action: {
+                OpenLogin
+                    .webAuth()
+                    .signOut()
+                print("signed out.")
+            },
+            label: {
+                Text("Sign Out")
+                    .padding()
+            }
+        )
+        
     }
 }
 
