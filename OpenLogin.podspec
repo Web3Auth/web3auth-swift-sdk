@@ -10,6 +10,4 @@ Pod::Spec.new do |spec|
   spec.module_name   = "OpenLogin"
   spec.source        = { :git => "https://github.com/torusresearch/openlogin-swift-sdk.git", :tag => spec.version }
   spec.source_files  = "Sources/OpenLogin/*.{swift}", "Sources/OpenLogin/**/*.{swift}"
-  spec.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
-  spec.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 end
