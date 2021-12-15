@@ -5,6 +5,6 @@
 	<key>ClientId</key>
 	<string>BC01p_js5KUIjvqYYAzWlDKt6ft--5joV0TbZEKO7YbDTqnmU5v0sq_4wgkyh0QAfZZAi-v6nKD4kcxkAqPuj8U</string>
 	<key>Network</key>
-	<string>mainnet</string>
+	<string>testnet</string>
 </dict>
 </plist>

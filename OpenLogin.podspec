@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name          = "OpenLogin"
-  spec.version       = "0.1.0"
+  spec.version       = "1.0.0"
   spec.platform      = :ios, "11.0"
   spec.summary       = "Torus OpenLogin SDK for iOS applications"
   spec.homepage      = "https://github.com/torusresearch/openlogin-swift-sdk"
