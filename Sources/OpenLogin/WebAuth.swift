@@ -9,8 +9,6 @@ import SafariServices
 public class WebAuth: NSObject {
     static let sdkURL = URL(string: "https://sdk.openlogin.com")!
     
-    let configFastLoginKey = "TORUS_OPENLOGIN_USE_FASTLOGIN"
-    
     private let clientId: String
     private let network: Network
     
@@ -25,7 +23,7 @@ public class WebAuth: NSObject {
      ```
      OpenLogin
          .webAuth()
-         .start {
+         .login {
              switch $0 {
              case .success(let result):
                  print("""
@@ -47,18 +45,44 @@ public class WebAuth: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
-    public func start(_ callback: @escaping (Result<State>) -> Void) {
+    public func login(provider: OpenLoginProvider? = nil, fastLogin: Bool? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectURL sdkSwiftURL: String? = nil, appState: String? = nil, _ callback: @escaping (Result<State>) -> Void) {
         DispatchQueue.main.async { [self] in
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
                 let redirectURL = URL(string: "\(bundleId)://openlogin")
             else { return callback(.failure(WebAuthError.noBundleIdentifierFound)) }
             
-            // Get the current config of fastLogin, defaults to false
-            let fastLogin = UserDefaults.standard.bool(forKey: configFastLoginKey)
+            var sdkParams: Dictionary<String, Any> = [:]
             
-            // Enable fastLogin for subsequent logins
-            UserDefaults.standard.set(true, forKey: configFastLoginKey)
+            if let provider = provider {
+                sdkParams["loginProvider"] = "\(provider)".lowercased()
+            }
+            
+            if let fastLogin = fastLogin {
+                sdkParams["fastLogin"] = fastLogin
+            }
+            
+            if let relogin = relogin {
+                sdkParams["relogin"] = relogin
+            }
+            
+            if let skipTKey = skipTKey {
+                sdkParams["skipTKey"] = skipTKey
+            }
+            
+            if let extraLoginOptions = extraLoginOptions {
+                sdkParams["extraLoginOptions"] = extraLoginOptions
+            }
+            
+            if let sdkSwiftURL = sdkSwiftURL {
+                sdkParams["redirectUrl"] = sdkSwiftURL
+            }
+            
+            if let appState = appState {
+                sdkParams["appState"] = appState
+            }
+            
+            
             
             let params: [String: Any] = [
                 "init": [
@@ -66,9 +90,7 @@ public class WebAuth: NSObject {
                     "network": network.rawValue,
                     "redirectUrl": redirectURL.absoluteString
                 ],
-                "params": [
-                    "fastLogin": fastLogin
-                ]
+                "params": sdkParams
             ]
                     
             guard
@@ -109,14 +131,6 @@ public class WebAuth: NSObject {
                 callback(.failure(WebAuthError.unknownError))
             }
         }
-    }
-    
-    /**
-     Sign the user out. This methods does not actually sign the user out from the server-side. Instead, it disables fastLogin in the next login actions.
-     */
-    public func signOut(){
-        // Disable fastLogin for subsequent logins
-        UserDefaults.standard.set(false, forKey: configFastLoginKey)
     }
     
 }
