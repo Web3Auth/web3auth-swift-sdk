@@ -1,0 +1,6 @@
+sdk: iphonesimulator
+build_tool_arguments:
+  - -workspace
+  - OpenLogin.xcworkspace
+  - -scheme
+  - OpenloginSwiftSdkDemo
