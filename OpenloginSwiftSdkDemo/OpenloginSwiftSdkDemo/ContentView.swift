@@ -48,7 +48,7 @@ struct ContentView: View {
                 action: {
                     OpenLogin
                         .webAuth()
-                        .login(fastLogin: true) {
+                        .login(provider: .APPLE) {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
@@ -58,29 +58,12 @@ struct ContentView: View {
                         }
                 },
                 label: {
-                    Text("fast login")
+                    Text("Sign In with Apple")
                         .padding()
                 }
             )
             
-            Button(
-                action: {
-                    OpenLogin
-                        .webAuth()
-                        .login(provider: .GOOGLE, fastLogin: true) {
-                            switch $0 {
-                            case .success(let result):
-                                showResult(result: result)
-                            case .failure(let error):
-                                print("Error: \(error)")
-                            }
-                        }
-                },
-                label: {
-                    Text("fast login with Google")
-                        .padding()
-                }
-            )
+ 
             
             Text(text).foregroundColor(.white)
             

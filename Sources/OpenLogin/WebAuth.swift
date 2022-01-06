@@ -23,7 +23,7 @@ public class WebAuth: NSObject {
      ```
      OpenLogin
          .webAuth()
-         .login {
+         .login(provider: .GOOGLE) {
              switch $0 {
              case .success(let result):
                  print("""
