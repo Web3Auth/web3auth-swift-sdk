@@ -136,25 +136,25 @@
 </code></pre>
 
 <ol>
-<li>Present the In-App Web-based Login modal.</li>
+<li>Present the In-App Web-based Login modal. The user should see a permission dialog.</li>
 </ol>
-<pre class="highlight swift"><code> <span class="kt">OpenLogin</span>
-    <span class="o">.</span><span class="nf">webAuth</span><span class="p">()</span>
-    <span class="o">.</span><span class="n">start</span> <span class="p">{</span>
-        <span class="k">switch</span> <span class="nv">$0</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">result</span><span class="p">):</span>
-            <span class="nf">print</span><span class="p">(</span><span class="s">"""
-                Signed in successfully!
-                    Private key: </span><span class="se">\(</span><span class="n">result</span><span class="o">.</span><span class="n">privKey</span><span class="se">)</span><span class="s">
-                    User info:
-                        Name: </span><span class="se">\(</span><span class="n">result</span><span class="o">.</span><span class="n">userInfo</span><span class="o">.</span><span class="n">name</span><span class="se">)</span><span class="s">
-                        Profile image: </span><span class="se">\(</span><span class="n">result</span><span class="o">.</span><span class="n">userInfo</span><span class="o">.</span><span class="n">profileImage</span> <span class="p">??</span> <span class="s">"N/A"</span><span class="se">)</span><span class="s">
-                        Type of login: </span><span class="se">\(</span><span class="n">result</span><span class="o">.</span><span class="n">userInfo</span><span class="o">.</span><span class="n">typeOfLogin</span><span class="se">)</span><span class="s">
-                """</span><span class="p">)</span>
-        <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
-            <span class="nf">print</span><span class="p">(</span><span class="s">"Error: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
+<pre class="highlight plaintext"><code>OpenLogin
+ .webAuth()
+ .login(provider: .GOOGLE) {
+     switch $0 {
+     case .success(let result):
+         print("""
+             Signed in successfully!
+                 Private key: \(result.privKey)
+                 User info:
+                     Name: \(result.userInfo.name)
+                     Profile image: \(result.userInfo.profileImage ?? "N/A")
+                     Type of login: \(result.userInfo.typeOfLogin)
+             """)
+     case .failure(let error):
+         print("Error: \(error)")
+     }
+ }
 </code></pre>
 <h2 id='configuration' class='heading'>Configuration</h2>
 

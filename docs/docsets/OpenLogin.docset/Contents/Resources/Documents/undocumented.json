@@ -1,0 +1,222 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Network.swift",
+      "line": 7,
+      "symbol": "Network.mainnet",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Network.swift",
+      "line": 8,
+      "symbol": "Network.testnet",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/OpenLogin.swift",
+      "line": 53,
+      "symbol": "resumeAuth(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.free",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 10,
+      "symbol": "OpenLoginProvider",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.APPLE",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.DISCORD",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.EMAIL_PASSWORDLESS",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.FACEBOOK",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.GITHUB",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.GOOGLE",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.KAKAO",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.LINE",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.LINKEDIN",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.REDDIT",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.TWITCH",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.TWITTER",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.WECHAT",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Provider.swift",
+      "line": 11,
+      "symbol": "OpenLoginProvider.WEIBO",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Result.swift",
+      "line": 39,
+      "symbol": "Result.success(result:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/Result.swift",
+      "line": 44,
+      "symbol": "Result.failure(error:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/State.swift",
+      "line": 7,
+      "symbol": "State.privKey",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/State.swift",
+      "line": 8,
+      "symbol": "State.userInfo",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/UserInfo.swift",
+      "line": 7,
+      "symbol": "UserInfo.name",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/UserInfo.swift",
+      "line": 8,
+      "symbol": "UserInfo.profileImage",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/UserInfo.swift",
+      "line": 9,
+      "symbol": "UserInfo.typeOfLogin",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/WebAuth.swift",
+      "line": 15,
+      "symbol": "WebAuth.init(clientId:network:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/WebAuth.swift",
+      "line": 140,
+      "symbol": "WebAuth.presentationAnchor(for:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/WebAuthError.swift",
+      "line": 7,
+      "symbol": "WebAuthError.noBundleIdentifierFound",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/WebAuthError.swift",
+      "line": 8,
+      "symbol": "WebAuthError.userCancelled",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/WebAuthError.swift",
+      "line": 9,
+      "symbol": "WebAuthError.appCancelled",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/michaellee8/Documents/openlogin-swift-sdk/Sources/OpenLogin/WebAuthError.swift",
+      "line": 10,
+      "symbol": "WebAuthError.unknownError",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/michaellee8/Documents/openlogin-swift-sdk"
+}
