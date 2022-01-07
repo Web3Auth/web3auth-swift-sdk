@@ -45,7 +45,7 @@ public class WebAuth: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
-    public func login(provider: OpenLoginProvider? = nil, fastLogin: Bool? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectURL sdkSwiftURL: String? = nil, appState: String? = nil, _ callback: @escaping (Result<State>) -> Void) {
+    public func login(provider: OpenLoginProvider? = nil, fastLogin: Bool? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectURL sdkSwiftURL: String? = nil, appState: String? = nil, _ callback: @escaping (Result<OpenLoginState>) -> Void) {
         DispatchQueue.main.async { [self] in
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
@@ -111,7 +111,7 @@ public class WebAuth: NSObject {
                     let callbackURL = callbackURL,
                     let callbackFragment = callbackURL.fragment,
                     let callbackData = decodedBase64(callbackFragment),
-                    let callbackState = try? JSONDecoder().decode(State.self, from: callbackData)
+                    let callbackState = try? JSONDecoder().decode(OpenLoginState.self, from: callbackData)
                 else {
                     let authError = authError ?? WebAuthError.unknownError
                     if case ASWebAuthenticationSessionError.canceledLogin = authError {

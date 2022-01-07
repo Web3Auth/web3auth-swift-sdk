@@ -71,7 +71,7 @@ struct ContentView: View {
         
     }
     
-    func showResult(result: OpenLogin.State){
+    func showResult(result: OpenLogin.OpenLoginState){
         print("""
             Signed in successfully!
                 Private key: \(result.privKey)
