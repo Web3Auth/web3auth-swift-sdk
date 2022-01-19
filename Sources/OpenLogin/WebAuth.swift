@@ -2,9 +2,20 @@ import UIKit
 import AuthenticationServices
 import SafariServices
 
-struct OLInitParams {
+public struct OLInitParams {
     let clientId: String
     let network: Network
+    let sdkURL: URL = URL(string: "https://sdk.openlogin.com")!
+}
+
+public struct OLLoginParams {
+    let provider: OpenLoginProvider?
+    let fastLogin: Bool?
+    let relogin: Bool?
+    let skipTKey: Bool?
+    let extraLoginOptions: Dictionary<String, Any>?
+    let redirectURL: String?
+    let appState: String?
 }
 
 /**
@@ -12,7 +23,6 @@ struct OLInitParams {
  */
 @available(iOS 12.0, *)
 public class WebAuth: NSObject {
-    static let sdkURL = URL(string: "https://sdk.openlogin.com")!
     
     private let initParams: OLInitParams
     
@@ -48,7 +58,7 @@ public class WebAuth: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
-    public func login(provider: OpenLoginProvider? = nil, fastLogin: Bool? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectURL sdkSwiftURL: String? = nil, appState: String? = nil, _ callback: @escaping (Result<OpenLoginState>) -> Void) {
+    public func login(loginParams: OLLoginParams, _ callback: @escaping (Result<OpenLoginState>) -> Void) {
         DispatchQueue.main.async { [self] in
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
@@ -57,31 +67,31 @@ public class WebAuth: NSObject {
             
             var sdkParams: Dictionary<String, Any> = [:]
             
-            if let provider = provider {
+            if let provider = loginParams.provider {
                 sdkParams["loginProvider"] = "\(provider)".lowercased()
             }
             
-            if let fastLogin = fastLogin {
+            if let fastLogin = loginParams.fastLogin {
                 sdkParams["fastLogin"] = fastLogin
             }
             
-            if let relogin = relogin {
+            if let relogin = loginParams.relogin {
                 sdkParams["relogin"] = relogin
             }
             
-            if let skipTKey = skipTKey {
+            if let skipTKey = loginParams.skipTKey {
                 sdkParams["skipTKey"] = skipTKey
             }
             
-            if let extraLoginOptions = extraLoginOptions {
+            if let extraLoginOptions = loginParams.extraLoginOptions {
                 sdkParams["extraLoginOptions"] = extraLoginOptions
             }
             
-            if let sdkSwiftURL = sdkSwiftURL {
+            if let sdkSwiftURL = loginParams.redirectURL {
                 sdkParams["redirectUrl"] = sdkSwiftURL
             }
             
-            if let appState = appState {
+            if let appState = loginParams.appState {
                 sdkParams["appState"] = appState
             }
             
@@ -98,7 +108,7 @@ public class WebAuth: NSObject {
                     
             guard
                 let data = try? JSONSerialization.data(withJSONObject: params),
-                var components = URLComponents(string: WebAuth.sdkURL.absoluteString)
+                var components = URLComponents(string: initParams.sdkURL.absoluteString)
             else { return callback(.failure(WebAuthError.unknownError)) }
             
             components.path = "/login"
