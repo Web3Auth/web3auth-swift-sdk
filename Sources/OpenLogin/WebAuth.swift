@@ -2,6 +2,11 @@ import UIKit
 import AuthenticationServices
 import SafariServices
 
+struct OLInitParams {
+    let clientId: String
+    let network: Network
+}
+
 /**
  WebAuth Authentication using OpenLogin.
  */
@@ -9,12 +14,10 @@ import SafariServices
 public class WebAuth: NSObject {
     static let sdkURL = URL(string: "https://sdk.openlogin.com")!
     
-    private let clientId: String
-    private let network: Network
+    private let initParams: OLInitParams
     
-    public init(clientId: String, network: Network) {
-        self.clientId = clientId
-        self.network = network
+    public init(params: OLInitParams) {
+        self.initParams = params
     }
     
     /**
@@ -86,8 +89,8 @@ public class WebAuth: NSObject {
             
             let params: [String: Any] = [
                 "init": [
-                    "clientId": clientId,
-                    "network": network.rawValue,
+                    "clientId": initParams.clientId,
+                    "network": initParams.network.rawValue,
                     "redirectUrl": redirectURL.absoluteString
                 ],
                 "params": sdkParams
