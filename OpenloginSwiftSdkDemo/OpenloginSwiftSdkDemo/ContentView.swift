@@ -10,7 +10,7 @@ struct ContentView: View {
                 action: {
                     OpenLogin
                         .webAuth()
-                        .login() {
+                        .login(OLLoginParams()) {
                             switch $0 {
                             case .success(let result):
                                     showResult(result: result)
@@ -29,7 +29,7 @@ struct ContentView: View {
                 action: {
                     OpenLogin
                         .webAuth()
-                        .login(provider: .GOOGLE) {
+                        .login(OLLoginParams(provider: .GOOGLE)) {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
@@ -48,7 +48,7 @@ struct ContentView: View {
                 action: {
                     OpenLogin
                         .webAuth()
-                        .login(provider: .APPLE) {
+                        .login(OLLoginParams(provider: .APPLE)) {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)

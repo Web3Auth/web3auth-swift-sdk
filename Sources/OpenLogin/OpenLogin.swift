@@ -47,7 +47,7 @@ public func webAuth(_ bundle: Bundle = Bundle.main) -> WebAuth {
  */
 @available(iOS 12.0, *)
 public func webAuth(clientId: String, network: Network) -> WebAuth {
-    return WebAuth(clientId: clientId, network: network)
+    return WebAuth(OLInitParams(clientId: clientId, network: network))
 }
 
 public func resumeAuth(_ url: URL) {
