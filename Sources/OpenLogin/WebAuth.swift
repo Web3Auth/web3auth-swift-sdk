@@ -21,8 +21,8 @@ public struct OLInitParams {
     var sdkURL: URL = URL(string: "https://sdk.openlogin.com")!
 }
 
-public struct OLLoginParams {
-    public init(provider: OpenLoginProvider? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectUrl: String? = nil, appState: String? = nil) {
+public struct OLLoginParams<T: Encodable>: Encodable {
+    public init(provider: OpenLoginProvider? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: [String: T]? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.provider = provider
         self.relogin = relogin
         self.skipTKey = skipTKey
@@ -43,9 +43,18 @@ public struct OLLoginParams {
     let provider: OpenLoginProvider?
     let relogin: Bool?
     let skipTKey: Bool?
-    let extraLoginOptions: Dictionary<String, Any>?
+    let extraLoginOptions: [String: T]?
     let redirectUrl: String?
     let appState: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case provider = "loginProvider"
+        case relogin
+        case skipTKey
+        case extraLoginOptions
+        case redirectUrl
+        case appState
+    }
 }
 
 /**
