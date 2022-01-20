@@ -22,9 +22,8 @@ public struct OLInitParams {
 }
 
 public struct OLLoginParams {
-    public init(provider: OpenLoginProvider? = nil, fastLogin: Bool? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectURL: String? = nil, appState: String? = nil) {
+    public init(provider: OpenLoginProvider? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectURL: String? = nil, appState: String? = nil) {
         self.provider = provider
-        self.fastLogin = fastLogin
         self.relogin = relogin
         self.skipTKey = skipTKey
         self.extraLoginOptions = extraLoginOptions
@@ -34,7 +33,6 @@ public struct OLLoginParams {
      
     public init(provider: OpenLoginProvider? = nil) {
         self.provider = provider
-        self.fastLogin = nil
         self.relogin = nil
         self.skipTKey = nil
         self.extraLoginOptions = nil
@@ -43,7 +41,6 @@ public struct OLLoginParams {
     }
     
     let provider: OpenLoginProvider?
-    let fastLogin: Bool?
     let relogin: Bool?
     let skipTKey: Bool?
     let extraLoginOptions: Dictionary<String, Any>?
@@ -137,10 +134,6 @@ public class WebAuth: NSObject {
         
         if let provider = loginParams.provider {
             sdkParams["loginProvider"] = "\(provider)".lowercased()
-        }
-        
-        if let fastLogin = loginParams.fastLogin {
-            sdkParams["fastLogin"] = fastLogin
         }
         
         if let relogin = loginParams.relogin {
