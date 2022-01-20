@@ -21,8 +21,8 @@ public struct OLInitParams {
     var sdkURL: URL = URL(string: "https://sdk.openlogin.com")!
 }
 
-public struct OLLoginParams<T: Encodable>: Encodable {
-    public init(provider: OpenLoginProvider? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: [String: T]? = nil, redirectUrl: String? = nil, appState: String? = nil) {
+public struct OLLoginParams: Encodable {
+    public init(provider: OpenLoginProvider? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: [String: Codable]? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.provider = provider
         self.relogin = relogin
         self.skipTKey = skipTKey
@@ -40,12 +40,12 @@ public struct OLLoginParams<T: Encodable>: Encodable {
         self.appState = nil
     }
     
-    let provider: OpenLoginProvider?
-    let relogin: Bool?
-    let skipTKey: Bool?
-    let extraLoginOptions: [String: T]?
-    let redirectUrl: String?
-    let appState: String?
+    var provider: OpenLoginProvider?
+    var relogin: Bool?
+    var skipTKey: Bool?
+    var extraLoginOptions: [String: Codable]?
+    var redirectUrl: String?
+    var appState: String?
     
     enum CodingKeys: String, CodingKey {
         case provider = "loginProvider"
@@ -55,6 +55,17 @@ public struct OLLoginParams<T: Encodable>: Encodable {
         case redirectUrl
         case appState
     }
+    
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//
+//    }
+}
+
+fileprivate struct OLSDKFrontendInitParams: Encodable {
+    let clientId: String
+    let network: String
+    let redirecturl: String
 }
 
 /**
