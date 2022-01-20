@@ -92,7 +92,7 @@ public class WebAuth: NSObject {
         DispatchQueue.main.async { [self] in
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
-                let redirectURL = URL(string: "\(bundleId)://openlogin")
+                let redirectURL = URL(string: "\(bundleId)://auth")
             else { return callback(.failure(WebAuthError.noBundleIdentifierFound)) }
             
             guard
