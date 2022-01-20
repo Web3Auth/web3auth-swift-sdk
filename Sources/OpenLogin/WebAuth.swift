@@ -22,12 +22,12 @@ public struct OLInitParams {
 }
 
 public struct OLLoginParams {
-    public init(provider: OpenLoginProvider? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectURL: String? = nil, appState: String? = nil) {
+    public init(provider: OpenLoginProvider? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.provider = provider
         self.relogin = relogin
         self.skipTKey = skipTKey
         self.extraLoginOptions = extraLoginOptions
-        self.redirectURL = redirectURL
+        self.redirectUrl = redirectUrl
         self.appState = appState
     }
      
@@ -36,7 +36,7 @@ public struct OLLoginParams {
         self.relogin = nil
         self.skipTKey = nil
         self.extraLoginOptions = nil
-        self.redirectURL = nil
+        self.redirectUrl = nil
         self.appState = nil
     }
     
@@ -44,7 +44,7 @@ public struct OLLoginParams {
     let relogin: Bool?
     let skipTKey: Bool?
     let extraLoginOptions: Dictionary<String, Any>?
-    let redirectURL: String?
+    let redirectUrl: String?
     let appState: String?
 }
 
@@ -148,7 +148,7 @@ public class WebAuth: NSObject {
             sdkParams["extraLoginOptions"] = extraLoginOptions
         }
         
-        if let sdkSwiftURL = loginParams.redirectURL {
+        if let sdkSwiftURL = loginParams.redirectUrl {
             sdkParams["redirectUrl"] = sdkSwiftURL
         }
         
