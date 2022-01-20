@@ -15,5 +15,8 @@ let package = Package(
         .target(
             name: "OpenLogin",
             dependencies: []),
+        .testTarget(
+            name: "OpenLoginTests",
+            dependencies: ["OpenLogin"])
     ]
 )

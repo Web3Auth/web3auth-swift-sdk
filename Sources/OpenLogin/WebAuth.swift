@@ -99,7 +99,7 @@ public class WebAuth: NSObject {
             else { return callback(.failure(WebAuthError.noBundleIdentifierFound)) }
             
             guard
-                let url = try? generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
+                let url = try? WebAuth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
             else {
                 return callback(.failure(WebAuthError.unknownError))
             }
@@ -109,7 +109,7 @@ public class WebAuth: NSObject {
                 guard
                     authError == nil,
                     let callbackURL = callbackURL,
-                    let callbackState = try? decodeStateFromCallbackURL(callbackURL)
+                    let callbackState = try? WebAuth.decodeStateFromCallbackURL(callbackURL)
                 else {
                     let authError = authError ?? WebAuthError.unknownError
                     if case ASWebAuthenticationSessionError.canceledLogin = authError {
@@ -131,7 +131,7 @@ public class WebAuth: NSObject {
         }
     }
     
-    func generateAuthSessionURL(redirectURL: URL, initParams: OLInitParams, loginParams: OLLoginParams) throws -> URL {
+    static func generateAuthSessionURL(redirectURL: URL, initParams: OLInitParams, loginParams: OLLoginParams) throws -> URL {
         
         var sdkParams: Dictionary<String, Any> = [:]
         
@@ -191,7 +191,7 @@ public class WebAuth: NSObject {
         return url
     }
     
-    func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> OpenLoginState {
+    static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> OpenLoginState {
         guard
             let callbackFragment = callbackURL.fragment,
             let callbackData = decodedBase64(callbackFragment),
