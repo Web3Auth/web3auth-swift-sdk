@@ -11,7 +11,7 @@ class OpenLoginTests: XCTestCase {
         
         let correctGeneratedURL = "https://sdk.openlogin.com/login#eyJpbml0Ijp7ImNsaWVudElkIjoiQkMwMXBfanM1S1VJanZxWVlBeldsREt0NmZ0LS01am9WMFRiWkVLTzdZYkRUcW5tVTV2MHNxXzR3Z2t5aDBRQWZaWkFpLXY2bktENGtjeGtBcVB1ajhVIiwibmV0d29yayI6InRlc3RuZXQiLCJyZWRpcmVjdFVybCI6ImNvbS5vcGVubG9naW4uc2RrYXBwOlwvXC9vcGVubG9naW4ifSwicGFyYW1zIjp7ImxvZ2luUHJvdmlkZXIiOiJhcHBsZSJ9fQ=="
         
-        XCTAssertEqual(try? WebAuth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams), URL(string: correctGeneratedURL)!)
+        XCTAssertEqual(try? OpenLogin.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams), URL(string: correctGeneratedURL)!)
     }
     
     func testDecodeStateFromCallbackURL() throws {
@@ -22,7 +22,7 @@ class OpenLoginTests: XCTestCase {
         let profileImage = "https://i0.wp.com/cdn.auth0.com/avatars/jt.png"
         let typeOfLogin = "apple"
         
-        let decodedState = try? WebAuth.decodeStateFromCallbackURL(URL(string: callbackURL)!)
+        let decodedState = try? OpenLogin.decodeStateFromCallbackURL(URL(string: callbackURL)!)
         
         XCTAssertEqual(privKey, decodedState?.privKey)
         XCTAssertEqual(name, decodedState?.userInfo.name)

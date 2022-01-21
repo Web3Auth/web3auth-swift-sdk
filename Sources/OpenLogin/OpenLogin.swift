@@ -52,7 +52,7 @@ public struct OLLoginParams {
  Authentication using OpenLogin.
  */
 @available(iOS 12.0, *)
-public class WebAuth: NSObject {
+public class OpenLogin: NSObject {
     
     private let initParams: OLInitParams
     
@@ -138,7 +138,7 @@ public class WebAuth: NSObject {
             else { return callback(.failure(WebAuthError.noBundleIdentifierFound)) }
             
             guard
-                let url = try? WebAuth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
+                let url = try? OpenLogin.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
             else {
                 return callback(.failure(WebAuthError.unknownError))
             }
@@ -148,7 +148,7 @@ public class WebAuth: NSObject {
                 guard
                     authError == nil,
                     let callbackURL = callbackURL,
-                    let callbackState = try? WebAuth.decodeStateFromCallbackURL(callbackURL)
+                    let callbackState = try? OpenLogin.decodeStateFromCallbackURL(callbackURL)
                 else {
                     let authError = authError ?? WebAuthError.unknownError
                     if case ASWebAuthenticationSessionError.canceledLogin = authError {
@@ -240,7 +240,7 @@ public class WebAuth: NSObject {
 }
 
 @available(iOS 12.0, *)
-extension WebAuth: ASWebAuthenticationPresentationContextProviding {
+extension OpenLogin: ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         let window = UIApplication.shared.windows.first { $0.isKeyWindow }
         return window ?? ASPresentationAnchor()

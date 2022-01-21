@@ -8,8 +8,7 @@ struct ContentView: View {
         VStack {
             Button(
                 action: {
-                    OpenLogin
-                        .webAuth()
+                    OpenLogin()
                         .login(OLLoginParams()) {
                             switch $0 {
                             case .success(let result):
@@ -27,8 +26,7 @@ struct ContentView: View {
             
             Button(
                 action: {
-                    OpenLogin
-                        .webAuth()
+                    OpenLogin()
                         .login(OLLoginParams(provider: .GOOGLE)) {
                             switch $0 {
                             case .success(let result):
@@ -46,8 +44,7 @@ struct ContentView: View {
             
             Button(
                 action: {
-                    OpenLogin
-                        .webAuth()
+                    OpenLogin()
                         .login(OLLoginParams(provider: .APPLE)) {
                             switch $0 {
                             case .success(let result):
@@ -71,7 +68,7 @@ struct ContentView: View {
         
     }
     
-    func showResult(result: OpenLogin.OpenLoginState){
+    func showResult(result: OpenLoginState){
         print("""
             Signed in successfully!
                 Private key: \(result.privKey)
