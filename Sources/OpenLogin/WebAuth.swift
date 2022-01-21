@@ -49,23 +49,65 @@ public struct OLLoginParams {
 }
 
 /**
- WebAuth Authentication using OpenLogin.
+ Authentication using OpenLogin.
  */
 @available(iOS 12.0, *)
 public class WebAuth: NSObject {
     
     private let initParams: OLInitParams
     
+    /**
+     OpenLogin  component for authenticating with web-based flow.
+
+     ```
+     OpenLogin(OLInitParams(clientId: clientId, network: .mainnet))
+     ```
+
+     - parameter params: Init params for your OpenLogin instance.
+
+     - returns: OpenLogin component.
+     */
     public init(_ params: OLInitParams) {
         self.initParams = params
+    }
+    
+    /**
+     OpenLogin component for authenticating with web-based flow.
+     
+     ```
+     OpenLogin()
+     ```
+     
+     Parameters are loaded from the file `OpenLogin.plist` in your bundle with the following content:
+     
+     ```
+     <?xml version="1.0" encoding="UTF-8"?>
+     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+     <plist version="1.0">
+         <dict>
+             <key>ClientId</key>
+             <string>{YOUR_CLIENT_ID}</string>
+             <key>Network</key>
+             <string>mainnet|testnet</string>
+         </dict>
+     </plist>
+     ```
+     
+     - parameter bundle: Bundle to locate the `OpenLogin.plist` file. By default is the main bundle.
+     
+     - returns: OpenLogin component.
+     - important: Calling this method without a valid `OpenLogin.plist` will crash your application.
+     */
+    public convenience init (_ bundle: Bundle = Bundle.main) {
+        let values = plistValues(bundle)!
+        self.init(OLInitParams(clientId: values.clientId, network: values.network))
     }
     
     /**
      Starts the WebAuth flow by modally presenting a ViewController in the top-most controller.
 
      ```
-     OpenLogin
-         .webAuth()
+     OpenLogin()
          .login(provider: .GOOGLE) {
              switch $0 {
              case .success(let result):
