@@ -10,5 +10,5 @@ Pod::Spec.new do |spec|
   spec.module_name   = "OpenLogin"
   spec.source        = { :git => "https://github.com/torusresearch/openlogin-swift-sdk.git", :tag => spec.version }
   spec.source_files  = "Sources/OpenLogin/*.{swift}", "Sources/OpenLogin/**/*.{swift}"
-  spec.exclude_files = [ '/docs/**' ]
+  spec.exclude_files = [ 'docs/**' ]
 end
