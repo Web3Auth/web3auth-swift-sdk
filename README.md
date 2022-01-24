@@ -30,26 +30,26 @@ Authentication with In-App Web-based Flow (iOS 12+):
 import OpenLogin
 ```
 
-2. Present the In-App Web-based Login modal.
+2. Present the In-App Web-based Login modal. The user should see a permission dialog.
 
-```swift
- OpenLogin
-    .webAuth()
-    .start {
-        switch $0 {
-        case .success(let result):
-            print("""
-                Signed in successfully!
-                    Private key: \(result.privKey)
-                    User info:
-                        Name: \(result.userInfo.name)
-                        Profile image: \(result.userInfo.profileImage ?? "N/A")
-                        Type of login: \(result.userInfo.typeOfLogin)
-                """)
-        case .failure(let error):
-            print("Error: \(error)")
-        }
-    }
+```
+OpenLogin
+ .webAuth()
+ .login(provider: .GOOGLE) {
+     switch $0 {
+     case .success(let result):
+         print("""
+             Signed in successfully!
+                 Private key: \(result.privKey)
+                 User info:
+                     Name: \(result.userInfo.name)
+                     Profile image: \(result.userInfo.profileImage ?? "N/A")
+                     Type of login: \(result.userInfo.typeOfLogin)
+             """)
+     case .failure(let error):
+         print("Error: \(error)")
+     }
+ }
 ```
 
 ## Configuration
