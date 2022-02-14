@@ -4,7 +4,7 @@ Torus OpenLogin SDK for iOS applications.
 
 ## Requirements
 
-- iOS 12+ (older version support coming soon)
+- iOS 12+
 - Xcode 11.4+ / 12.x
 - Swift 4.x / 5.x
 
@@ -33,23 +33,22 @@ import OpenLogin
 2. Present the In-App Web-based Login modal. The user should see a permission dialog.
 
 ```
-OpenLogin
- .webAuth()
- .login(provider: .GOOGLE) {
-     switch $0 {
-     case .success(let result):
-         print("""
-             Signed in successfully!
-                 Private key: \(result.privKey)
-                 User info:
-                     Name: \(result.userInfo.name)
-                     Profile image: \(result.userInfo.profileImage ?? "N/A")
-                     Type of login: \(result.userInfo.typeOfLogin)
-             """)
-     case .failure(let error):
-         print("Error: \(error)")
-     }
- }
+OpenLogin()
+    .login(provider: .GOOGLE) {
+        switch $0 {
+        case .success(let result):
+            print("""
+                Signed in successfully!
+                    Private key: \(result.privKey)
+                    User info:
+                        Name: \(result.userInfo.name)
+                        Profile image: \(result.userInfo.profileImage ?? "N/A")
+                        Type of login: \(result.userInfo.typeOfLogin)
+                """)
+        case .failure(let error):
+            print("Error: \(error)")
+        }
+    }
 ```
 
 ## Configuration
@@ -75,4 +74,4 @@ In your application bundle add a plist file named **OpenLogin.plist** with the f
 
 ## Next steps
 
-See example app in [App](/App)
+See example app in [OpenloginSwiftSdkDemo](/OpenloginSwiftSdkDemo)
