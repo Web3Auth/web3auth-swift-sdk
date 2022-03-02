@@ -2,6 +2,79 @@ import UIKit
 import AuthenticationServices
 import SafariServices
 
+public enum UxModeType: String {
+    case popup = "POPUP"
+    case redirect = "REDIRECT"
+}
+
+public enum TypeOfLogin: String {
+    case google = "google"
+    case facebook = "facebook"
+    case reddit = "reddit"
+    case discord = "discord"
+    case twitch = "twitch"
+    case apple = "apple"
+    case github = "github"
+    case linkedin = "linkedin"
+    case twitter = "twitter"
+    case weibo = "weibo"
+    case line = "line"
+    case email_password = "email_password"
+    case passwordless = "passwordless"
+    case jwt = "jwt"
+    case webauthn = "webauthn"
+}
+
+public struct OLWhiteLabelData {
+    public init(name: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: String? = nil, dark: Bool? = nil, theme: [String : String]? = nil) {
+        self.name = name
+        self.logoLight = logoLight
+        self.logoDark = logoDark
+        self.defaultLanguage = defaultLanguage
+        self.dark = dark
+        self.theme = theme
+    }
+    
+    let name: String?
+    let logoLight: String?
+    let logoDark: String?
+    let defaultLanguage: String?
+    let dark: Bool?
+    let theme: [String: String]?
+}
+
+public struct OLLoginConfig {
+    public init(verifier: String, typeOfLogin: TypeOfLogin, name: String, description: String? = nil, clientId: String? = nil, verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil, showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
+        self.verifier = verifier
+        self.typeOfLogin = typeOfLogin
+        self.name = name
+        self.description = description
+        self.clientId = clientId
+        self.verifierSubIdentifier = verifierSubIdentifier
+        self.logoHover = logoHover
+        self.logoLight = logoLight
+        self.logoDark = logoDark
+        self.mainOption = mainOption
+        self.showOnModal = showOnModal
+        self.showOnDesktop = showOnDesktop
+        self.showOnMobile = showOnMobile
+    }
+    
+    let verifier: String
+    let typeOfLogin: TypeOfLogin
+    let name: String
+    let description: String?
+    let clientId: String?
+    let verifierSubIdentifier: String?
+    let logoHover: String?
+    let logoLight: String?
+    let logoDark: String?
+    let mainOption: Bool?
+    let showOnModal: Bool?
+    let showOnDesktop: Bool?
+    let showOnMobile: Bool?
+}
+
 public struct OLInitParams {
     public init(clientId: String, network: Network, sdkURL: URL? = nil) {
         self.clientId = clientId
@@ -19,6 +92,13 @@ public struct OLInitParams {
     let clientId: String
     let network: Network
     var sdkURL: URL = URL(string: "https://sdk.openlogin.com")!
+    let no3PC: Bool?
+    let redirectUrl: String?
+    let uxMode: UxModeType?
+    let replaceUrlOnRedirect: Bool?
+    let originData: [String: Any]?
+    let loginConfig: [String: OLLoginConfig]?
+    let whiteLabel: OLWhiteLabelData?
 }
 
 public struct OLLoginParams {
@@ -41,6 +121,7 @@ public struct OLLoginParams {
     }
     
     let provider: OpenLoginProvider?
+    let fastLogin: Bool?
     let relogin: Bool?
     let skipTKey: Bool?
     let extraLoginOptions: Dictionary<String, Any>?
