@@ -135,8 +135,10 @@ public class OpenLogin: NSObject {
         
         let sdkUrlParams = SdkUrlParams(initParams: overridenInitParams, params: loginParams)
         
+        let jsonEncoder = JSONEncoder()
+        
         guard
-            let data = try? JSONSerialization.data(withJSONObject: sdkUrlParams, options: [.sortedKeys]),
+            let data = try? jsonEncoder.encode(sdkUrlParams),
             // Using sorted keys to produce consistent results
             var components = URLComponents(string: initParams.sdkUrl.absoluteString)
         else {
