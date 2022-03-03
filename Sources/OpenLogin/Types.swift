@@ -3,12 +3,12 @@ import UIKit
 import AuthenticationServices
 import SafariServices
 
-public enum UxModeType: String {
+public enum UxModeType: String, Encodable {
     case popup = "POPUP"
     case redirect = "REDIRECT"
 }
 
-public enum TypeOfLogin: String {
+public enum TypeOfLogin: String, Encodable {
     case google = "google"
     case facebook = "facebook"
     case reddit = "reddit"
@@ -77,7 +77,7 @@ public struct OLLoginConfig: Encodable {
 }
 
 public struct OLInitParams: Encodable {
-    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, no3PC: Bool? = nil, redirectUrl: String? = nil, uxMode: UxModeType? = nil, replaceUrlOnRedirect: Bool? = nil, originData: [String : Any]? = nil, loginConfig: [String : OLLoginConfig]? = nil, whiteLabel: OLWhiteLabelData? = nil) {
+    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, no3PC: Bool? = nil, redirectUrl: String? = nil, uxMode: UxModeType? = nil, replaceUrlOnRedirect: Bool? = nil, originData: [String : AnyEncodable]? = nil, loginConfig: [String : OLLoginConfig]? = nil, whiteLabel: OLWhiteLabelData? = nil) {
         self.clientId = clientId
         self.network = network
         self.sdkUrl = sdkUrl
@@ -119,27 +119,18 @@ public struct OLInitParams: Encodable {
     let network: Network
     var sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!
     let no3PC: Bool?
-    let redirectUrl: String?
+    var redirectUrl: String?
     let uxMode: UxModeType?
     let replaceUrlOnRedirect: Bool?
-    let originData: [String: Any]?
+    let originData: [String: AnyEncodable]?
     let loginConfig: [String: OLLoginConfig]?
     let whiteLabel: OLWhiteLabelData?
 }
 
 public struct OLLoginParams: Encodable {
-    public init(loginProvider: OpenLoginProvider? = nil, relogin: Bool? = nil, fastLogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectUrl: String? = nil, appState: String? = nil) {
-        self.loginProvider = loginProvider?.rawValue
-        self.fastLogin = fastLogin
-        self.relogin = relogin
-        self.skipTKey = skipTKey
-        self.extraLoginOptions = extraLoginOptions
-        self.redirectUrl = redirectUrl
-        self.appState = appState
-    }
-     
-    public init(loginProvider: OpenLoginProvider? = nil) {
-        self.loginProvider = loginProvider?.rawValue
+    
+    public init() {
+        self.loginProvider = nil
         self.fastLogin = nil
         self.relogin = nil
         self.skipTKey = nil
@@ -148,8 +139,8 @@ public struct OLLoginParams: Encodable {
         self.appState = nil
     }
     
-    public init(loginProvider: String? = nil, relogin: Bool? = nil, fastLogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectUrl: String? = nil, appState: String? = nil) {
-        self.loginProvider = loginProvider
+    public init(loginProvider: OpenLoginProvider?, relogin: Bool? = nil, fastLogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
+        self.loginProvider = loginProvider?.rawValue
         self.fastLogin = fastLogin
         self.relogin = relogin
         self.skipTKey = skipTKey
@@ -157,24 +148,74 @@ public struct OLLoginParams: Encodable {
         self.redirectUrl = redirectUrl
         self.appState = appState
     }
-     
-    public init(loginProvider: String? = nil) {
+    
+    public init(loginProvider: String?, relogin: Bool? = nil, fastLogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.loginProvider = loginProvider
-        self.fastLogin = nil
-        self.relogin = nil
-        self.skipTKey = nil
-        self.extraLoginOptions = nil
-        self.redirectUrl = nil
-        self.appState = nil
+        self.fastLogin = fastLogin
+        self.relogin = relogin
+        self.skipTKey = skipTKey
+        self.extraLoginOptions = extraLoginOptions
+        self.redirectUrl = redirectUrl
+        self.appState = appState
     }
     
     let loginProvider: String?
     let fastLogin: Bool?
     let relogin: Bool?
     let skipTKey: Bool?
-    let extraLoginOptions: Dictionary<String, Any>?
+    let extraLoginOptions: ExtraLoginOptions?
     let redirectUrl: String?
     let appState: String?
 }
 
+public struct ExtraLoginOptions: Encodable {
+    public init(display: String?, prompt: String?, max_age: String?, ui_locales: String?, id_token_hint: String?, login_hint: String?, acr_values: String?, scope: String?, audience: String?, connection: String?, domain: String?, client_id: String?, redirect_uri: String?, leeway: Int?, verifierIdField: String?, isVerifierIdCaseSensitive: Bool?) {
+        self.display = display
+        self.prompt = prompt
+        self.max_age = max_age
+        self.ui_locales = ui_locales
+        self.id_token_hint = id_token_hint
+        self.login_hint = login_hint
+        self.acr_values = acr_values
+        self.scope = scope
+        self.audience = audience
+        self.connection = connection
+        self.domain = domain
+        self.client_id = client_id
+        self.redirect_uri = redirect_uri
+        self.leeway = leeway
+        self.verifierIdField = verifierIdField
+        self.isVerifierIdCaseSensitive = isVerifierIdCaseSensitive
+    }
+    
+    let display: String?
+    let prompt: String?
+    let max_age: String?
+    let ui_locales: String?
+    let id_token_hint: String?
+    let login_hint: String?
+    let acr_values: String?
+    let scope: String?
+    let audience: String?
+    let connection: String?
+    let domain: String?
+    let client_id: String?
+    let redirect_uri: String?
+    let leeway: Int?
+    let verifierIdField: String?
+    let isVerifierIdCaseSensitive: Bool?
+}
 
+struct SdkUrlParams: Encodable {
+    internal init(initParams: OLInitParams, params: OLLoginParams) {
+        self.initParams = initParams
+        self.params = params
+    }
+    let initParams: OLInitParams
+    let params: OLLoginParams
+    
+    enum CodingKeys: String, CodingKey {
+        case initParams = "init"
+        case params
+    }
+}

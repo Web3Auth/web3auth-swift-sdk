@@ -80,7 +80,7 @@ public class OpenLogin: NSObject {
      ```
 
      Any on going WebAuth auth session will be automatically cancelled when starting a new one,
-     and it's corresponding callback with be called with a failure result of `WebAuthError.appCancelled`
+     and it's corresponding callback with be called with a failure result of `OpenLoginError.appCancelled`
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
@@ -89,12 +89,12 @@ public class OpenLogin: NSObject {
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
                 let redirectURL = URL(string: "\(bundleId)://auth")
-            else { return callback(.failure(WebAuthError.noBundleIdentifierFound)) }
+            else { return callback(.failure(OpenLoginError.noBundleIdentifierFound)) }
             
             guard
                 let url = try? OpenLogin.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
             else {
-                return callback(.failure(WebAuthError.unknownError))
+                return callback(.failure(OpenLoginError.unknownError))
             }
             
             let authSession = ASWebAuthenticationSession(
@@ -104,9 +104,9 @@ public class OpenLogin: NSObject {
                     let callbackURL = callbackURL,
                     let callbackState = try? OpenLogin.decodeStateFromCallbackURL(callbackURL)
                 else {
-                    let authError = authError ?? WebAuthError.unknownError
+                    let authError = authError ?? OpenLoginError.unknownError
                     if case ASWebAuthenticationSessionError.canceledLogin = authError {
-                        return callback(.failure(WebAuthError.userCancelled))
+                        return callback(.failure(OpenLoginError.userCancelled))
                     } else {
                         return callback(.failure(authError))
                     }
@@ -119,54 +119,28 @@ public class OpenLogin: NSObject {
             }
             
             if !authSession.start() {
-                callback(.failure(WebAuthError.unknownError))
+                callback(.failure(OpenLoginError.unknownError))
             }
         }
     }
     
     static func generateAuthSessionURL(redirectURL: URL, initParams: OLInitParams, loginParams: OLLoginParams) throws -> URL {
         
-        var sdkParams: Dictionary<String, Any> = [:]
+        var overridenInitParams = initParams
         
-        if let provider = loginParams.loginProvider {
-            sdkParams["loginProvider"] = "\(provider)".lowercased()
+        // Init params redirectUrl has to be overriden unless users have their own tricks
+        if overridenInitParams.redirectUrl == nil {
+            overridenInitParams.redirectUrl = redirectURL.absoluteString
         }
         
-        if let relogin = loginParams.relogin {
-            sdkParams["relogin"] = relogin
-        }
-        
-        if let skipTKey = loginParams.skipTKey {
-            sdkParams["skipTKey"] = skipTKey
-        }
-        
-        if let extraLoginOptions = loginParams.extraLoginOptions {
-            sdkParams["extraLoginOptions"] = extraLoginOptions
-        }
-        
-        if let sdkSwiftURL = loginParams.redirectUrl {
-            sdkParams["redirectUrl"] = sdkSwiftURL
-        }
-        
-        if let appState = loginParams.appState {
-            sdkParams["appState"] = appState
-        }
-        
-        let params: [String: Any] = [
-            "init": [
-                "clientId": initParams.clientId,
-                "network": initParams.network.rawValue,
-                "redirectUrl": redirectURL.absoluteString
-            ],
-            "params": sdkParams
-        ]
+        let sdkUrlParams = SdkUrlParams(initParams: overridenInitParams, params: loginParams)
         
         guard
-            let data = try? JSONSerialization.data(withJSONObject: params, options: [.sortedKeys]),
+            let data = try? JSONSerialization.data(withJSONObject: sdkUrlParams, options: [.sortedKeys]),
             // Using sorted keys to produce consistent results
             var components = URLComponents(string: initParams.sdkUrl.absoluteString)
         else {
-            throw WebAuthError.unknownError
+            throw OpenLoginError.unknownError
         }
         
         components.path = "/login"
@@ -174,7 +148,7 @@ public class OpenLogin: NSObject {
         
         guard let url = components.url
         else {
-            throw WebAuthError.unknownError
+            throw OpenLoginError.unknownError
         }
         
         return url
@@ -186,7 +160,7 @@ public class OpenLogin: NSObject {
             let callbackData = decodedBase64(callbackFragment),
             let callbackState = try? JSONDecoder().decode(OpenLoginState.self, from: callbackData)
         else {
-            throw WebAuthError.unknownError
+            throw OpenLoginError.unknownError
         }
         return callbackState
     }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum OpenLoginProvider: String {
+public enum OpenLoginProvider: String, Encodable {
     case GOOGLE = "google"
     case FACEBOOK = "facebook"
     case REDDIT = "reddit"
