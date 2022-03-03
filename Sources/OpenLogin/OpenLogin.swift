@@ -2,133 +2,6 @@ import UIKit
 import AuthenticationServices
 import SafariServices
 
-public enum UxModeType: String {
-    case popup = "POPUP"
-    case redirect = "REDIRECT"
-}
-
-public enum TypeOfLogin: String {
-    case google = "google"
-    case facebook = "facebook"
-    case reddit = "reddit"
-    case discord = "discord"
-    case twitch = "twitch"
-    case apple = "apple"
-    case github = "github"
-    case linkedin = "linkedin"
-    case twitter = "twitter"
-    case weibo = "weibo"
-    case line = "line"
-    case email_password = "email_password"
-    case passwordless = "passwordless"
-    case jwt = "jwt"
-    case webauthn = "webauthn"
-}
-
-public struct OLWhiteLabelData {
-    public init(name: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: String? = nil, dark: Bool? = nil, theme: [String : String]? = nil) {
-        self.name = name
-        self.logoLight = logoLight
-        self.logoDark = logoDark
-        self.defaultLanguage = defaultLanguage
-        self.dark = dark
-        self.theme = theme
-    }
-    
-    let name: String?
-    let logoLight: String?
-    let logoDark: String?
-    let defaultLanguage: String?
-    let dark: Bool?
-    let theme: [String: String]?
-}
-
-public struct OLLoginConfig {
-    public init(verifier: String, typeOfLogin: TypeOfLogin, name: String, description: String? = nil, clientId: String? = nil, verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil, showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
-        self.verifier = verifier
-        self.typeOfLogin = typeOfLogin
-        self.name = name
-        self.description = description
-        self.clientId = clientId
-        self.verifierSubIdentifier = verifierSubIdentifier
-        self.logoHover = logoHover
-        self.logoLight = logoLight
-        self.logoDark = logoDark
-        self.mainOption = mainOption
-        self.showOnModal = showOnModal
-        self.showOnDesktop = showOnDesktop
-        self.showOnMobile = showOnMobile
-    }
-    
-    let verifier: String
-    let typeOfLogin: TypeOfLogin
-    let name: String
-    let description: String?
-    let clientId: String?
-    let verifierSubIdentifier: String?
-    let logoHover: String?
-    let logoLight: String?
-    let logoDark: String?
-    let mainOption: Bool?
-    let showOnModal: Bool?
-    let showOnDesktop: Bool?
-    let showOnMobile: Bool?
-}
-
-public struct OLInitParams {
-    public init(clientId: String, network: Network, sdkURL: URL? = nil) {
-        self.clientId = clientId
-        self.network = network
-        if let sdkURL = sdkURL {
-            self.sdkURL = sdkURL
-        }
-    }
-    
-    public init(clientId: String, network: Network) {
-        self.clientId = clientId
-        self.network = network
-    }
-    
-    let clientId: String
-    let network: Network
-    var sdkURL: URL = URL(string: "https://sdk.openlogin.com")!
-    let no3PC: Bool?
-    let redirectUrl: String?
-    let uxMode: UxModeType?
-    let replaceUrlOnRedirect: Bool?
-    let originData: [String: Any]?
-    let loginConfig: [String: OLLoginConfig]?
-    let whiteLabel: OLWhiteLabelData?
-}
-
-public struct OLLoginParams {
-    public init(provider: OpenLoginProvider? = nil, relogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: Dictionary<String, Any>? = nil, redirectUrl: String? = nil, appState: String? = nil) {
-        self.provider = provider
-        self.relogin = relogin
-        self.skipTKey = skipTKey
-        self.extraLoginOptions = extraLoginOptions
-        self.redirectUrl = redirectUrl
-        self.appState = appState
-    }
-     
-    public init(provider: OpenLoginProvider? = nil) {
-        self.provider = provider
-        self.relogin = nil
-        self.skipTKey = nil
-        self.extraLoginOptions = nil
-        self.redirectUrl = nil
-        self.appState = nil
-    }
-    
-    let provider: OpenLoginProvider?
-    let fastLogin: Bool?
-    let relogin: Bool?
-    let skipTKey: Bool?
-    let extraLoginOptions: Dictionary<String, Any>?
-    let redirectUrl: String?
-    let appState: String?
-}
-
 /**
  Authentication using OpenLogin.
  */
@@ -255,7 +128,7 @@ public class OpenLogin: NSObject {
         
         var sdkParams: Dictionary<String, Any> = [:]
         
-        if let provider = loginParams.provider {
+        if let provider = loginParams.loginProvider {
             sdkParams["loginProvider"] = "\(provider)".lowercased()
         }
         
@@ -291,7 +164,7 @@ public class OpenLogin: NSObject {
         guard
             let data = try? JSONSerialization.data(withJSONObject: params, options: [.sortedKeys]),
             // Using sorted keys to produce consistent results
-            var components = URLComponents(string: initParams.sdkURL.absoluteString)
+            var components = URLComponents(string: initParams.sdkUrl.absoluteString)
         else {
             throw WebAuthError.unknownError
         }
