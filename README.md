@@ -34,7 +34,7 @@ import OpenLogin
 
 ```
 OpenLogin()
-    .login(provider: .GOOGLE) {
+    .login(OLInitParams(loginProvider: .GOOGLE)) {
         switch $0 {
         case .success(let result):
             print("""
