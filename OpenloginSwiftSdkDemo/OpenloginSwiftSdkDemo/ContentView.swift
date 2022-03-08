@@ -27,7 +27,7 @@ struct ContentView: View {
             Button(
                 action: {
                     OpenLogin()
-                        .login(OLLoginParams(provider: .GOOGLE)) {
+                        .login(OLLoginParams(loginProvider: .GOOGLE)) {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
@@ -45,7 +45,7 @@ struct ContentView: View {
             Button(
                 action: {
                     OpenLogin()
-                        .login(OLLoginParams(provider: .APPLE)) {
+                        .login(OLLoginParams(loginProvider: .APPLE)) {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
