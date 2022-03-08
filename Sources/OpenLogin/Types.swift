@@ -3,11 +3,6 @@ import UIKit
 import AuthenticationServices
 import SafariServices
 
-public enum UxModeType: String, Encodable {
-    case popup = "POPUP"
-    case redirect = "REDIRECT"
-}
-
 public enum TypeOfLogin: String, Encodable {
     case google = "google"
     case facebook = "facebook"
@@ -77,15 +72,11 @@ public struct OLLoginConfig: Encodable {
 }
 
 public struct OLInitParams: Encodable {
-    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, no3PC: Bool? = nil, redirectUrl: String? = nil, uxMode: UxModeType? = nil, replaceUrlOnRedirect: Bool? = nil, originData: [String : AnyEncodable]? = nil, loginConfig: [String : OLLoginConfig]? = nil, whiteLabel: OLWhiteLabelData? = nil) {
+    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String : OLLoginConfig]? = nil, whiteLabel: OLWhiteLabelData? = nil) {
         self.clientId = clientId
         self.network = network
         self.sdkUrl = sdkUrl
-        self.no3PC = no3PC
         self.redirectUrl = redirectUrl
-        self.uxMode = uxMode
-        self.replaceUrlOnRedirect = replaceUrlOnRedirect
-        self.originData = originData
         self.loginConfig = loginConfig
         self.whiteLabel = whiteLabel
     }
@@ -94,11 +85,7 @@ public struct OLInitParams: Encodable {
         self.clientId = clientId
         self.network = network
         self.sdkUrl = sdkUrl
-        self.no3PC = nil
         self.redirectUrl = nil
-        self.uxMode = nil
-        self.replaceUrlOnRedirect = nil
-        self.originData = nil
         self.loginConfig = nil
         self.whiteLabel = nil
     }
@@ -106,11 +93,7 @@ public struct OLInitParams: Encodable {
     public init(clientId: String, network: Network) {
         self.clientId = clientId
         self.network = network
-        self.no3PC = nil
         self.redirectUrl = nil
-        self.uxMode = nil
-        self.replaceUrlOnRedirect = nil
-        self.originData = nil
         self.loginConfig = nil
         self.whiteLabel = nil
     }
@@ -118,11 +101,7 @@ public struct OLInitParams: Encodable {
     let clientId: String
     let network: Network
     var sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!
-    let no3PC: Bool?
     var redirectUrl: String?
-    let uxMode: UxModeType?
-    let replaceUrlOnRedirect: Bool?
-    let originData: [String: AnyEncodable]?
     let loginConfig: [String: OLLoginConfig]?
     let whiteLabel: OLWhiteLabelData?
 }
@@ -131,19 +110,15 @@ public struct OLLoginParams: Encodable {
     
     public init() {
         self.loginProvider = nil
-        self.fastLogin = nil
         self.relogin = nil
-        self.skipTKey = nil
         self.extraLoginOptions = nil
         self.redirectUrl = nil
         self.appState = nil
     }
     
-    public init(loginProvider: OpenLoginProvider?, relogin: Bool? = nil, fastLogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
+    public init(loginProvider: OpenLoginProvider?, relogin: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.loginProvider = loginProvider?.rawValue
-        self.fastLogin = fastLogin
         self.relogin = relogin
-        self.skipTKey = skipTKey
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
         self.appState = appState
@@ -151,18 +126,14 @@ public struct OLLoginParams: Encodable {
     
     public init(loginProvider: String?, relogin: Bool? = nil, fastLogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.loginProvider = loginProvider
-        self.fastLogin = fastLogin
         self.relogin = relogin
-        self.skipTKey = skipTKey
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
         self.appState = appState
     }
     
     let loginProvider: String?
-    let fastLogin: Bool?
     let relogin: Bool?
-    let skipTKey: Bool?
     let extraLoginOptions: ExtraLoginOptions?
     let redirectUrl: String?
     let appState: String?

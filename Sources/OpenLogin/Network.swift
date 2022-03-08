@@ -6,4 +6,5 @@ import Foundation
 public enum Network: String, Encodable {
     case mainnet
     case testnet
+    case cyan
 }

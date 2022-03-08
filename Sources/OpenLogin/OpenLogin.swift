@@ -147,7 +147,7 @@ public class OpenLogin: NSObject {
         }
         
         components.path = "/login"
-        components.fragment = data.base64EncodedString()
+        components.fragment = data.toBase64URL()
         
         guard let url = components.url
         else {
@@ -160,7 +160,7 @@ public class OpenLogin: NSObject {
     static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> OpenLoginState {
         guard
             let callbackFragment = callbackURL.fragment,
-            let callbackData = decodedBase64(callbackFragment),
+            let callbackData = Data.fromBase64URL(callbackFragment),
             let callbackState = try? JSONDecoder().decode(OpenLoginState.self, from: callbackData)
         else {
             throw OpenLoginError.unknownError
