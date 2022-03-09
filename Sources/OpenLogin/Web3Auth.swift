@@ -6,9 +6,9 @@ import SafariServices
  Authentication using OpenLogin.
  */
 @available(iOS 12.0, *)
-public class OpenLogin: NSObject {
+public class Web3Auth: NSObject {
     
-    private let initParams: OLInitParams
+    private let initParams: W3AInitParams
     
     /**
      OpenLogin  component for authenticating with web-based flow.
@@ -21,7 +21,7 @@ public class OpenLogin: NSObject {
 
      - returns: OpenLogin component.
      */
-    public init(_ params: OLInitParams) {
+    public init(_ params: W3AInitParams) {
         self.initParams = params
     }
     
@@ -54,7 +54,7 @@ public class OpenLogin: NSObject {
      */
     public convenience init (_ bundle: Bundle = Bundle.main) {
         let values = plistValues(bundle)!
-        self.init(OLInitParams(clientId: values.clientId, network: values.network))
+        self.init(W3AInitParams(clientId: values.clientId, network: values.network))
     }
     
     /**
@@ -84,17 +84,17 @@ public class OpenLogin: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
-    public func login(_ loginParams: OLLoginParams, _ callback: @escaping (Result<OpenLoginState>) -> Void) {
+    public func login(_ loginParams: W3ALoginParams, _ callback: @escaping (Result<Web3AuthState>) -> Void) {
         DispatchQueue.main.async { [self] in
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
                 let redirectURL = URL(string: "\(bundleId)://auth")
-            else { return callback(.failure(OpenLoginError.noBundleIdentifierFound)) }
+            else { return callback(.failure(Web3AuthError.noBundleIdentifierFound)) }
             
             guard
-                let url = try? OpenLogin.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
+                let url = try? Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
             else {
-                return callback(.failure(OpenLoginError.unknownError))
+                return callback(.failure(Web3AuthError.unknownError))
             }
             
             let authSession = ASWebAuthenticationSession(
@@ -102,11 +102,11 @@ public class OpenLogin: NSObject {
                 guard
                     authError == nil,
                     let callbackURL = callbackURL,
-                    let callbackState = try? OpenLogin.decodeStateFromCallbackURL(callbackURL)
+                    let callbackState = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
                 else {
-                    let authError = authError ?? OpenLoginError.unknownError
+                    let authError = authError ?? Web3AuthError.unknownError
                     if case ASWebAuthenticationSessionError.canceledLogin = authError {
-                        return callback(.failure(OpenLoginError.userCancelled))
+                        return callback(.failure(Web3AuthError.userCancelled))
                     } else {
                         return callback(.failure(authError))
                     }
@@ -119,12 +119,12 @@ public class OpenLogin: NSObject {
             }
             
             if !authSession.start() {
-                callback(.failure(OpenLoginError.unknownError))
+                callback(.failure(Web3AuthError.unknownError))
             }
         }
     }
     
-    static func generateAuthSessionURL(redirectURL: URL, initParams: OLInitParams, loginParams: OLLoginParams) throws -> URL {
+    static func generateAuthSessionURL(redirectURL: URL, initParams: W3AInitParams, loginParams: W3ALoginParams) throws -> URL {
         
         var overridenInitParams = initParams
         
@@ -143,7 +143,7 @@ public class OpenLogin: NSObject {
             // Using sorted keys to produce consistent results
             var components = URLComponents(string: initParams.sdkUrl.absoluteString)
         else {
-            throw OpenLoginError.unknownError
+            throw Web3AuthError.unknownError
         }
         
         components.path = "/login"
@@ -151,19 +151,19 @@ public class OpenLogin: NSObject {
         
         guard let url = components.url
         else {
-            throw OpenLoginError.unknownError
+            throw Web3AuthError.unknownError
         }
         
         return url
     }
     
-    static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> OpenLoginState {
+    static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> Web3AuthState {
         guard
             let callbackFragment = callbackURL.fragment,
             let callbackData = Data.fromBase64URL(callbackFragment),
-            let callbackState = try? JSONDecoder().decode(OpenLoginState.self, from: callbackData)
+            let callbackState = try? JSONDecoder().decode(Web3AuthState.self, from: callbackData)
         else {
-            throw OpenLoginError.unknownError
+            throw Web3AuthError.unknownError
         }
         return callbackState
     }
@@ -171,7 +171,7 @@ public class OpenLogin: NSObject {
 }
 
 @available(iOS 12.0, *)
-extension OpenLogin: ASWebAuthenticationPresentationContextProviding {
+extension Web3Auth: ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         let window = UIApplication.shared.windows.first { $0.isKeyWindow }
         return window ?? ASPresentationAnchor()

@@ -3,7 +3,7 @@ import Foundation
 /**
  User's info obtained from OpenLogin.
  */
-public struct OpenLoginUserInfo: Decodable {
+public struct Web3AuthUserInfo: Decodable {
     public let name: String
     public let profileImage: String?
     public let typeOfLogin: String

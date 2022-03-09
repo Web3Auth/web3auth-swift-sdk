@@ -8,8 +8,8 @@ struct ContentView: View {
         VStack {
             Button(
                 action: {
-                    OpenLogin()
-                        .login(OLLoginParams()) {
+                    Web3Auth()
+                        .login(W3ALoginParams()) {
                             switch $0 {
                             case .success(let result):
                                     showResult(result: result)
@@ -26,8 +26,8 @@ struct ContentView: View {
             
             Button(
                 action: {
-                    OpenLogin()
-                        .login(OLLoginParams(loginProvider: .GOOGLE)) {
+                    Web3Auth()
+                        .login(W3ALoginParams(loginProvider: .GOOGLE)) {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
@@ -44,8 +44,8 @@ struct ContentView: View {
             
             Button(
                 action: {
-                    OpenLogin()
-                        .login(OLLoginParams(loginProvider: .APPLE)) {
+                    Web3Auth()
+                        .login(W3ALoginParams(loginProvider: .APPLE)) {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
@@ -62,8 +62,8 @@ struct ContentView: View {
             
             Button(
                 action: {
-                    OpenLogin(OLInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: OLWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
-                        .login(OLLoginParams(loginProvider: .GOOGLE)) {
+                    Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
+                        .login(W3ALoginParams(loginProvider: .GOOGLE)) {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
@@ -86,7 +86,7 @@ struct ContentView: View {
         
     }
     
-    func showResult(result: OpenLoginState){
+    func showResult(result: Web3AuthState){
         print("""
             Signed in successfully!
                 Private key: \(result.privKey)

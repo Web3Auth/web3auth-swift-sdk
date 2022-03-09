@@ -21,7 +21,7 @@ public enum TypeOfLogin: String, Encodable {
     case webauthn = "webauthn"
 }
 
-public struct OLWhiteLabelData: Encodable {
+public struct W3AWhiteLabelData: Encodable {
     public init(name: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: String? = nil, dark: Bool? = nil, theme: [String : String]? = nil) {
         self.name = name
         self.logoLight = logoLight
@@ -39,7 +39,7 @@ public struct OLWhiteLabelData: Encodable {
     let theme: [String: String]?
 }
 
-public struct OLLoginConfig: Encodable {
+public struct W3ALoginConfig: Encodable {
     public init(verifier: String, typeOfLogin: TypeOfLogin, name: String, description: String? = nil, clientId: String? = nil, verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil, showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
         self.verifier = verifier
         self.typeOfLogin = typeOfLogin
@@ -71,8 +71,8 @@ public struct OLLoginConfig: Encodable {
     let showOnMobile: Bool?
 }
 
-public struct OLInitParams: Encodable {
-    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String : OLLoginConfig]? = nil, whiteLabel: OLWhiteLabelData? = nil) {
+public struct W3AInitParams: Encodable {
+    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String : W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil) {
         self.clientId = clientId
         self.network = network
         self.sdkUrl = sdkUrl
@@ -102,11 +102,11 @@ public struct OLInitParams: Encodable {
     let network: Network
     var sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!
     var redirectUrl: String?
-    let loginConfig: [String: OLLoginConfig]?
-    let whiteLabel: OLWhiteLabelData?
+    let loginConfig: [String: W3ALoginConfig]?
+    let whiteLabel: W3AWhiteLabelData?
 }
 
-public struct OLLoginParams: Encodable {
+public struct W3ALoginParams: Encodable {
     
     public init() {
         self.loginProvider = nil
@@ -116,7 +116,7 @@ public struct OLLoginParams: Encodable {
         self.appState = nil
     }
     
-    public init(loginProvider: OpenLoginProvider?, relogin: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
+    public init(loginProvider: Web3AuthProvider?, relogin: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.loginProvider = loginProvider?.rawValue
         self.relogin = relogin
         self.extraLoginOptions = extraLoginOptions
@@ -178,12 +178,12 @@ public struct ExtraLoginOptions: Encodable {
 }
 
 struct SdkUrlParams: Encodable {
-    internal init(initParams: OLInitParams, params: OLLoginParams) {
+    internal init(initParams: W3AInitParams, params: W3ALoginParams) {
         self.initParams = initParams
         self.params = params
     }
-    let initParams: OLInitParams
-    let params: OLLoginParams
+    let initParams: W3AInitParams
+    let params: W3ALoginParams
     
     enum CodingKeys: String, CodingKey {
         case initParams = "init"
