@@ -2,7 +2,7 @@ import XCTest
 @testable import OpenLogin
 
 @available(iOS 12.0, *)
-class OpenLoginTests: XCTestCase {
+class Web3AuthTests: XCTestCase {
     
     func testGenerateAuthSessionURL() throws {
         let redirectURL = URL(string: "com.openlogin.sdkapp://openlogin")!
