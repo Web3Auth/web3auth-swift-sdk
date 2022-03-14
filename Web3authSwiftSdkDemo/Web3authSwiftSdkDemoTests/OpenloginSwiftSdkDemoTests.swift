@@ -1,14 +1,14 @@
 //
-//  OpenloginSwiftSdkDemoTests.swift
-//  OpenloginSwiftSdkDemoTests
+//  Web3authSwiftSdkDemoTests.swift
+//  Web3authSwiftSdkDemoTests
 //
 //  Created by himanshu Chawla on 27/04/21.
 //
 
 import XCTest
-@testable import OpenloginSwiftSdkDemo
+@testable import Web3authSwiftSdkDemo
 
-class OpenloginSwiftSdkDemoTests: XCTestCase {
+class Web3authSwiftSdkDemoTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

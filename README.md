@@ -1,4 +1,4 @@
-# openlogin-swift-sdk
+# web3auth-swift-sdk
 
 Torus Web3Auth SDK for iOS applications.
 
@@ -17,7 +17,7 @@ If you are using the Swift Package Manager, open the following menu item in Xcod
 In the Choose Package Repository prompt add this url:
 
 ```
-https://github.com/torusresearch/openlogin-swift-sdk
+https://github.com/torusresearch/web3auth-swift-sdk
 ```
 
 ## Getting Started
@@ -74,4 +74,4 @@ In your application bundle add a plist file named **Web3Auth.plist** with the fo
 
 ## Next steps
 
-See example app in [OpenloginSwiftSdkDemo](/OpenloginSwiftSdkDemo)
+See example app in [Web3authSwiftSdkDemo](/Web3authSwiftSdkDemo)
