@@ -3,7 +3,7 @@ import AuthenticationServices
 import SafariServices
 
 /**
- Authentication using OpenLogin.
+ Authentication using Web3Auth.
  */
 @available(iOS 12.0, *)
 public class Web3Auth: NSObject {
@@ -11,28 +11,28 @@ public class Web3Auth: NSObject {
     private let initParams: W3AInitParams
     
     /**
-     OpenLogin  component for authenticating with web-based flow.
+     Web3Auth  component for authenticating with web-based flow.
 
      ```
-     OpenLogin(OLInitParams(clientId: clientId, network: .mainnet))
+     Web3Auth(OLInitParams(clientId: clientId, network: .mainnet))
      ```
 
-     - parameter params: Init params for your OpenLogin instance.
+     - parameter params: Init params for your Web3Auth instance.
 
-     - returns: OpenLogin component.
+     - returns: Web3Auth component.
      */
     public init(_ params: W3AInitParams) {
         self.initParams = params
     }
     
     /**
-     OpenLogin component for authenticating with web-based flow.
+     Web3Auth component for authenticating with web-based flow.
      
      ```
-     OpenLogin()
+     Web3Auth()
      ```
      
-     Parameters are loaded from the file `OpenLogin.plist` in your bundle with the following content:
+     Parameters are loaded from the file `Web3Auth.plist` in your bundle with the following content:
      
      ```
      <?xml version="1.0" encoding="UTF-8"?>
@@ -47,10 +47,10 @@ public class Web3Auth: NSObject {
      </plist>
      ```
      
-     - parameter bundle: Bundle to locate the `OpenLogin.plist` file. By default is the main bundle.
+     - parameter bundle: Bundle to locate the `Web3Auth.plist` file. By default is the main bundle.
      
-     - returns: OpenLogin component.
-     - important: Calling this method without a valid `OpenLogin.plist` will crash your application.
+     - returns: Web3Auth component.
+     - important: Calling this method without a valid `Web3Auth.plist` will crash your application.
      */
     public convenience init (_ bundle: Bundle = Bundle.main) {
         let values = plistValues(bundle)!
@@ -61,7 +61,7 @@ public class Web3Auth: NSObject {
      Starts the WebAuth flow by modally presenting a ViewController in the top-most controller.
 
      ```
-     OpenLogin()
+     Web3Auth()
          .login(provider: .GOOGLE) {
              switch $0 {
              case .success(let result):
@@ -80,7 +80,7 @@ public class Web3Auth: NSObject {
      ```
 
      Any on going WebAuth auth session will be automatically cancelled when starting a new one,
-     and it's corresponding callback with be called with a failure result of `OpenLoginError.appCancelled`
+     and it's corresponding callback with be called with a failure result of `Web3AuthError.appCancelled`
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */

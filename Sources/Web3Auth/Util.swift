@@ -2,10 +2,10 @@ import Foundation
 
 func plistValues(_ bundle: Bundle) -> (clientId: String, network: Network)? {
     guard
-        let path = bundle.path(forResource: "OpenLogin", ofType: "plist"),
+        let path = bundle.path(forResource: "Web3Auth", ofType: "plist"),
         let values = NSDictionary(contentsOfFile: path) as? [String: Any]
     else {
-        print("Missing OpenLogin.plist file in your bundle!")
+        print("Missing Web3Auth.plist file in your bundle!")
         return nil
     }
     
@@ -14,7 +14,7 @@ func plistValues(_ bundle: Bundle) -> (clientId: String, network: Network)? {
         let networkValue = values["Network"] as? String,
         let network = Network(rawValue: networkValue)
     else {
-        print("OpenLogin.plist file at \(path) is missing or having incorrect 'ClientId' and/or 'Network' entries!")
+        print("Web3Auth.plist file at \(path) is missing or having incorrect 'ClientId' and/or 'Network' entries!")
         print("File currently has the following entries: \(values)")
         return nil
     }

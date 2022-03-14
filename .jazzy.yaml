@@ -1,2 +1,2 @@
 sdk: iphonesimulator
-build_tool_arguments: ["-workspace", "OpenLogin.xcworkspace", "-scheme", "OpenLogin", "-sdk", "iphonesimulator"]
+build_tool_arguments: ["-workspace", "Web3Auth.xcworkspace", "-scheme", "Web3Auth", "-sdk", "iphonesimulator"]

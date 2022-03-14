@@ -2,7 +2,7 @@ import Foundation
 
 #if swift(<5.0)
 /**
- Result object for OpenLogin APIs requests.
+ Result object for Web3Auth APIs requests.
  
  - Success: Request completed successfuly with it's response body.
  - Failure: Request failed with a specific error.
@@ -26,7 +26,7 @@ extension Result {
 }
 #else
 /**
- Result object for OpenLogin APIs requests.
+ Result object for Web3Auth APIs requests.
  
  - Success: Request completed successfuly with it's response body.
  - Failure: Request failed with a specific error.

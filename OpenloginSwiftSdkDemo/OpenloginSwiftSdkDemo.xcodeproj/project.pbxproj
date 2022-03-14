@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F04B10EC2666395100C6E51F /* OpenLogin.plist in Resources */ = {isa = PBXBuildFile; fileRef = F04B10EB2666395100C6E51F /* OpenLogin.plist */; };
-		F0D52218266632CB000999DF /* OpenLogin in Frameworks */ = {isa = PBXBuildFile; productRef = F0D52217266632CB000999DF /* OpenLogin */; };
+		F04B10EC2666395100C6E51F /* Web3Auth.plist in Resources */ = {isa = PBXBuildFile; fileRef = F04B10EB2666395100C6E51F /* Web3Auth.plist */; };
+		F0D52218266632CB000999DF /* Web3Auth in Frameworks */ = {isa = PBXBuildFile; productRef = F0D52217266632CB000999DF /* Web3Auth */; };
 		FAD9BC27263823A500439779 /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD9BC26263823A500439779 /* MainApp.swift */; };
 		FAD9BC29263823A500439779 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD9BC28263823A500439779 /* ContentView.swift */; };
 		FAD9BC2B263823A600439779 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BC2A263823A600439779 /* Assets.xcassets */; };
@@ -17,7 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F04B10EB2666395100C6E51F /* OpenLogin.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = OpenLogin.plist; sourceTree = "<group>"; };
+		F04B10EB2666395100C6E51F /* Web3Auth.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Web3Auth.plist; sourceTree = "<group>"; };
 		FAD9BC23263823A500439779 /* OpenloginSwiftSdkDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenloginSwiftSdkDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAD9BC26263823A500439779 /* MainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainApp.swift; sourceTree = "<group>"; };
 		FAD9BC28263823A500439779 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -36,7 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0D52218266632CB000999DF /* OpenLogin in Frameworks */,
+				F0D52218266632CB000999DF /* Web3Auth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 				FAD9BC2A263823A600439779 /* Assets.xcassets */,
 				FAD9BC2F263823A600439779 /* Info.plist */,
 				FAD9BC2C263823A600439779 /* Preview Content */,
-				F04B10EB2666395100C6E51F /* OpenLogin.plist */,
+				F04B10EB2666395100C6E51F /* Web3Auth.plist */,
 			);
 			path = OpenloginSwiftSdkDemo;
 			sourceTree = "<group>";
@@ -126,7 +126,7 @@
 			);
 			name = OpenloginSwiftSdkDemo;
 			packageProductDependencies = (
-				F0D52217266632CB000999DF /* OpenLogin */,
+				F0D52217266632CB000999DF /* Web3Auth */,
 			);
 			productName = OpenloginSwiftSdkDemo;
 			productReference = FAD9BC23263823A500439779 /* OpenloginSwiftSdkDemo.app */;
@@ -169,7 +169,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F04B10EC2666395100C6E51F /* OpenLogin.plist in Resources */,
+				F04B10EC2666395100C6E51F /* Web3Auth.plist in Resources */,
 				FAD9BCCE263831BE00439779 /* openlogin-swift-sdk in Resources */,
 				FAD9BC2E263823A600439779 /* Preview Assets.xcassets in Resources */,
 				FAD9BC2B263823A600439779 /* Assets.xcassets in Resources */,
@@ -375,9 +375,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F0D52217266632CB000999DF /* OpenLogin */ = {
+		F0D52217266632CB000999DF /* Web3Auth */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = OpenLogin;
+			productName = Web3Auth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

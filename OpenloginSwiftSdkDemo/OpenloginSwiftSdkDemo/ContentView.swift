@@ -1,5 +1,5 @@
 import SwiftUI
-import OpenLogin
+import Web3Auth
 
 
 struct ContentView: View {

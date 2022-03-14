@@ -1,7 +1,7 @@
 import Foundation
 
 /**
- List of networks that can run OpenLogin.
+ List of networks that can run Web3Auth.
  */
 public enum Network: String, Encodable {
     case mainnet

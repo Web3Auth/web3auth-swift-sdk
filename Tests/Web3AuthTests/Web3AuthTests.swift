@@ -1,5 +1,5 @@
 import XCTest
-@testable import OpenLogin
+@testable import Web3Auth
 
 @available(iOS 12.0, *)
 class Web3AuthTests: XCTestCase {
