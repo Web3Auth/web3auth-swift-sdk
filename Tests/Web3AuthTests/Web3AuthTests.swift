@@ -8,7 +8,7 @@ class Web3AuthTests: XCTestCase {
         let redirectURL = URL(string: "com.web3auth.sdkapp://web3auth")!
         let initParams = W3AInitParams(clientId: "BC01p_js5KUIjvqYYAzWlDKt6ft--5joV0TbZEKO7YbDTqnmU5v0sq_4wgkyh0QAfZZAi-v6nKD4kcxkAqPuj8U", network: .testnet)
         let loginParams = W3ALoginParams(loginProvider: .APPLE)
-                let correctGeneratedURL = "https://sdk.openlogin.com/login#eyJpbml0Ijp7ImNsaWVudElkIjoiQkMwMXBfanM1S1VJanZxWVlBeldsREt0NmZ0LS01am9WMFRiWkVLTzdZYkRUcW5tVTV2MHNxXzR3Z2t5aDBRQWZaWkFpLXY2bktENGtjeGtBcVB1ajhVIiwibmV0d29yayI6InRlc3RuZXQiLCJyZWRpcmVjdFVybCI6ImNvbS5vcGVubG9naW4uc2RrYXBwOlwvXC9vcGVubG9naW4iLCJzZGtVcmwiOiJodHRwczpcL1wvc2RrLm9wZW5sb2dpbi5jb20ifSwicGFyYW1zIjp7ImxvZ2luUHJvdmlkZXIiOiJhcHBsZSJ9fQ"
+        let correctGeneratedURL = "https://sdk.openlogin.com/login#eyJpbml0Ijp7ImNsaWVudElkIjoiQkMwMXBfanM1S1VJanZxWVlBeldsREt0NmZ0LS01am9WMFRiWkVLTzdZYkRUcW5tVTV2MHNxXzR3Z2t5aDBRQWZaWkFpLXY2bktENGtjeGtBcVB1ajhVIiwibmV0d29yayI6InRlc3RuZXQiLCJyZWRpcmVjdFVybCI6ImNvbS53ZWIzYXV0aC5zZGthcHA6XC9cL3dlYjNhdXRoIiwic2RrVXJsIjoiaHR0cHM6XC9cL3Nkay5vcGVubG9naW4uY29tIn0sInBhcmFtcyI6eyJsb2dpblByb3ZpZGVyIjoiYXBwbGUifX0"
         
         
         XCTAssertEqual(try? Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams), URL(string: correctGeneratedURL)!)
