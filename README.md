@@ -1,6 +1,6 @@
 # web3auth-swift-sdk
 
-Torus Web3Auth SDK for iOS applications.
+Web3Auth SDK for iOS applications.
 
 ## Requirements
 
@@ -71,6 +71,8 @@ In your application bundle add a plist file named **Web3Auth.plist** with the fo
 </dict>
 </plist>
 ```
+
+Please also whitelist `\(bundleId)://auth` in the developer dashboard. This step is mandatory for the redirect to work.
 
 ## Next steps
 
