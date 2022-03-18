@@ -90,6 +90,7 @@ struct ContentView: View {
         print("""
             Signed in successfully!
                 Private key: \(result.privKey)
+                Ed25519 Private key: \(result.ed25519PrivKey)
                 User info:
                     Name: \(result.userInfo.name)
                     Profile image: \(result.userInfo.profileImage ?? "N/A")
@@ -98,6 +99,7 @@ struct ContentView: View {
         text = """
             Signed in successfully!
                 Private key: \(result.privKey)
+                Ed25519 Private key: \(result.ed25519PrivKey)
                 User info:
                     Name: \(result.userInfo.name)
                     Profile image: \(result.userInfo.profileImage ?? "N/A")
