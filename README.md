@@ -17,7 +17,7 @@ If you are using the Swift Package Manager, open the following menu item in Xcod
 In the Choose Package Repository prompt add this url:
 
 ```
-https://github.com/torusresearch/web3auth-swift-sdk
+https://github.com/web3auth/web3auth-swift-sdk
 ```
 
 ## Getting Started
