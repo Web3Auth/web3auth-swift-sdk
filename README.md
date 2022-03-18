@@ -55,7 +55,7 @@ Web3Auth()
 
 In order to use Web3Auth you need to provide your Web3Auth **ClientId** and which **Network** to run it.
 
-- Go to [Torus Developer](https://developer.tor.us), create or open an existing Web3Auth project and copy your project ID, which is the **ClientId**.
+- Go to [Web3Auth Developer Dashboard](https://dashboard.web3auth.io), create or open an existing Web3Auth project and copy your Client ID, which is the **ClientId**.
 
 In your application bundle add a plist file named **Web3Auth.plist** with the following information:
 
