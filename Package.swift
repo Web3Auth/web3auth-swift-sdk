@@ -3,20 +3,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "OpenLogin",
+    name: "Web3Auth",
     products: [
         .library(
-            name: "OpenLogin",
-            targets: ["OpenLogin"]),
+            name: "Web3Auth",
+            targets: ["Web3Auth"]),
     ],
     dependencies: [
     ],
     targets: [
         .target(
-            name: "OpenLogin",
+            name: "Web3Auth",
             dependencies: []),
         .testTarget(
-            name: "OpenLoginTests",
-            dependencies: ["OpenLogin"])
+            name: "Web3AuthTests",
+            dependencies: ["Web3Auth"])
     ]
 )

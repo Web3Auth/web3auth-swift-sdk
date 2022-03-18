@@ -1,6 +1,6 @@
-# openlogin-swift-sdk
+# web3auth-swift-sdk
 
-Torus OpenLogin SDK for iOS applications.
+Torus Web3Auth SDK for iOS applications.
 
 ## Requirements
 
@@ -17,23 +17,23 @@ If you are using the Swift Package Manager, open the following menu item in Xcod
 In the Choose Package Repository prompt add this url:
 
 ```
-https://github.com/torusresearch/openlogin-swift-sdk
+https://github.com/web3auth/web3auth-swift-sdk
 ```
 
 ## Getting Started
 
 Authentication with In-App Web-based Flow (iOS 12+):
 
-1. Import **OpenLogin** into your project.
+1. Import **Web3Auth** into your project.
 
 ```swift
-import OpenLogin
+import Web3Auth
 ```
 
 2. Present the In-App Web-based Login modal. The user should see a permission dialog.
 
 ```
-OpenLogin()
+Web3Auth()
     .login(OLInitParams(loginProvider: .GOOGLE)) {
         switch $0 {
         case .success(let result):
@@ -53,11 +53,11 @@ OpenLogin()
 
 ## Configuration
 
-In order to use OpenLogin you need to provide your OpenLogin **ClientId** and which **Network** to run it.
+In order to use Web3Auth you need to provide your Web3Auth **ClientId** and which **Network** to run it.
 
-- Go to [Torus Developer](https://developer.tor.us), create or open an existing OpenLogin project and copy your project ID, which is the **ClientId**.
+- Go to [Torus Developer](https://developer.tor.us), create or open an existing Web3Auth project and copy your project ID, which is the **ClientId**.
 
-In your application bundle add a plist file named **OpenLogin.plist** with the following information:
+In your application bundle add a plist file named **Web3Auth.plist** with the following information:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -74,4 +74,4 @@ In your application bundle add a plist file named **OpenLogin.plist** with the f
 
 ## Next steps
 
-See example app in [OpenloginSwiftSdkDemo](/OpenloginSwiftSdkDemo)
+See example app in [Web3authSwiftSdkDemo](/Web3authSwiftSdkDemo)

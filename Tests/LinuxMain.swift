@@ -1,7 +1,7 @@
 import XCTest
 
-import OpenLoginTests
+import Web3AuthTests
 
 var tests = [XCTestCaseEntry]()
-tests += OpenLoginTests.allTests()
+tests += Web3AuthTests.allTests()
 XCTMain(tests)
