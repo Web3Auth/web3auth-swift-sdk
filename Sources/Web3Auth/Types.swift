@@ -111,22 +111,25 @@ public struct W3ALoginParams: Encodable {
     public init() {
         self.loginProvider = nil
         self.relogin = nil
+        self.dappShare = nil
         self.extraLoginOptions = nil
         self.redirectUrl = nil
         self.appState = nil
     }
     
-    public init(loginProvider: Web3AuthProvider?, relogin: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
+    public init(loginProvider: Web3AuthProvider?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.loginProvider = loginProvider?.rawValue
         self.relogin = relogin
+        self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
         self.appState = appState
     }
     
-    public init(loginProvider: String?, relogin: Bool? = nil, fastLogin: Bool? = nil, skipTKey: Bool? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
+    public init(loginProvider: String?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil) {
         self.loginProvider = loginProvider
         self.relogin = relogin
+        self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
         self.appState = appState
@@ -134,6 +137,7 @@ public struct W3ALoginParams: Encodable {
     
     let loginProvider: String?
     let relogin: Bool?
+    let dappShare: String?
     let extraLoginOptions: ExtraLoginOptions?
     let redirectUrl: String?
     let appState: String?
