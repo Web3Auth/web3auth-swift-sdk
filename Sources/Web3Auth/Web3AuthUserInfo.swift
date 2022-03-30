@@ -11,4 +11,5 @@ public struct Web3AuthUserInfo: Decodable {
     public let verifier: String?
     public let verifierId: String?
     public let email: String?
+    public let dappShare: String?
 }
