@@ -144,12 +144,13 @@ public struct W3ALoginParams: Encodable {
 }
 
 public struct ExtraLoginOptions: Encodable {
-    public init(display: String?, prompt: String?, max_age: String?, ui_locales: String?, id_token_hint: String?, login_hint: String?, acr_values: String?, scope: String?, audience: String?, connection: String?, domain: String?, client_id: String?, redirect_uri: String?, leeway: Int?, verifierIdField: String?, isVerifierIdCaseSensitive: Bool?) {
+    public init(display: String?, prompt: String?, max_age: String?, ui_locales: String?, id_token_hint: String?, id_token: String?, login_hint: String?, acr_values: String?, scope: String?, audience: String?, connection: String?, domain: String?, client_id: String?, redirect_uri: String?, leeway: Int?, verifierIdField: String?, isVerifierIdCaseSensitive: Bool?) {
         self.display = display
         self.prompt = prompt
         self.max_age = max_age
         self.ui_locales = ui_locales
         self.id_token_hint = id_token_hint
+        self.id_token = id_token
         self.login_hint = login_hint
         self.acr_values = acr_values
         self.scope = scope
@@ -168,6 +169,7 @@ public struct ExtraLoginOptions: Encodable {
     let max_age: String?
     let ui_locales: String?
     let id_token_hint: String?
+    let id_token: String?
     let login_hint: String?
     let acr_values: String?
     let scope: String?
