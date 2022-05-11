@@ -4,10 +4,11 @@ import AuthenticationServices
 import SafariServices
 
 
-public enum MFALevel:String,Codable{
+public enum MFALevel: String, Codable{
     case DEFAULT = "default"
     case OPTIONAL = "optional"
     case MANDATORY = "mandatory"
+    case NONE = "none"
 }
 
 public enum TypeOfLogin: String, Encodable {
@@ -125,7 +126,7 @@ public struct W3ALoginParams: Encodable {
         self.mfaLevel = nil
     }
     
-    public init(loginProvider: Web3AuthProvider?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,mfaLevel:MFALevel? = nil) {
+    public init(loginProvider: Web3AuthProvider?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil, mfaLevel: MFALevel? = nil) {
         self.loginProvider = loginProvider?.rawValue
         self.relogin = relogin
         self.dappShare = dappShare
@@ -135,7 +136,7 @@ public struct W3ALoginParams: Encodable {
         self.mfaLevel = mfaLevel
     }
     
-    public init(loginProvider: String?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,mfaLevel:MFALevel? = nil) {
+    public init(loginProvider: String?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil, mfaLevel: MFALevel? = nil) {
         self.loginProvider = loginProvider
         self.relogin = relogin
         self.dappShare = dappShare
@@ -152,7 +153,7 @@ public struct W3ALoginParams: Encodable {
     let extraLoginOptions: ExtraLoginOptions?
     let redirectUrl: String?
     let appState: String?
-    let mfaLevel:MFALevel?
+    let mfaLevel: MFALevel?
 }
 
 public struct ExtraLoginOptions: Encodable {
