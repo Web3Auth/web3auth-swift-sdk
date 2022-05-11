@@ -4,7 +4,7 @@ import AuthenticationServices
 import SafariServices
 
 
-public enum MFALevel: String, Codable{
+public enum MFALevel: String, Codable {
     case DEFAULT = "default"
     case OPTIONAL = "optional"
     case MANDATORY = "mandatory"
