@@ -3,9 +3,9 @@ import Foundation
 import SafariServices
 import UIKit
 
-public enum SUPPORTED_KEY_CURVES: Codable {
-    case SECP256K1
-    case ed25519
+public enum SUPPORTED_KEY_CURVES:String, Codable {
+    case SECP256K1 = "secp256k1"
+    case ed25519 = "ed25519"
 }
 
 public enum MFALevel: String, Codable {
@@ -139,7 +139,7 @@ public struct W3ALoginParams: Encodable {
         self.redirectUrl = redirectUrl
         self.appState = appState
         self.mfaLevel = mfaLevel
-        self.sessionTime = sessionTime
+        self.sessionTime = min(7 * 86400, sessionTime)
         self.curve = curve
     }
 
@@ -151,7 +151,7 @@ public struct W3ALoginParams: Encodable {
         self.redirectUrl = redirectUrl
         self.appState = appState
         self.mfaLevel = mfaLevel
-        self.sessionTime = sessionTime
+        self.sessionTime = min(7 * 86400, sessionTime)
         self.curve = curve
     }
 
