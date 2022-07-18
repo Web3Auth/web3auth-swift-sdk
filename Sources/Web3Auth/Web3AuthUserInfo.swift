@@ -13,4 +13,5 @@ public struct Web3AuthUserInfo: Decodable {
     public let email: String?
     public let dappShare: String?
     public let idToken: String?
+    public let oAuthIdToken: String?
 }

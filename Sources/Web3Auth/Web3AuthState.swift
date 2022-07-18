@@ -6,5 +6,6 @@ import Foundation
 public struct Web3AuthState: Decodable {
     public let privKey: String
     public let ed25519PrivKey: String
+    public let sessionId: String
     public let userInfo: Web3AuthUserInfo
 }

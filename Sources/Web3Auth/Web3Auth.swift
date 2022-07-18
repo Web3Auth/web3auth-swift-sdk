@@ -1,4 +1,5 @@
 import AuthenticationServices
+import KeychainSwift
 import SafariServices
 import UIKit
 
@@ -89,9 +90,13 @@ public class Web3Auth: NSObject {
                 let bundleId = Bundle.main.bundleIdentifier,
                 let redirectURL = URL(string: "\(bundleId)://auth")
             else { return callback(.failure(Web3AuthError.noBundleIdentifierFound)) }
-
+            var loginParams = loginParams
+            if let loginConfig = initParams.loginConfig?.values.first, let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
+                loginParams.dappShare = savedDappShare
+            }
             guard
                 let url = try? Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
+
             else {
                 return callback(.failure(Web3AuthError.unknownError))
             }
@@ -111,6 +116,7 @@ public class Web3Auth: NSObject {
                         return callback(.failure(authError))
                     }
                 }
+                KeychainManager.shared.saveDappShare(userInfo: callbackState.userInfo)
                 callback(.success(callbackState))
             }
 
@@ -164,6 +170,7 @@ public class Web3Auth: NSObject {
         else {
             throw Web3AuthError.unknownError
         }
+        print(try JSONSerialization.jsonObject(with: callbackData))
         return callbackState
     }
 }

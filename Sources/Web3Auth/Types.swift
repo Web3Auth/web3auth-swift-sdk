@@ -1,8 +1,12 @@
-import Foundation
-import UIKit
 import AuthenticationServices
+import Foundation
 import SafariServices
+import UIKit
 
+public enum SUPPORTED_KEY_CURVES: Codable {
+    case SECP256K1
+    case ed25519
+}
 
 public enum MFALevel: String, Codable {
     case DEFAULT = "default"
@@ -12,25 +16,25 @@ public enum MFALevel: String, Codable {
 }
 
 public enum TypeOfLogin: String, Encodable {
-    case google = "google"
-    case facebook = "facebook"
-    case reddit = "reddit"
-    case discord = "discord"
-    case twitch = "twitch"
-    case apple = "apple"
-    case github = "github"
-    case linkedin = "linkedin"
-    case twitter = "twitter"
-    case weibo = "weibo"
-    case line = "line"
-    case email_password = "email_password"
-    case passwordless = "passwordless"
-    case jwt = "jwt"
-    case webauthn = "webauthn"
+    case google
+    case facebook
+    case reddit
+    case discord
+    case twitch
+    case apple
+    case github
+    case linkedin
+    case twitter
+    case weibo
+    case line
+    case email_password
+    case passwordless
+    case jwt
+    case webauthn
 }
 
 public struct W3AWhiteLabelData: Encodable {
-    public init(name: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: String? = nil, dark: Bool? = nil, theme: [String : String]? = nil) {
+    public init(name: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: String? = nil, dark: Bool? = nil, theme: [String: String]? = nil) {
         self.name = name
         self.logoLight = logoLight
         self.logoDark = logoDark
@@ -38,7 +42,7 @@ public struct W3AWhiteLabelData: Encodable {
         self.dark = dark
         self.theme = theme
     }
-    
+
     let name: String?
     let logoLight: String?
     let logoDark: String?
@@ -63,7 +67,7 @@ public struct W3ALoginConfig: Encodable {
         self.showOnDesktop = showOnDesktop
         self.showOnMobile = showOnMobile
     }
-    
+
     let verifier: String
     let typeOfLogin: TypeOfLogin
     let name: String
@@ -80,7 +84,7 @@ public struct W3ALoginConfig: Encodable {
 }
 
 public struct W3AInitParams: Encodable {
-    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String : W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil) {
+    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil) {
         self.clientId = clientId
         self.network = network
         self.sdkUrl = sdkUrl
@@ -88,24 +92,24 @@ public struct W3AInitParams: Encodable {
         self.loginConfig = loginConfig
         self.whiteLabel = whiteLabel
     }
-    
+
     public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!) {
         self.clientId = clientId
         self.network = network
         self.sdkUrl = sdkUrl
-        self.redirectUrl = nil
-        self.loginConfig = nil
-        self.whiteLabel = nil
+        redirectUrl = nil
+        loginConfig = nil
+        whiteLabel = nil
     }
-    
+
     public init(clientId: String, network: Network) {
         self.clientId = clientId
         self.network = network
-        self.redirectUrl = nil
-        self.loginConfig = nil
-        self.whiteLabel = nil
+        redirectUrl = nil
+        loginConfig = nil
+        whiteLabel = nil
     }
-    
+
     let clientId: String
     let network: Network
     var sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!
@@ -115,18 +119,19 @@ public struct W3AInitParams: Encodable {
 }
 
 public struct W3ALoginParams: Encodable {
-    
     public init() {
-        self.loginProvider = nil
-        self.relogin = nil
-        self.dappShare = nil
-        self.extraLoginOptions = nil
-        self.redirectUrl = nil
-        self.appState = nil
-        self.mfaLevel = nil
+        loginProvider = nil
+        relogin = nil
+        dappShare = nil
+        extraLoginOptions = nil
+        redirectUrl = nil
+        appState = nil
+        mfaLevel = nil
+        sessionTime = 86400
+        curve = .SECP256K1
     }
-    
-    public init(loginProvider: Web3AuthProvider?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil, mfaLevel: MFALevel? = nil) {
+
+    public init(loginProvider: Web3AuthProvider?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil, mfaLevel: MFALevel? = nil, sessionTime: Int = 86400, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
         self.loginProvider = loginProvider?.rawValue
         self.relogin = relogin
         self.dappShare = dappShare
@@ -134,9 +139,11 @@ public struct W3ALoginParams: Encodable {
         self.redirectUrl = redirectUrl
         self.appState = appState
         self.mfaLevel = mfaLevel
+        self.sessionTime = sessionTime
+        self.curve = curve
     }
-    
-    public init(loginProvider: String?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil, mfaLevel: MFALevel? = nil) {
+
+    public init(loginProvider: String?, relogin: Bool? = nil, dappShare: String? = nil, extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil, mfaLevel: MFALevel? = nil, sessionTime: Int = 86400, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
         self.loginProvider = loginProvider
         self.relogin = relogin
         self.dappShare = dappShare
@@ -144,16 +151,19 @@ public struct W3ALoginParams: Encodable {
         self.redirectUrl = redirectUrl
         self.appState = appState
         self.mfaLevel = mfaLevel
+        self.sessionTime = sessionTime
+        self.curve = curve
     }
-    
-    
+
     let loginProvider: String?
     let relogin: Bool?
-    let dappShare: String?
+    var dappShare: String?
     let extraLoginOptions: ExtraLoginOptions?
     let redirectUrl: String?
     let appState: String?
     let mfaLevel: MFALevel?
+    let sessionTime: Int
+    let curve: SUPPORTED_KEY_CURVES
 }
 
 public struct ExtraLoginOptions: Encodable {
@@ -176,7 +186,7 @@ public struct ExtraLoginOptions: Encodable {
         self.verifierIdField = verifierIdField
         self.isVerifierIdCaseSensitive = isVerifierIdCaseSensitive
     }
-    
+
     let display: String?
     let prompt: String?
     let max_age: String?
@@ -201,9 +211,10 @@ struct SdkUrlParams: Encodable {
         self.initParams = initParams
         self.params = params
     }
+
     let initParams: W3AInitParams
     let params: W3ALoginParams
-    
+
     enum CodingKeys: String, CodingKey {
         case initParams = "init"
         case params

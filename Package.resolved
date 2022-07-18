@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "KeychainSwift",
+        "repositoryURL": "https://github.com/evgenyneu/keychain-swift.git",
+        "state": {
+          "branch": "master",
+          "revision": "32a99b537d1c6f3529a08257c28a5feb70c0c5af",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
