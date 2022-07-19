@@ -9,10 +9,22 @@ import Foundation
 import KeychainSwift
 
 class KeychainManager {
+    enum KeychainConstantEnum: String {
+        case sessionID
+    }
+
     private let keychain = KeychainSwift()
     static let shared = KeychainManager()
 
     private init() {}
+
+    func getSessionID() -> String? {
+        keychain.get(KeychainConstantEnum.sessionID.rawValue)
+    }
+
+    func saveSessionID(sessionID: String) {
+        keychain.set(sessionID, forKey: KeychainConstantEnum.sessionID.rawValue)
+    }
 
     func saveDappShare(userInfo: Web3AuthUserInfo) {
         guard let verifer = userInfo.verifier, let veriferID = userInfo.verifierId, let dappShare = userInfo.dappShare else { return }
@@ -22,8 +34,8 @@ class KeychainManager {
     func getDappShare(verifier: String) -> String? {
         return searchDappShare(query: verifier)
     }
-    
-    func removeDappShare(key:String){
+
+    func removeDappShare(key: String) {
         keychain.delete(key)
     }
 

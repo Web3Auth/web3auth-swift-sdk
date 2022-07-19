@@ -9,7 +9,7 @@ import UIKit
 @available(iOS 12.0, *)
 public class Web3Auth: NSObject {
     private let initParams: W3AInitParams
-
+    public var state: Web3AuthState?
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -23,6 +23,8 @@ public class Web3Auth: NSObject {
      */
     public init(_ params: W3AInitParams) {
         initParams = params
+        if let sessionID = KeychainManager.shared.getSessionID() {
+        }
     }
 
     /**
@@ -117,6 +119,8 @@ public class Web3Auth: NSObject {
                     }
                 }
                 KeychainManager.shared.saveDappShare(userInfo: callbackState.userInfo)
+                KeychainManager.shared.saveSessionID(sessionID: callbackState.sessionId)
+                self.state = callbackState
                 callback(.success(callbackState))
             }
 

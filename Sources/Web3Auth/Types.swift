@@ -3,9 +3,23 @@ import Foundation
 import SafariServices
 import UIKit
 
-public enum SUPPORTED_KEY_CURVES:String, Codable {
+public struct Ecies {
+    public init(iv: String, ephemPublicKey: String, ciphertext: String, mac: String) {
+        self.iv = iv
+        self.ephemPublicKey = ephemPublicKey
+        self.ciphertext = ciphertext
+        self.mac = mac
+    }
+
+    var iv: String
+    var ephemPublicKey: String
+    var ciphertext: String
+    var mac: String
+}
+
+public enum SUPPORTED_KEY_CURVES: String, Codable {
     case SECP256K1 = "secp256k1"
-    case ed25519 = "ed25519"
+    case ED25519 = "ed25519"
 }
 
 public enum MFALevel: String, Codable {
