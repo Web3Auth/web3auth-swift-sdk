@@ -1,15 +1,15 @@
-import UIKit
 import AuthenticationServices
+import KeychainSwift
 import SafariServices
+import UIKit
 
 /**
  Authentication using Web3Auth.
  */
 @available(iOS 12.0, *)
 public class Web3Auth: NSObject {
-    
     private let initParams: W3AInitParams
-    
+    public var state: Web3AuthState?
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -22,18 +22,33 @@ public class Web3Auth: NSObject {
      - returns: Web3Auth component.
      */
     public init(_ params: W3AInitParams) {
-        self.initParams = params
+        initParams = params
+        super.init()
+        checkForSession()
     }
-    
+
+    func checkForSession() {
+        if let sessionID = KeychainManager.shared.get(key: .sessionID) {
+            Task {
+                do {
+                    state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
+                    
+                } catch let error {
+                    print(error)
+                }
+            }
+        }
+    }
+
     /**
      Web3Auth component for authenticating with web-based flow.
-     
+
      ```
      Web3Auth()
      ```
-     
+
      Parameters are loaded from the file `Web3Auth.plist` in your bundle with the following content:
-     
+
      ```
      <?xml version="1.0" encoding="UTF-8"?>
      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -46,17 +61,17 @@ public class Web3Auth: NSObject {
          </dict>
      </plist>
      ```
-     
+
      - parameter bundle: Bundle to locate the `Web3Auth.plist` file. By default is the main bundle.
-     
+
      - returns: Web3Auth component.
      - important: Calling this method without a valid `Web3Auth.plist` will crash your application.
      */
-    public convenience init (_ bundle: Bundle = Bundle.main) {
+    public convenience init(_ bundle: Bundle = Bundle.main) {
         let values = plistValues(bundle)!
         self.init(W3AInitParams(clientId: values.clientId, network: values.network))
     }
-    
+
     /**
      Starts the WebAuth flow by modally presenting a ViewController in the top-most controller.
 
@@ -90,15 +105,20 @@ public class Web3Auth: NSObject {
                 let bundleId = Bundle.main.bundleIdentifier,
                 let redirectURL = URL(string: "\(bundleId)://auth")
             else { return callback(.failure(Web3AuthError.noBundleIdentifierFound)) }
-            
+            var loginParams = loginParams
+            if let loginConfig = initParams.loginConfig?.values.first, let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
+                loginParams.dappShare = savedDappShare
+            }
             guard
                 let url = try? Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
+
             else {
                 return callback(.failure(Web3AuthError.unknownError))
             }
-            
+
             let authSession = ASWebAuthenticationSession(
                 url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
+
                 guard
                     authError == nil,
                     let callbackURL = callbackURL,
@@ -111,33 +131,35 @@ public class Web3Auth: NSObject {
                         return callback(.failure(authError))
                     }
                 }
+                KeychainManager.shared.saveDappShare(userInfo: callbackState.userInfo)
+                KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId)
+                self.state = callbackState
                 callback(.success(callbackState))
             }
-            
+
             if #available(iOS 13.0, *) {
                 authSession.presentationContextProvider = self
             }
-            
+
             if !authSession.start() {
                 callback(.failure(Web3AuthError.unknownError))
             }
         }
     }
-    
+
     static func generateAuthSessionURL(redirectURL: URL, initParams: W3AInitParams, loginParams: W3ALoginParams) throws -> URL {
-        
         var overridenInitParams = initParams
-        
+
         // Init params redirectUrl has to be overriden unless users have their own tricks
         if overridenInitParams.redirectUrl == nil {
             overridenInitParams.redirectUrl = redirectURL.absoluteString
         }
-        
+
         let sdkUrlParams = SdkUrlParams(initParams: overridenInitParams, params: loginParams)
-        
+
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting.insert(.sortedKeys)
-        
+
         guard
             let data = try? jsonEncoder.encode(sdkUrlParams),
             // Using sorted keys to produce consistent results
@@ -145,18 +167,18 @@ public class Web3Auth: NSObject {
         else {
             throw Web3AuthError.unknownError
         }
-        
+
         components.path = "/login"
         components.fragment = data.toBase64URL()
-        
+
         guard let url = components.url
         else {
             throw Web3AuthError.unknownError
         }
-        
+
         return url
     }
-    
+
     static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> Web3AuthState {
         guard
             let callbackFragment = callbackURL.fragment,
@@ -165,9 +187,9 @@ public class Web3Auth: NSObject {
         else {
             throw Web3AuthError.unknownError
         }
+        print(try JSONSerialization.jsonObject(with: callbackData))
         return callbackState
     }
-    
 }
 
 @available(iOS 12.0, *)
