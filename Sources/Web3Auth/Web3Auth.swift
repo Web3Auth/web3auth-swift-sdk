@@ -23,7 +23,20 @@ public class Web3Auth: NSObject {
      */
     public init(_ params: W3AInitParams) {
         initParams = params
-        if let sessionID = KeychainManager.shared.getSessionID() {
+        super.init()
+        checkForSession()
+    }
+
+    func checkForSession() {
+        if let sessionID = KeychainManager.shared.get(key: .sessionID) {
+            Task {
+                do {
+                    state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
+                    
+                } catch let error {
+                    print(error)
+                }
+            }
         }
     }
 
@@ -119,7 +132,7 @@ public class Web3Auth: NSObject {
                     }
                 }
                 KeychainManager.shared.saveDappShare(userInfo: callbackState.userInfo)
-                KeychainManager.shared.saveSessionID(sessionID: callbackState.sessionId)
+                KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId)
                 self.state = callbackState
                 callback(.success(callbackState))
             }

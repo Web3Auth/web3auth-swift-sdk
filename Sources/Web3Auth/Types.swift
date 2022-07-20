@@ -2,6 +2,7 @@ import AuthenticationServices
 import Foundation
 import SafariServices
 import UIKit
+import secp256k1
 
 public struct Ecies {
     public init(iv: String, ephemPublicKey: String, ciphertext: String, mac: String) {
