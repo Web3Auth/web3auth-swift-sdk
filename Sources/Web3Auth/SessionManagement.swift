@@ -47,7 +47,6 @@ public class SessionManagement {
             var req = URLRequest(url: URL(string: urlStr)!)
             req.httpMethod = "POST"
             req.addValue("application/json", forHTTPHeaderField: "Content-Type")
-            let bodydata = try? JSONSerialization.data(withJSONObject: jj, options: [])
             req.httpBody = encodedData
             URLSession.shared.dataTask(with: req) { data, _, error in
                 guard error == nil, let data = data else { return
