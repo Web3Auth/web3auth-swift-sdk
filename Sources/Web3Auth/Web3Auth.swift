@@ -31,8 +31,8 @@ public class Web3Auth: NSObject {
         if let sessionID = KeychainManager.shared.get(key: .sessionID) {
             Task {
                 do {
-                    state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
-                    
+                   // state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
+                    SessionManagement.shared.logout(sessionID: sessionID)
                 } catch let error {
                     print(error)
                 }

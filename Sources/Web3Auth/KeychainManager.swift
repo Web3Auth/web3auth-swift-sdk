@@ -11,42 +11,40 @@ import KeychainSwift
 enum KeychainConstantEnum {
     case sessionID
     case custom(String)
-    
-    var value:String{
+
+    var value: String {
         switch self {
         case .sessionID:
             return "sessionID"
-        case .custom(let string):
+        case let .custom(string):
             return string
         }
     }
 }
 
-protocol KeychainManagerProtocol{
-    func get(key:KeychainConstantEnum) -> String?
-    
-    func delete(key:KeychainConstantEnum)
-    
-    func save(key:KeychainConstantEnum,val:String)
+protocol KeychainManagerProtocol {
+    func get(key: KeychainConstantEnum) -> String?
+
+    func delete(key: KeychainConstantEnum)
+
+    func save(key: KeychainConstantEnum, val: String)
 }
 
-class KeychainManager:KeychainManagerProtocol {
-
+class KeychainManager: KeychainManagerProtocol {
     private let keychain = KeychainSwift()
     static let shared = KeychainManager()
 
     private init() {}
 
-    
-    func get(key:KeychainConstantEnum) -> String?{
+    func get(key: KeychainConstantEnum) -> String? {
         return keychain.get(key.value)
     }
-    
-    func delete(key:KeychainConstantEnum){
+
+    func delete(key: KeychainConstantEnum) {
         keychain.delete(key.value)
     }
-    
-    func save(key:KeychainConstantEnum,val:String){
+
+    func save(key: KeychainConstantEnum, val: String) {
         keychain.set(val, forKey: key.value)
     }
 

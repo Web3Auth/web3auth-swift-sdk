@@ -4,7 +4,7 @@ import SafariServices
 import UIKit
 import secp256k1
 
-public struct Ecies {
+public struct Ecies:Codable {
     public init(iv: String, ephemPublicKey: String, ciphertext: String, mac: String) {
         self.iv = iv
         self.ephemPublicKey = ephemPublicKey

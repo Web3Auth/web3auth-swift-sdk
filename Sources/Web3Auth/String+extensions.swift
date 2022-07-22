@@ -6,7 +6,6 @@
 //
 
 import Foundation
-
 extension String {
     
     func fromBase64URL() -> String? {
