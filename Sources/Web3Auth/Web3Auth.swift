@@ -90,10 +90,6 @@ public class Web3Auth: NSObject {
                 let bundleId = Bundle.main.bundleIdentifier,
                 let redirectURL = URL(string: "\(bundleId)://auth")
             else { return callback(.failure(Web3AuthError.noBundleIdentifierFound)) }
-            var loginParams = loginParams
-            if let loginConfig = initParams.loginConfig?.values.first, let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
-                loginParams.dappShare = savedDappShare
-            }
             guard
                 let url = try? Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
 
@@ -116,7 +112,6 @@ public class Web3Auth: NSObject {
                         return callback(.failure(authError))
                     }
                 }
-                KeychainManager.shared.saveDappShare(userInfo: callbackState.userInfo)
                 callback(.success(callbackState))
             }
 

@@ -13,12 +13,11 @@ let package = Package(
             targets: ["Web3Auth"]),
     ],
     dependencies: [
-        .package(name:"KeychainSwift",url: "https://github.com/evgenyneu/keychain-swift.git",.branch("master"))
     ],
     targets: [
         .target(
             name: "Web3Auth",
-            dependencies: ["KeychainSwift"]),
+            dependencies: []),
         .testTarget(
             name: "Web3AuthTests",
             dependencies: ["Web3Auth"])
