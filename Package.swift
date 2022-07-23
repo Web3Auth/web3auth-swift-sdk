@@ -4,6 +4,9 @@ import PackageDescription
 
 let package = Package(
     name: "Web3Auth",
+    platforms: [
+        .iOS(.v13)
+    ],
     products: [
         .library(
             name: "Web3Auth",
