@@ -5,7 +5,7 @@ Web3Auth SDK for iOS applications.
 ## Requirements
 
 - iOS 13+
-- Xcode 11.3+
+- Xcode 11+
 - Swift 4.x / 5.x
 
 ## Installation
