@@ -4,8 +4,8 @@ Web3Auth SDK for iOS applications.
 
 ## Requirements
 
-- iOS 12+
-- Xcode 11.4+ / 12.x
+- iOS 13+
+- Xcode 11.3+
 - Swift 4.x / 5.x
 
 ## Installation
@@ -19,6 +19,15 @@ In the Choose Package Repository prompt add this url:
 ```
 https://github.com/web3auth/web3auth-swift-sdk
 ```
+
+If you are using cocoapods , open the pod file and add 
+
+```
+pod 'Web3Auth', '3.4.0'
+```
+
+then do a pod install and you are good to go.
+
 
 ## Getting Started
 
@@ -40,6 +49,8 @@ Web3Auth()
             print("""
                 Signed in successfully!
                     Private key: \(result.privKey)
+                    ed25519PrivKey : \(result.ed25519PrivKey)
+                    Session ID : \(result.sessionId)
                     User info:
                         Name: \(result.userInfo.name)
                         Profile image: \(result.userInfo.profileImage ?? "N/A")
@@ -57,23 +68,17 @@ In order to use Web3Auth you need to provide your Web3Auth **ClientId** and whic
 
 - Go to [Web3Auth Developer Dashboard](https://dashboard.web3auth.io), create or open an existing Web3Auth project and copy your Client ID, which is the **ClientId**.
 
-In your application bundle add a plist file named **Web3Auth.plist** with the following information:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>ClientId</key>
-  <string>YOUR_OPENLOGIN_CLIENT_ID</string>
-  <key>Network</key>
-  <string>mainnet | testnet</string>
-</dict>
-</plist>
+- You can now create an instance of the Web3Auth class using the above clientid and Network of your choice
 ```
+   Web3Auth(W3AInitParams(clientId: "your-client-id",network: .mainnet))
+   
+```
+-If you want to use Whitelabel or Custom Authentication, you will also have to specify it in the dynamic paramter constructor as well.
 
 Please also whitelist `\(bundleId)://auth` in the developer dashboard. This step is mandatory for the redirect to work.
 
 ## Next steps
 
 See example app in [Web3authSwiftSdkDemo](/Web3authSwiftSdkDemo)
+
+Checkout our Integration Builder for IOS on our website (https://web3auth.io/docs/integration-builder)
