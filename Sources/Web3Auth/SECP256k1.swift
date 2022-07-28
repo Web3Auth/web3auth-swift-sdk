@@ -17,6 +17,20 @@ public struct SECP256K1 {
 
 extension SECP256K1 {
     static let context = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))
+    
+    func sign(privkey:String,messageData:String) -> String{
+        let privateBytes = try! privkey.bytes
+        let privateKey = try! secp256k1.Signing.PrivateKey(rawRepresentation: privateBytes)
+
+        //  Public key
+        print(String(bytes: privateKey.publicKey.rawRepresentation))
+
+        // ECDSA
+        let messageData = messageData.data(using: .utf8)!
+        let signature = try! privateKey.ecdsa.signature(for: messageData)
+
+        return (try! signature.derRepresentation.toHexString())
+    }
 
     public static func ecdh(pubKey: secp256k1_pubkey, privateKey: Data) -> secp256k1_pubkey? {
         var localPubkey = pubKey // Pointer takes a variable
