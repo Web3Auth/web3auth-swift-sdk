@@ -9,6 +9,7 @@ import CryptoSwift
 import Foundation
 import secp256k1
 import web3
+import CryptoKit
 
 public class SessionManagement {
     static let shared = SessionManagement()
@@ -38,9 +39,10 @@ public class SessionManagement {
 
     public func logout(sessionID: String) {
         do {
-            let publicKeyHex = SECP256K1.privateToPublic(privateKey: sessionID.web3.hexData!, compressed: false)!.toHexString()
+            let privKey = sessionID.hexa.toHexString()
+            let publicKeyHex = SECP256K1.privateToPublic(privateKey: privKey.hexa.data, compressed: false)!.toHexString()
             let encData = try encryptData(privkeyHex: sessionID, d: "")
-            let sig = SECP256K1().sign(privkey: sessionID, messageData: encData.sha3(.keccak256))
+            let sig = SECP256K1().sign(privkey: privKey, messageData: encData.sha3(.keccak256))
             let urlStr = "\(storageServerUrl)/store/set"
             let data = SessionLogutDataModel(key: publicKeyHex, data: encData, signature: sig, timeout: 1)
             let encodedData = try JSONEncoder().encode(data)
@@ -60,6 +62,7 @@ public class SessionManagement {
                 }
             }.resume()
         } catch {
+            
         }
     }
 
@@ -108,42 +111,42 @@ public class SessionManagement {
     }
 
     private func encrypt(publicKey: String, msg: String, opts: Ecies?) throws -> Ecies {
-        let inprivateKey = SECP256K1.generatePrivateKey()!
-        let keyFromPrivate = SECP256K1.privateToPublic(privateKey: inprivateKey)!
+        let ephemPrivateKey = SECP256K1.generatePrivateKey()!
+        let ephemPublicKey = SECP256K1.privateToPublic(privateKey: ephemPrivateKey)!
         let ephermalPublicKey = publicKey.strip04Prefix()
         let ephermalPublicKeyBytes = ephermalPublicKey.hexa
         var ephermOne = ephermalPublicKeyBytes.prefix(32)
         var ephermTwo = ephermalPublicKeyBytes.suffix(32)
         ephermOne.reverse(); ephermTwo.reverse()
         ephermOne.append(contentsOf: ephermTwo)
-        let ephemPubKey = secp256k1_pubkey.init(data: array32toTuple(Array(ephermOne)))
+        let ephemPubKey = secp256k1_pubkey.init(data:array32toTuple(Array(publicKey.hexa)))
         guard
             // Calculate g^a^b, i.e., Shared Key
             //  let data = inprivateKey
-            let sharedSecret = SECP256K1.ecdh(pubKey: ephemPubKey, privateKey: inprivateKey)
+            let sharedSecret = SECP256K1.ecdh(pubKey: ephemPubKey, privateKey: ephemPrivateKey)
         else {
             throw Web3AuthError.unknownError
         }
         let sharedSecretData = sharedSecret.data
-        let sharedSecretPrefix = tupleToArray(sharedSecretData).prefix(32)
-        let reversedSharedSecret = sharedSecretPrefix.reversed()
-        let iv = (opts?.iv ?? SECP256K1.randomBytes(length: 16)!.toHexString()).hexa
-        let newXValue = reversedSharedSecret.hexa
-
-        let hash = SHA2(variant: .sha512).calculate(for: newXValue.hexa).hexa
-        let macKey = hash.dropLast(32)
-        let AesEncryptionKey = hash.prefix(64)
+        let sharedSecretPrefix = tupleToArray(sharedSecretData)
+    //    let reversedSharedSecret = sharedSecretPrefix.reversed()
+        let hash = sharedSecretPrefix.sha512()
+      //  let hash = SHA2(variant: .sha512).calculate(for: reversedSharedSecret.hexa.hexa)
+      //  let iv = (opts?.iv ?? SECP256K1.randomBytes(length: 16)!.toHexString()).hexa
+        let iv = [UInt8](SECP256K1.randomBytes(length: 16)!)
+        let encryptionKey = Array(hash.prefix(32))
+        let macKey = Array(hash.suffix(32))
         do {
             // AES-CBCblock-256
-            let aes = try AES(key: AesEncryptionKey.hexa, blockMode: CBC(iv: iv), padding: .pkcs7)
+            let aes = try AES(key: encryptionKey, blockMode: CBC(iv: iv))
             let encrypt = try aes.encrypt(msg.hexa)
             let data = Data(encrypt)
-            let ciphertext = data.toHexString()
+            let ciphertext = data
             var dataToMac: [UInt8] = iv
-            dataToMac.append(contentsOf: keyFromPrivate.toHexString().hexa)
-            dataToMac.append(contentsOf: ciphertext.hexa)
-            let mac = try? HMAC(key: dataToMac, variant: .sha2(.sha256)).authenticate(macKey.hexa)
-            return .init(iv: iv.toHexString(), ephemPublicKey: keyFromPrivate.toHexString(), ciphertext: ciphertext, mac: mac!.toHexString())
+            dataToMac.append(contentsOf: [UInt8](ephemPublicKey.data))
+            dataToMac.append(contentsOf: [UInt8](ciphertext.data))
+            let mac = try? HMAC(key: macKey, variant: .sha2(.sha256)).authenticate(dataToMac)
+            return .init(iv: iv.toHexString(), ephemPublicKey: ephemPublicKey.toHexString(), ciphertext: ciphertext.toHexString(), mac: mac!.toHexString())
         } catch let err {
             throw err
         }
