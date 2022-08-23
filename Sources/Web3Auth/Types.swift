@@ -4,6 +4,13 @@ import SafariServices
 import UIKit
 import secp256k1
 
+struct SessionLogutDataModel: Codable {
+    var key: String
+    var data: String
+    var signature: String
+    var timeout: Int
+}
+
 public struct Ecies:Codable {
     public init(iv: String, ephemPublicKey: String, ciphertext: String, mac: String) {
         self.iv = iv

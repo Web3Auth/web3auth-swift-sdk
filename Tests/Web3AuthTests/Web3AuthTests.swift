@@ -4,6 +4,18 @@ import XCTest
 @available(iOS 12.0, *)
 class Web3AuthTests: XCTestCase {
     
+    
+    func testEncrypt(){
+        let arr:[UInt8] = [4, 77, 75, 108, 209, 54, 16, 50, 202, 155, 210, 174, 185, 217, 0, 170, 77, 69, 217, 234, 216, 10, 201, 66, 51, 116, 196, 81, 167, 37, 77, 7, 102, 42, 62, 173, 162, 208, 254, 32, 139, 109, 37, 124, 235, 15, 6, 66, 132, 102, 46, 133, 127, 87, 182, 107, 84, 193, 152, 189, 49, 13, 237, 54, 208]
+        let key = arr.toHexString()
+       try? SessionManagement.shared.encrypt(publicKey: key, msg: "to a", opts: nil)
+    }
+    
+    func testDecrypt(){
+        
+        try? SessionManagement.shared
+    }
+    
     func testGenerateAuthSessionURL() throws {
         let redirectURL = URL(string: "com.web3auth.sdkapp://web3auth")!
         let initParams = W3AInitParams(clientId: "BC01p_js5KUIjvqYYAzWlDKt6ft--5joV0TbZEKO7YbDTqnmU5v0sq_4wgkyh0QAfZZAi-v6nKD4kcxkAqPuj8U", network: .testnet)

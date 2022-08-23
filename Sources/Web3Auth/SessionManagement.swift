@@ -13,10 +13,10 @@ import CryptoKit
 
 public class SessionManagement {
     static let shared = SessionManagement()
-
+    
     private init() {}
     private let storageServerUrl = "https://broadcast-server.tor.us"
-
+    
     public func getActiveSession(sessionID: String) async throws -> Web3AuthState {
         let publicKeyHex = SECP256K1.privateToPublic(privateKey: sessionID.web3.hexData!, compressed: false)!.web3.hexString.web3.noHexPrefix
         let urlStr = "\(storageServerUrl)/store/get?key=\(publicKeyHex)"
@@ -26,8 +26,8 @@ public class SessionManagement {
                 guard error == nil, let data = data else { return
                 }
                 do {
-                    let msgDict = try JSONSerialization.jsonObject(with: data) as! [String: String]
-                    let msgData = msgDict["message"]
+                    let msgDict = try JSONSerialization.jsonObject(with: data) as? [String: String]
+                    let msgData = msgDict?["message"]
                     let loginDetails = try self.decryptData(privKeyHex: sessionID, d: msgData ?? "")
                     continuation.resume(returning: loginDetails)
                 } catch let err {
@@ -36,13 +36,13 @@ public class SessionManagement {
             }.resume()
         })
     }
-
+    
     public func logout(sessionID: String) {
         do {
-            let privKey = sessionID.hexa.toHexString()
-            let publicKeyHex = SECP256K1.privateToPublic(privateKey: privKey.hexa.data, compressed: false)!.toHexString()
+            let privKey = sessionID.hexa
+            let publicKeyHex = SECP256K1.privateToPublic(privateKey: privKey.data, compressed: false)!.web3.hexString.web3.noHexPrefix
             let encData = try encryptData(privkeyHex: sessionID, d: "")
-            let sig = SECP256K1().sign(privkey: privKey, messageData: encData.sha3(.keccak256))
+            let sig = SECP256K1().sign(privkey: privKey.toHexString(), messageData: SHA3(variant: .keccak256).calculate(for: encData.hexa).hexa)
             let urlStr = "\(storageServerUrl)/store/set"
             let data = SessionLogutDataModel(key: publicKeyHex, data: encData, signature: sig, timeout: 1)
             let encodedData = try JSONEncoder().encode(data)
@@ -65,8 +65,8 @@ public class SessionManagement {
             
         }
     }
-
-    private func decryptData(privKeyHex: String, d: String) throws -> Web3AuthState {
+    
+    func decryptData(privKeyHex: String, d: String) throws -> Web3AuthState {
         let ecies = encParamsHexToBuf(encParamsHex: d)
         let result = try decrypt(privateKey: privKeyHex, opts: ecies)
         print(result)
@@ -74,24 +74,24 @@ public class SessionManagement {
         guard let loginDetails = Web3AuthState(dict: dict, sessionID: privKeyHex) else { throw Web3AuthError.unknownError }
         return loginDetails
     }
-
+    
     func encryptData(privkeyHex: String, d: String) throws -> String {
         // let json = try JSONSerialization.jsonObject(with: d.data(using: .utf8)!)
-        guard let pubKey = SECP256K1.privateToPublic(privateKey: privkeyHex.web3.hexData ?? Data()) else {
+        guard let pubKey = SECP256K1.privateToPublic(privateKey: privkeyHex.hexa.data)?.web3.hexString.web3.noHexPrefix else {
             throw Web3AuthError.unknownError
         }
-        let encParams = try encrypt(publicKey: pubKey.toHexString(), msg: "", opts: nil)
+        let encParams = try encrypt(publicKey: pubKey, msg: "", opts: nil)
         // let jsonString = try JSONSerialization.jsonObject(with: jsonData) as! String
         //  let encParamsHex = encParamsBufToHex(encParamsHex: encParams)
         let data = try JSONEncoder().encode(encParams)
         let string = String(data: data, encoding: .utf8)!
         return string
     }
-
+    
     private func encParamsBufToHex(encParamsHex: Ecies) -> Ecies {
         return .init(iv: encParamsHex.iv.web3.hexData?.web3.hexString ?? "", ephemPublicKey: encParamsHex.ephemPublicKey.web3.hexData?.toHexString() ?? "", ciphertext: encParamsHex.ciphertext.web3.hexData?.toHexString() ?? "", mac: encParamsHex.mac.web3.hexData?.web3.hexString ?? "")
     }
-
+    
     private func encParamsHexToBuf(encParamsHex: String) -> Ecies {
         let data = encParamsHex.data(using: .utf8)!
         var arr = Array(repeating: "", count: 4)
@@ -109,9 +109,10 @@ public class SessionManagement {
         }
         return Ecies(iv: arr[0], ephemPublicKey: arr[1], ciphertext: arr[2], mac: arr[3])
     }
-
-    private func encrypt(publicKey: String, msg: String, opts: Ecies?) throws -> Ecies {
+    
+    func encrypt(publicKey: String, msg: String, opts: Ecies?) throws -> Ecies {
         let ephemPrivateKey = SECP256K1.generatePrivateKey()!
+        //   let ephemPrivateKey = "cd50e9988c97b90c9b1bf537ab5be74116a59fc935a91c8ae80b029161d1d4b4".web3.hexData!
         let ephemPublicKey = SECP256K1.privateToPublic(privateKey: ephemPrivateKey)!
         let ephermalPublicKey = publicKey.strip04Prefix()
         let ephermalPublicKeyBytes = ephermalPublicKey.hexa
@@ -119,7 +120,7 @@ public class SessionManagement {
         var ephermTwo = ephermalPublicKeyBytes.suffix(32)
         ephermOne.reverse(); ephermTwo.reverse()
         ephermOne.append(contentsOf: ephermTwo)
-        let ephemPubKey = secp256k1_pubkey.init(data:array32toTuple(Array(publicKey.hexa)))
+        let ephemPubKey = secp256k1_pubkey.init(data:array32toTuple(Array(ephermOne)))
         guard
             // Calculate g^a^b, i.e., Shared Key
             //  let data = inprivateKey
@@ -127,19 +128,19 @@ public class SessionManagement {
         else {
             throw Web3AuthError.unknownError
         }
+        
         let sharedSecretData = sharedSecret.data
-        let sharedSecretPrefix = tupleToArray(sharedSecretData)
-    //    let reversedSharedSecret = sharedSecretPrefix.reversed()
-        let hash = sharedSecretPrefix.sha512()
-      //  let hash = SHA2(variant: .sha512).calculate(for: reversedSharedSecret.hexa.hexa)
-      //  let iv = (opts?.iv ?? SECP256K1.randomBytes(length: 16)!.toHexString()).hexa
-        let iv = [UInt8](SECP256K1.randomBytes(length: 16)!)
+        let sharedSecretPrefix = Array(tupleToArray(sharedSecretData).prefix(32))
+        let reversedSharedSecret = sharedSecretPrefix.uint8Reverse()
+        let hash = SHA2(variant: .sha512).calculate(for: Array(reversedSharedSecret))
+        let iv = (opts?.iv ?? SECP256K1.randomBytes(length: 16)!.toHexString()).hexa
+        // let iv:[UInt8] = [125, 33, 242, 59, 245, 142, 229, 101, 58, 133, 37, 187, 132, 178, 241, 127]
         let encryptionKey = Array(hash.prefix(32))
         let macKey = Array(hash.suffix(32))
         do {
             // AES-CBCblock-256
-            let aes = try AES(key: encryptionKey, blockMode: CBC(iv: iv))
-            let encrypt = try aes.encrypt(msg.hexa)
+            let aes = try AES(key: encryptionKey, blockMode: CBC(iv: iv),padding:.pkcs7)
+            let encrypt = try aes.encrypt([116, 111, 32, 97])
             let data = Data(encrypt)
             let ciphertext = data
             var dataToMac: [UInt8] = iv
@@ -151,7 +152,7 @@ public class SessionManagement {
             throw err
         }
     }
-
+    
     private func decrypt(privateKey: String, opts: Ecies) throws -> String {
         var result: String = ""
         let ephermalPublicKey = opts.ephemPublicKey.strip04Prefix()
@@ -188,9 +189,5 @@ public class SessionManagement {
     }
 }
 
-struct SessionLogutDataModel: Codable {
-    var key: String
-    var data: String
-    var signature: String
-    var timeout: Int
-}
+
+
