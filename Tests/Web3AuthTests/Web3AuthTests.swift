@@ -25,9 +25,9 @@ class Web3AuthTests: XCTestCase {
         let decodedState = try? Web3Auth.decodeStateFromCallbackURL(URL(string: callbackURL)!)
         
         XCTAssertEqual(privKey, decodedState?.privKey)
-        XCTAssertEqual(name, decodedState?.userInfo.name)
-        XCTAssertEqual(profileImage, decodedState?.userInfo.profileImage)
-        XCTAssertEqual(typeOfLogin, decodedState?.userInfo.typeOfLogin)
+        XCTAssertEqual(name, decodedState?.userInfo?.name)
+        XCTAssertEqual(profileImage, decodedState?.userInfo?.profileImage)
+        XCTAssertEqual(typeOfLogin, decodedState?.userInfo?.typeOfLogin)
     }
 
 }
