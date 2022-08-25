@@ -37,7 +37,7 @@ public class SessionManagement {
         })
     }
     
-    public func logout(sessionID: String) {
+    public func logout(sessionID: String) async throws -> Bool {
         do {
             let privKey = sessionID.hexa
             let publicKeyHex = SECP256K1.privateToPublic(privateKey: privKey.data, compressed: false)!.web3.hexString.web3.noHexPrefix
@@ -50,19 +50,22 @@ public class SessionManagement {
             req.httpMethod = "POST"
             req.addValue("application/json", forHTTPHeaderField: "Content-Type")
             req.httpBody = encodedData
+            return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Bool, Error>) in
             URLSession.shared.dataTask(with: req) { data, _, error in
                 guard error == nil, let data = data else { return
                 }
                 do {
                     let msgDict = try JSONSerialization.jsonObject(with: data)
                     print(msgDict)
-                    //   continuation.resume(returning: loginDetails)
+                       continuation.resume(returning: true)
                 } catch let err {
-                    //    continuation.resume(throwing: err)
+                       continuation.resume(throwing: err)
                 }
             }.resume()
-        } catch {
-            
+        })
+        }
+        catch {
+            throw Web3AuthError.appCancelled
         }
     }
     

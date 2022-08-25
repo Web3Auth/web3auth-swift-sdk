@@ -8,7 +8,8 @@ struct ContentView: View {
         VStack {
             Button(
                 action: {
-                    Web3Auth()
+                    Task{
+                        await Web3Auth()
                         .login(W3ALoginParams()) {
                             switch $0 {
                             case .success(let result):
@@ -17,6 +18,7 @@ struct ContentView: View {
                                 print("Error: \(error)")
                             }
                         }
+                    }
                 },
                 label: {
                     Text("Sign In")
@@ -26,7 +28,8 @@ struct ContentView: View {
             
             Button(
                 action: {
-                    Web3Auth()
+                    Task{
+                        await Web3Auth()
                         .login(W3ALoginParams(loginProvider: .GOOGLE)) {
                             switch $0 {
                             case .success(let result):
@@ -35,6 +38,7 @@ struct ContentView: View {
                                 print("Error: \(error)")
                             }
                         }
+                    }
                 },
                 label: {
                     Text("Sign In with Google")
@@ -44,7 +48,8 @@ struct ContentView: View {
             
             Button(
                 action: {
-                    Web3Auth()
+                    Task{
+                        await Web3Auth()
                         .login(W3ALoginParams(loginProvider: .APPLE)) {
                             switch $0 {
                             case .success(let result):
@@ -53,6 +58,7 @@ struct ContentView: View {
                                 print("Error: \(error)")
                             }
                         }
+                    }
                 },
                 label: {
                     Text("Sign In with Apple")
@@ -62,7 +68,8 @@ struct ContentView: View {
             
             Button(
                 action: {
-                    Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
+                    Task{
+                        await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
                         .login(W3ALoginParams(loginProvider: .GOOGLE)) {
                             switch $0 {
                             case .success(let result):
@@ -71,6 +78,7 @@ struct ContentView: View {
                                 print("Error: \(error)")
                             }
                         }
+                    }
                 },
                 label: {
                     Text("Sign In with Whitelabel")

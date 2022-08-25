@@ -17,7 +17,6 @@ let package = Package(
         .package(name:"web3.swift", url: "https://github.com/argentlabs/web3.swift", from:"0.9.3"),
         .package(name:"CryptoSwift",url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.5.1"),
         .package(name:"secp256k1.swift",url: "https://github.com/GigaBitcoin/secp256k1.swift.git",from: "0.8.1")
-        //.package(name:"starkbank-ecdsa",url: "https://github.com/starkbank/ecdsa-swift.git",from: "2.0.0")
     ],
     targets: [
         .target(

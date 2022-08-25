@@ -6,7 +6,7 @@ import UIKit
 /**
  Authentication using Web3Auth.
  */
-@available(iOS 12.0, *)
+@available(iOS 13.0, *)
 public class Web3Auth: NSObject {
     private let initParams: W3AInitParams
     public var state: Web3AuthState?
@@ -21,23 +21,29 @@ public class Web3Auth: NSObject {
 
      - returns: Web3Auth component.
      */
-    public init(_ params: W3AInitParams) {
+    public init(_ params: W3AInitParams) async {
         initParams = params
         super.init()
-        checkForSession()
+        await checkForSession()
     }
 
-    func checkForSession() {
+    func checkForSession() async {
         if let sessionID = KeychainManager.shared.get(key: .sessionID) {
             Task {
                 do {
-                   //state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
-                    SessionManagement.shared.logout(sessionID: sessionID)
+                    state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
                 } catch let error {
                     print(error)
                 }
             }
         }
+    }
+
+    public func logout() async throws -> Bool {
+        if let sessionID = KeychainManager.shared.get(key: .sessionID) {
+            return try await SessionManagement.shared.logout(sessionID: sessionID)
+        }
+        return true
     }
 
     /**
@@ -67,9 +73,9 @@ public class Web3Auth: NSObject {
      - returns: Web3Auth component.
      - important: Calling this method without a valid `Web3Auth.plist` will crash your application.
      */
-    public convenience init(_ bundle: Bundle = Bundle.main) {
+    public convenience init(_ bundle: Bundle = Bundle.main) async {
         let values = plistValues(bundle)!
-        self.init(W3AInitParams(clientId: values.clientId, network: values.network))
+        await self.init(W3AInitParams(clientId: values.clientId, network: values.network))
     }
 
     /**
@@ -119,23 +125,23 @@ public class Web3Auth: NSObject {
             let authSession = ASWebAuthenticationSession(
                 url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
 
-                guard
-                    authError == nil,
-                    let callbackURL = callbackURL,
-                    let callbackState = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
-                else {
-                    let authError = authError ?? Web3AuthError.unknownError
-                    if case ASWebAuthenticationSessionError.canceledLogin = authError {
-                        return callback(.failure(Web3AuthError.userCancelled))
-                    } else {
-                        return callback(.failure(authError))
+                    guard
+                        authError == nil,
+                        let callbackURL = callbackURL,
+                        let callbackState = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
+                    else {
+                        let authError = authError ?? Web3AuthError.unknownError
+                        if case ASWebAuthenticationSessionError.canceledLogin = authError {
+                            return callback(.failure(Web3AuthError.userCancelled))
+                        } else {
+                            return callback(.failure(authError))
+                        }
                     }
+                    KeychainManager.shared.saveDappShare(userInfo: callbackState.userInfo)
+                    KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId)
+                    self.state = callbackState
+                    callback(.success(callbackState))
                 }
-                KeychainManager.shared.saveDappShare(userInfo: callbackState.userInfo)
-                KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId)
-                self.state = callbackState
-                callback(.success(callbackState))
-            }
 
             if #available(iOS 13.0, *) {
                 authSession.presentationContextProvider = self
