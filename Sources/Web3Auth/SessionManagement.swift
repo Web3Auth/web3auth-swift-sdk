@@ -13,21 +13,22 @@ import CryptoKit
 
 public class SessionManagement {
     static let shared = SessionManagement()
-    
     private init() {}
     private let storageServerUrl = "https://broadcast-server.tor.us"
     
-    public func getActiveSession(sessionID: String) async throws -> Web3AuthState {
+     func getActiveSession(sessionID: String) async throws -> Web3AuthState {
         let publicKeyHex = SECP256K1.privateToPublic(privateKey: sessionID.web3.hexData!, compressed: false)!.web3.hexString.web3.noHexPrefix
         let urlStr = "\(storageServerUrl)/store/get?key=\(publicKeyHex)"
         let url = URL(string: urlStr)!
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
-            URLSession.shared.dataTask(with: url) { data, _, error in
-                guard error == nil, let data = data else { return
+            URLSession.shared.dataTask(with: url) { data, response, error in
+                guard error == nil, let data = data ,let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200 else { return
+                    continuation.resume(throwing: error ?? Web3AuthError.unknownError)
                 }
                 do {
                     let msgDict = try JSONSerialization.jsonObject(with: data) as? [String: String]
-                    let msgData = msgDict?["message"]
+                    let msgData = msgDict?["message"]  //"Invalid public key"
                     let loginDetails = try self.decryptData(privKeyHex: sessionID, d: msgData ?? "")
                     continuation.resume(returning: loginDetails)
                 } catch let err {
@@ -37,7 +38,7 @@ public class SessionManagement {
         })
     }
     
-    public func logout(sessionID: String) async throws -> Bool {
+     func logout(sessionID: String) async throws -> Bool {
         do {
             let privKey = sessionID.hexa
             let publicKeyHex = SECP256K1.privateToPublic(privateKey: privKey.data, compressed: false)!.web3.hexString.web3.noHexPrefix
@@ -57,6 +58,7 @@ public class SessionManagement {
                 do {
                     let msgDict = try JSONSerialization.jsonObject(with: data)
                     print(msgDict)
+                    KeychainManager.shared.delete(key: .sessionID)
                        continuation.resume(returning: true)
                 } catch let err {
                        continuation.resume(throwing: err)
@@ -91,7 +93,7 @@ public class SessionManagement {
         return string
     }
     
-    private func encParamsBufToHex(encParamsHex: Ecies) -> Ecies {
+     func encParamsBufToHex(encParamsHex: Ecies) -> Ecies {
         return .init(iv: encParamsHex.iv.web3.hexData?.web3.hexString ?? "", ephemPublicKey: encParamsHex.ephemPublicKey.web3.hexData?.toHexString() ?? "", ciphertext: encParamsHex.ciphertext.web3.hexData?.toHexString() ?? "", mac: encParamsHex.mac.web3.hexData?.web3.hexString ?? "")
     }
     
@@ -137,7 +139,6 @@ public class SessionManagement {
         let reversedSharedSecret = sharedSecretPrefix.uint8Reverse()
         let hash = SHA2(variant: .sha512).calculate(for: Array(reversedSharedSecret))
         let iv = (opts?.iv ?? SECP256K1.randomBytes(length: 16)!.toHexString()).hexa
-        // let iv:[UInt8] = [125, 33, 242, 59, 245, 142, 229, 101, 58, 133, 37, 187, 132, 178, 241, 127]
         let encryptionKey = Array(hash.prefix(32))
         let macKey = Array(hash.suffix(32))
         do {

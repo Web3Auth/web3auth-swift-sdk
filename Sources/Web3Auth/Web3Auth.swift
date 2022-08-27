@@ -143,9 +143,7 @@ public class Web3Auth: NSObject {
                     callback(.success(callbackState))
                 }
 
-            if #available(iOS 13.0, *) {
                 authSession.presentationContextProvider = self
-            }
 
             if !authSession.start() {
                 callback(.failure(Web3AuthError.unknownError))

@@ -27,7 +27,7 @@ extension SECP256K1 {
     static let context = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))
 
     func sign(privkey: String, messageData: String) -> String {
-        let privateBytes = try! privkey.hexa
+        let privateBytes = privkey.hexa
         let privateKey = try! secp256k1.Signing.PrivateKey(rawRepresentation: privateBytes)
         //  Public key
         print(String(bytes: privateKey.publicKey.rawRepresentation))

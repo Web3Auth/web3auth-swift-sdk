@@ -6,6 +6,11 @@
 //
 
 import Foundation
+import secp256k1
+
+extension Data: Digest {
+    public static var byteCount: Int = 32
+}
 
 extension Data {
     

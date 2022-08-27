@@ -4,7 +4,24 @@ import Web3Auth
 
 struct ContentView: View {
     @SwiftUI.State var text = ""
+    @State var loggedIn = false
     var body: some View {
+        VStack{
+            if loggedIn{
+            HStack{
+                Spacer()
+                Button {
+                    Task{
+                       try await Web3Auth().logout()
+                    }
+                } label: {
+                    Text("Logout")
+                }
+                .padding()
+
+            }
+            }
+            Spacer()
         VStack {
             Button(
                 action: {
@@ -14,6 +31,7 @@ struct ContentView: View {
                             switch $0 {
                             case .success(let result):
                                     showResult(result: result)
+                                loggedIn.toggle()
                             case .failure(let error):
                                 print("Error: \(error)")
                             }
@@ -34,6 +52,7 @@ struct ContentView: View {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
+                                loggedIn.toggle()
                             case .failure(let error):
                                 print("Error: \(error)")
                             }
@@ -54,6 +73,7 @@ struct ContentView: View {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
+                                loggedIn.toggle()
                             case .failure(let error):
                                 print("Error: \(error)")
                             }
@@ -74,6 +94,7 @@ struct ContentView: View {
                             switch $0 {
                             case .success(let result):
                                 showResult(result: result)
+                                loggedIn.toggle()
                             case .failure(let error):
                                 print("Error: \(error)")
                             }
@@ -90,6 +111,8 @@ struct ContentView: View {
             
             Text(text).foregroundColor(.white)
             
+        }
+            Spacer()
         }
         
     }
