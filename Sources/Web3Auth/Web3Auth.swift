@@ -40,9 +40,13 @@ public class Web3Auth: NSObject {
     }
 
     public func logout() async throws -> Bool {
+        if let state = state, let verifer = state.userInfo.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
+            KeychainManager.shared.delete(key: .custom(dappShare))
+        }
         if let sessionID = KeychainManager.shared.get(key: .sessionID) {
             return try await SessionManagement.shared.logout(sessionID: sessionID)
         }
+
         return true
     }
 
@@ -143,7 +147,7 @@ public class Web3Auth: NSObject {
                     callback(.success(callbackState))
                 }
 
-                authSession.presentationContextProvider = self
+            authSession.presentationContextProvider = self
 
             if !authSession.start() {
                 callback(.failure(Web3AuthError.unknownError))

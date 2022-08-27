@@ -1,141 +1,136 @@
 import SwiftUI
 import Web3Auth
 
-
 struct ContentView: View {
     @SwiftUI.State var text = ""
     @State var loggedIn = false
     var body: some View {
-        VStack{
-            if loggedIn{
-            HStack{
-                Spacer()
-                Button {
-                    Task{
-                       try await Web3Auth().logout()
-                    }
-                } label: {
-                    Text("Logout")
-                }
-                .padding()
-
-            }
-            }
-            Spacer()
         VStack {
-            Button(
-                action: {
-                    Task{
-                        await Web3Auth()
-                        .login(W3ALoginParams()) {
-                            switch $0 {
-                            case .success(let result):
-                                    showResult(result: result)
-                                loggedIn.toggle()
-                            case .failure(let error):
-                                print("Error: \(error)")
-                            }
+            if loggedIn {
+                HStack {
+                    Spacer()
+                    Button {
+                        Task {
+                            try await Web3Auth().logout()
+                            loggedIn.toggle()
                         }
+                    } label: {
+                        Text("Logout")
                     }
-                },
-                label: {
-                    Text("Sign In")
-                        .padding()
+                    .padding()
                 }
-            )
-            
-            Button(
-                action: {
-                    Task{
-                        await Web3Auth()
-                        .login(W3ALoginParams(loginProvider: .GOOGLE)) {
-                            switch $0 {
-                            case .success(let result):
-                                showResult(result: result)
-                                loggedIn.toggle()
-                            case .failure(let error):
-                                print("Error: \(error)")
-                            }
+            }
+            Spacer()
+            VStack {
+                Button(
+                    action: {
+                        Task {
+                            await Web3Auth()
+                                .login(W3ALoginParams()) {
+                                    switch $0 {
+                                    case let .success(result):
+                                        showResult(result: result)
+                                        loggedIn.toggle()
+                                    case let .failure(error):
+                                        print("Error: \(error)")
+                                    }
+                                }
                         }
+                    },
+                    label: {
+                        Text("Sign In")
+                            .padding()
                     }
-                },
-                label: {
-                    Text("Sign In with Google")
-                        .padding()
-                }
-            )
-            
-            Button(
-                action: {
-                    Task{
-                        await Web3Auth()
-                        .login(W3ALoginParams(loginProvider: .APPLE)) {
-                            switch $0 {
-                            case .success(let result):
-                                showResult(result: result)
-                                loggedIn.toggle()
-                            case .failure(let error):
-                                print("Error: \(error)")
-                            }
+                )
+
+                Button(
+                    action: {
+                        Task {
+                            await Web3Auth()
+                                .login(W3ALoginParams(loginProvider: .GOOGLE)) {
+                                    switch $0 {
+                                    case let .success(result):
+                                        showResult(result: result)
+                                        loggedIn.toggle()
+                                    case let .failure(error):
+                                        print("Error: \(error)")
+                                    }
+                                }
                         }
+                    },
+                    label: {
+                        Text("Sign In with Google")
+                            .padding()
                     }
-                },
-                label: {
-                    Text("Sign In with Apple")
-                        .padding()
-                }
-            )
-            
-            Button(
-                action: {
-                    Task{
-                        await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
-                        .login(W3ALoginParams(loginProvider: .GOOGLE)) {
-                            switch $0 {
-                            case .success(let result):
-                                showResult(result: result)
-                                loggedIn.toggle()
-                            case .failure(let error):
-                                print("Error: \(error)")
-                            }
+                )
+
+                Button(
+                    action: {
+                        Task {
+                            await Web3Auth()
+                                .login(W3ALoginParams(loginProvider: .APPLE)) {
+                                    switch $0 {
+                                    case let .success(result):
+                                        showResult(result: result)
+                                        loggedIn.toggle()
+                                    case let .failure(error):
+                                        print("Error: \(error)")
+                                    }
+                                }
                         }
+                    },
+                    label: {
+                        Text("Sign In with Apple")
+                            .padding()
                     }
-                },
-                label: {
-                    Text("Sign In with Whitelabel")
-                        .padding()
-                }
-            )
-            
- 
-            
-            Text(text).foregroundColor(.white)
-            
-        }
+                )
+
+                Button(
+                    action: {
+                        Task {
+                            await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
+                                .login(W3ALoginParams(loginProvider: .GOOGLE)) {
+                                    switch $0 {
+                                    case let .success(result):
+                                        showResult(result: result)
+                                        loggedIn.toggle()
+                                    case let .failure(error):
+                                        print("Error: \(error)")
+                                    }
+                                }
+                        }
+                    },
+                    label: {
+                        Text("Sign In with Whitelabel")
+                            .padding()
+                    }
+                )
+
+                Text(text).foregroundColor(.white)
+            }
             Spacer()
         }
-        
     }
-    
-    func showResult(result: Web3AuthState){
+
+    func showResult(result: Web3AuthState) {
         print("""
-            Signed in successfully!
-                Private key: \(result.privKey)
-                Ed25519 Private key: \(result.ed25519PrivKey)
-                User info:
-                    Name: \(result.userInfo.name)
-                    Profile image: \(result.userInfo.profileImage ?? "N/A")
-                    Type of login: \(result.userInfo.typeOfLogin)
-            """)
+        Signed in successfully!
+            Private key: \(result.privKey)
+            Ed25519 Private key: \(result.ed25519PrivKey)
+            User info:
+                Name: \(result.userInfo.name)
+                Profile image: \(result.userInfo.profileImage ?? "N/A")
+                Type of login: \(result.userInfo.typeOfLogin)
+        """)
         text = """
-            Signed in successfully!
-                Private key: \(result.privKey)
-                Ed25519 Private key: \(result.ed25519PrivKey)
-                User info:
-                    Name: \(result.userInfo.name)
-                    Profile image: \(result.userInfo.profileImage ?? "N/A")
-                    Type of login: \(result.userInfo.typeOfLogin)
-            """
+        Signed in successfully!
+            Private key: \(result.privKey)
+            Ed25519 Private key: \(result.ed25519PrivKey)
+            User info:
+                Name: \(result.userInfo.name)
+                Profile image: \(result.userInfo.profileImage ?? "N/A")
+                Type of login: \(result.userInfo.typeOfLogin)
+        """
     }
 }
 
