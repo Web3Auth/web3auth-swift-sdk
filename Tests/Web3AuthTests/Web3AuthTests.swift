@@ -5,7 +5,7 @@ import secp256k1
 @testable import Web3Auth
 import XCTest
 
-@available(iOS 12.0, *)
+@available(iOS 13.0, *)
 class Web3AuthTests: XCTestCase {
     func testEncryptAndSign() {
         let privKey = "dda863b615ac6de27fb680b5563db3c19176a6f42cc1dee1768e220983385e3e"

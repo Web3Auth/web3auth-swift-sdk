@@ -200,7 +200,7 @@ public class Web3Auth: NSObject {
     }
 }
 
-@available(iOS 12.0, *)
+@available(iOS 13.0, *)
 extension Web3Auth: ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         let window = UIApplication.shared.windows.first { $0.isKeyWindow }

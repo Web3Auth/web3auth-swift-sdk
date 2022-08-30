@@ -22,7 +22,7 @@ https://github.com/web3auth/web3auth-swift-sdk
 
 ## Getting Started
 
-Authentication with In-App Web-based Flow (iOS 12+):
+Authentication with In-App Web-based Flow (iOS 13+):
 
 1. Import **Web3Auth** into your project.
 
