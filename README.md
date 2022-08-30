@@ -4,7 +4,7 @@ Web3Auth SDK for iOS applications.
 
 ## Requirements
 
-- iOS 12+
+- iOS 13+
 - Xcode 11.4+ / 12.x
 - Swift 4.x / 5.x
 
@@ -33,7 +33,8 @@ import Web3Auth
 2. Present the In-App Web-based Login modal. The user should see a permission dialog.
 
 ```
-Web3Auth()
+ Task{
+       await Web3Auth()
     .login(OLInitParams(loginProvider: .GOOGLE)) {
         switch $0 {
         case .success(let result):
@@ -48,6 +49,7 @@ Web3Auth()
         case .failure(let error):
             print("Error: \(error)")
         }
+    }
     }
 ```
 
