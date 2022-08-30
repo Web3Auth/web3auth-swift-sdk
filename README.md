@@ -59,19 +59,12 @@ In order to use Web3Auth you need to provide your Web3Auth **ClientId** and whic
 
 - Go to [Web3Auth Developer Dashboard](https://dashboard.web3auth.io), create or open an existing Web3Auth project and copy your Client ID, which is the **ClientId**.
 
-In your application bundle add a plist file named **Web3Auth.plist** with the following information:
+- Set the clientID and network in the Web3Auth initializer
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>ClientId</key>
-  <string>YOUR_OPENLOGIN_CLIENT_ID</string>
-  <key>Network</key>
-  <string>mainnet | testnet</string>
-</dict>
-</plist>
+```
+Task {
+ await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet)
+}
 ```
 
 Please also whitelist `\(bundleId)://auth` in the developer dashboard. This step is mandatory for the redirect to work.
