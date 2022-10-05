@@ -6,9 +6,10 @@ import UIKit
 /**
  Authentication using Web3Auth.
  */
-@available(iOS 13.0, *)
+
 public class Web3Auth: NSObject {
     private let initParams: W3AInitParams
+    ///You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
     public var state: Web3AuthState?
     /**
      Web3Auth  component for authenticating with web-based flow.
@@ -200,7 +201,6 @@ public class Web3Auth: NSObject {
     }
 }
 
-@available(iOS 13.0, *)
 extension Web3Auth: ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         let window = UIApplication.shared.windows.first { $0.isKeyWindow }

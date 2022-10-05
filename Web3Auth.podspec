@@ -10,5 +10,9 @@ Pod::Spec.new do |spec|
   spec.module_name   = "Web3Auth"
   spec.source        = { :git => "https://github.com/web3auth/web3auth-swift-sdk.git", :tag => spec.version }
   spec.source_files  = "Sources/Web3Auth/*.{swift}", "Sources/Web3Auth/**/*.{swift}"
+  spec.dependency 'KeychainSwift', '~> 20.0.0'
+  spec.dependency 'web3.swift', '~> 0.9.3'
+  spec.dependency 'CryptoSwift', '~> 1.5.1'
+  spec.dependency 'secp256k1Swift', '~> 0.7.4'
   spec.exclude_files = [ 'docs/**' ]
 end

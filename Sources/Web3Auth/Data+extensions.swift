@@ -6,7 +6,11 @@
 //
 
 import Foundation
+#if SWIFT_PACKAGE
 import secp256k1
+#else
+import secp256k1Swift
+#endif 
 
 extension Data: Digest {
     public static var byteCount: Int = 32
