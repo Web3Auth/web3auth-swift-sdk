@@ -53,6 +53,15 @@ import Web3Auth
     }
 ```
 
+3. You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
+```
+Task{
+let web3auth = await Web3Auth()
+let state = web3auth.state
+}
+
+```
+
 ## Configuration
 
 In order to use Web3Auth you need to provide your Web3Auth **ClientId** and which **Network** to run it.
