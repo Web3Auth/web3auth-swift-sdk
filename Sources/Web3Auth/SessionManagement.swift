@@ -5,9 +5,7 @@
 //  Created by Dhruv Jaiswal on 18/07/22.
 //
 
-import CryptoSwift
 import Foundation
-import secp256k1
 import web3
 
 public class SessionManagement {
@@ -37,7 +35,7 @@ public class SessionManagement {
         })
     }
 
-    func logout(sessionID: String) async throws -> Bool {
+    func logout(sessionID: String) async throws{
         do {
             let privKey = sessionID.hexa
             let publicKeyHex = SECP256K1.privateToPublic(privateKey: privKey.data, compressed: false)!.web3.hexString.web3.noHexPrefix
@@ -50,15 +48,14 @@ public class SessionManagement {
             req.httpMethod = "POST"
             req.addValue("application/json", forHTTPHeaderField: "Content-Type")
             req.httpBody = encodedData
-            return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Bool, Error>) in
+            return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Void, Error>) in
                 URLSession.shared.dataTask(with: req) { data, _, error in
                     guard error == nil, let data = data else { return
                     }
                     do {
                         let msgDict = try JSONSerialization.jsonObject(with: data)
                         print(msgDict)
-                        KeychainManager.shared.delete(key: .sessionID)
-                        continuation.resume(returning: true)
+                        continuation.resume()
                     } catch let err {
                         continuation.resume(throwing: err)
                     }

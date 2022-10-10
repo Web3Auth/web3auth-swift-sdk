@@ -1,5 +1,4 @@
 import Foundation
-import secp256k1
 
 func plistValues(_ bundle: Bundle) -> (clientId: String, network: Network)? {
     guard

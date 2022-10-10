@@ -10,6 +10,8 @@ class Web3AuthTests: XCTestCase {
         let sig = SECP256K1().sign(privkey: privKey, messageData: encdata)
         XCTAssertEqual(sig, "3045022100b0161b8abbd66da28734d105e28455bf9a48a33ee1dfde71f96e2e919717565002204d53303ec05596ca6784cff1d25eb0e764f70ff5e1ce16a896ec58255b25b5ff")
     }
+    
+    
 
     func testGenerateAuthSessionURL() throws {
         let redirectURL = URL(string: "com.web3auth.sdkapp://auth")!

@@ -1,4 +1,3 @@
-import CryptoSwift
 import Foundation
 import secp256k1
 

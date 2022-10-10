@@ -1,8 +1,4 @@
-import AuthenticationServices
 import Foundation
-import SafariServices
-import UIKit
-import secp256k1
 
 struct SessionLogutDataModel: Codable {
     var key: String

@@ -1,7 +1,6 @@
+
 import AuthenticationServices
-import KeychainSwift
-import SafariServices
-import UIKit
+
 
 /**
  Authentication using Web3Auth.
@@ -9,7 +8,7 @@ import UIKit
 
 public class Web3Auth: NSObject {
     private let initParams: W3AInitParams
-    ///You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
+    /// You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
     public var state: Web3AuthState?
     /**
      Web3Auth  component for authenticating with web-based flow.
@@ -40,15 +39,15 @@ public class Web3Auth: NSObject {
         }
     }
 
-    public func logout() async throws -> Bool {
+    public func logout() async throws {
+        if let sessionID = KeychainManager.shared.get(key: .sessionID) {
+            try await SessionManagement.shared.logout(sessionID: sessionID)
+        }
+        KeychainManager.shared.delete(key: .sessionID)
         if let state = state, let verifer = state.userInfo.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
-        if let sessionID = KeychainManager.shared.get(key: .sessionID) {
-            return try await SessionManagement.shared.logout(sessionID: sessionID)
-        }
-
-        return true
+        state = nil
     }
 
     /**
