@@ -14,7 +14,6 @@ extension SessionManagement{
     func decryptData(privKeyHex: String, d: String) throws -> Web3AuthState {
         let ecies = encParamsHexToBuf(encParamsHex: d)
         let result = try decrypt(privateKey: privKeyHex, opts: ecies)
-        print(result)
         let dict = try JSONSerialization.jsonObject(with: result.data(using: .utf8)!) as! [String: Any]
         guard let loginDetails = Web3AuthState(dict: dict, sessionID: privKeyHex) else { throw Web3AuthError.unknownError }
         return loginDetails

@@ -54,7 +54,6 @@ public class SessionManagement {
                     }
                     do {
                         let msgDict = try JSONSerialization.jsonObject(with: data)
-                        print(msgDict)
                         continuation.resume()
                     } catch let err {
                         continuation.resume(throwing: err)

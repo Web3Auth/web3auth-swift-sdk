@@ -27,8 +27,6 @@ extension SECP256K1 {
         let privateBytes = privkey.hexa
         let privateKey = try! secp256k1.Signing.PrivateKey(rawRepresentation: privateBytes)
         //  Public key
-        print(String(bytes: privateKey.publicKey.rawRepresentation))
-        
         // ECDSA
         let messageData = messageData.data(using: .utf8)!
         let signature = try! privateKey.ecdsa.signatureKeccaf256Hash(for: messageData)

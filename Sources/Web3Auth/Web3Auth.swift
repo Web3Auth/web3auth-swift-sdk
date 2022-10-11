@@ -33,7 +33,7 @@ public class Web3Auth: NSObject {
                 do {
                     state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
                 } catch let error {
-                    print(error)
+                    //print(error)
                 }
             }
         }
@@ -195,7 +195,6 @@ public class Web3Auth: NSObject {
         else {
             throw Web3AuthError.unknownError
         }
-        print(try JSONSerialization.jsonObject(with: callbackData))
         return callbackState
     }
 }
