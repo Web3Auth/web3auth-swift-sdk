@@ -44,7 +44,7 @@ public class Web3Auth: NSObject {
             try await SessionManagement.shared.logout(sessionID: sessionID)
         }
         KeychainManager.shared.delete(key: .sessionID)
-        if let state = state, let verifer = state.userInfo.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
+        if let state = state, let verifer = state.userInfo?.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
         state = nil
@@ -141,8 +141,10 @@ public class Web3Auth: NSObject {
                             return callback(.failure(authError))
                         }
                     }
-                    KeychainManager.shared.saveDappShare(userInfo: callbackState.userInfo)
-                    KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId)
+                    if let safeUserInfo = callbackState.userInfo{
+                        KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
+                    }
+                    KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId ?? "")
                     self.state = callbackState
                     callback(.success(callbackState))
                 }

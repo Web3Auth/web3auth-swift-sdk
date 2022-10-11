@@ -118,18 +118,18 @@ struct ContentView: View {
             Private key: \(result.privKey)
             Ed25519 Private key: \(result.ed25519PrivKey)
             User info:
-                Name: \(result.userInfo.name)
-                Profile image: \(result.userInfo.profileImage ?? "N/A")
-                Type of login: \(result.userInfo.typeOfLogin)
+                Name: \(result.userInfo?.name)
+                Profile image: \(result.userInfo?.profileImage ?? "N/A")
+                Type of login: \(result.userInfo?.typeOfLogin)
         """)
         text = """
         Signed in successfully!
             Private key: \(result.privKey)
             Ed25519 Private key: \(result.ed25519PrivKey)
             User info:
-                Name: \(result.userInfo.name)
-                Profile image: \(result.userInfo.profileImage ?? "N/A")
-                Type of login: \(result.userInfo.typeOfLogin)
+                Name: \(result.userInfo?.name)
+                Profile image: \(result.userInfo?.profileImage ?? "N/A")
+                Type of login: \(result.userInfo?.typeOfLogin)
         """
     }
 }

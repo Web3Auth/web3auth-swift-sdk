@@ -40,7 +40,7 @@ public class SessionManagement {
             let privKey = sessionID.hexa
             let publicKeyHex = SECP256K1.privateToPublic(privateKey: privKey.data, compressed: false)!.web3.hexString.web3.noHexPrefix
             let encData = try encryptData(privkeyHex: sessionID, d: "")
-            let sig = SECP256K1().sign(privkey: privKey.toHexString(), messageData: encData)
+            let sig = try SECP256K1().sign(privkey: privKey.toHexString(), messageData: encData)
             let urlStr = "\(storageServerUrl)/store/set"
             let data = SessionLogutDataModel(key: publicKeyHex, data: encData, signature: sig, timeout: 1)
             let encodedData = try JSONEncoder().encode(data)
@@ -54,6 +54,7 @@ public class SessionManagement {
                     }
                     do {
                         let msgDict = try JSONSerialization.jsonObject(with: data)
+                        print(msgDict)
                         continuation.resume()
                     } catch let err {
                         continuation.resume(throwing: err)
