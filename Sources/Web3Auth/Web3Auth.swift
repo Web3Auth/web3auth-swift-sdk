@@ -1,6 +1,6 @@
 
 import AuthenticationServices
-
+import OSLog
 
 /**
  Authentication using Web3Auth.
@@ -33,7 +33,7 @@ public class Web3Auth: NSObject {
                 do {
                     state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
                 } catch let error {
-                    //print(error)
+                    os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
                 }
             }
         }
@@ -141,7 +141,7 @@ public class Web3Auth: NSObject {
                             return callback(.failure(authError))
                         }
                     }
-                    if let safeUserInfo = callbackState.userInfo{
+                    if let safeUserInfo = callbackState.userInfo {
                         KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                     }
                     KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId ?? "")

@@ -1,13 +1,13 @@
 import Foundation
 
-struct SessionLogutDataModel: Codable {
+struct SessionLogoutDataModel: Codable {
     var key: String
     var data: String
     var signature: String
     var timeout: Int
 }
 
-public struct Ecies:Codable {
+public struct ECIES:Codable {
     public init(iv: String, ephemPublicKey: String, ciphertext: String, mac: String) {
         self.iv = iv
         self.ephemPublicKey = ephemPublicKey

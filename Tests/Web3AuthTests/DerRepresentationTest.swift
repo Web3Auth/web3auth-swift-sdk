@@ -15,7 +15,7 @@ final class DerTest: XCTestCase {
         let data = encData.data(using: .utf8)!
 
         let sig = SECP256K1.signForRecovery(hash: data.sha3(.keccak256), privateKey: privKey.hexa.data)
-        let der = try? SECP256K1.toDERReepresentaion(sig: sig.rawSignature?.data ?? Data())
+        let der = try? SECP256K1.toDERRepresentation(sig: sig.rawSignature?.data ?? Data())
         XCTAssertEqual(der, "3045022100b0161b8abbd66da28734d105e28455bf9a48a33ee1dfde71f96e2e919717565002204d53303ec05596ca6784cff1d25eb0e764f70ff5e1ce16a896ec58255b25b5ff")
     }
 
@@ -26,7 +26,7 @@ final class DerTest: XCTestCase {
         let data = encData.data(using: .utf8)!
 
         let sig = SECP256K1.signForRecovery(hash: data.sha3(.keccak256), privateKey: privKey.hexa.data)
-        let der = try? SECP256K1.toDERReepresentaion(sig: sig.rawSignature?.data ?? Data())
+        let der = try? SECP256K1.toDERRepresentation(sig: sig.rawSignature?.data ?? Data())
         XCTAssertEqual(der, "3044022071d7f85cc0f0f1351318b2304922b65c3ee965cf642cadba2f268f3a1f859ce202200ee6e7486118197bb958a0d5fca7d7001a3b35a03eb3f19c8cb7d77efd55e09c")
     }
 }

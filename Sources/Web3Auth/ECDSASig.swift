@@ -6,35 +6,20 @@
 //
 import Foundation
 import secp256k1
-//#if SWIFT_PACKAGE
-//import secp256k1
-//#else
-//import secp256k1Swift
-//#endif
-//
-//extension secp256k1.Signing.ECDSASigner {
-//    public func signatureKeccaf256<D: Digest>(for digest: D) throws -> secp256k1.Signing.ECDSASignature {
-//        try signature(for: digest)
-//    }
-//
-//    public func signatureKeccaf256Hash(for data: Data) throws -> secp256k1.Signing.ECDSASignature {
-//        try signatureKeccaf256(for: data.sha3(.keccak256))
-//    }
-//}
 
 extension SECP256K1 {
-    
     func sign(privkey: String, messageData: String) throws -> String {
         let encData = messageData.data(using: .utf8) ?? Data()
         let sig = SECP256K1.signForRecovery(hash: encData.sha3(.keccak256), privateKey: privkey.hexa.data)
-        var vrs = SECP256K1.unmarshalSignature(signatureData: sig.rawSignature?.data ?? Data())
-        let der = try SECP256K1.toDERReepresentaion(sig: sig.rawSignature?.data ?? Data())
+        let der = try SECP256K1.toDERRepresentation(sig: sig.rawSignature?.data ?? Data())
         return der
     }
-    
-  public static func toDERReepresentaion(sig: Data) throws -> String {
+
+    public static func toDERRepresentation(sig: Data) throws -> String {
+        // https://bitcoin.stackexchange.com/questions/92680/what-are-the-der-signature-and-sec-format
         var result1 = "30"
         var result2 = ""
+        // total count of following data
         var i = 68
         guard let umrashalsig = SECP256K1.unmarshalSignature(signatureData: sig)
         else { throw Web3AuthError.runtimeError("Invalid Signature") }
@@ -47,7 +32,6 @@ extension SECP256K1 {
         } else {
             result2.append(String(revR.count, radix: 16))
         }
-
         let Rhex = revR.hexa.reversed().reversed()
         result2.append(Rhex)
         result2.append("02")
@@ -66,5 +50,3 @@ extension SECP256K1 {
         return result
     }
 }
-
-

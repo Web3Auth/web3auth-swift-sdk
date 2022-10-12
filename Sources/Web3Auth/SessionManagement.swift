@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 import web3
 
 public class SessionManagement {
@@ -14,7 +15,7 @@ public class SessionManagement {
     private let storageServerUrl = "https://broadcast-server.tor.us"
 
     func getActiveSession(sessionID: String) async throws -> Web3AuthState {
-        let publicKeyHex = SECP256K1.privateToPublic(privateKey: sessionID.web3.hexData!, compressed: false)!.web3.hexString.web3.noHexPrefix
+        guard let publicKeyHex = SECP256K1.privateToPublic(privateKey: sessionID.hexa.data, compressed: false)?.web3.hexString.web3.noHexPrefix else { throw Web3AuthError.runtimeError("Invalid Session ID") }
         let urlStr = "\(storageServerUrl)/store/get?key=\(publicKeyHex)"
         let url = URL(string: urlStr)!
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
@@ -35,14 +36,14 @@ public class SessionManagement {
         })
     }
 
-    func logout(sessionID: String) async throws{
+    func logout(sessionID: String) async throws {
         do {
             let privKey = sessionID.hexa
-            let publicKeyHex = SECP256K1.privateToPublic(privateKey: privKey.data, compressed: false)!.web3.hexString.web3.noHexPrefix
+            guard let publicKeyHex = SECP256K1.privateToPublic(privateKey: sessionID.hexa.data, compressed: false)?.web3.hexString.web3.noHexPrefix else { throw Web3AuthError.runtimeError("Invalid Session ID") }
             let encData = try encryptData(privkeyHex: sessionID, d: "")
             let sig = try SECP256K1().sign(privkey: privKey.toHexString(), messageData: encData)
             let urlStr = "\(storageServerUrl)/store/set"
-            let data = SessionLogutDataModel(key: publicKeyHex, data: encData, signature: sig, timeout: 1)
+            let data = SessionLogoutDataModel(key: publicKeyHex, data: encData, signature: sig, timeout: 1)
             let encodedData = try JSONEncoder().encode(data)
             var req = URLRequest(url: URL(string: urlStr)!)
             req.httpMethod = "POST"
@@ -50,19 +51,20 @@ public class SessionManagement {
             req.httpBody = encodedData
             return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Void, Error>) in
                 URLSession.shared.dataTask(with: req) { data, _, error in
-                    guard error == nil, let data = data else { return
+                    guard error == nil, let data = data else {
+                        return
                     }
                     do {
                         let msgDict = try JSONSerialization.jsonObject(with: data)
-                        print(msgDict)
+                        os_log("logout response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(msgDict)")
                         continuation.resume()
                     } catch let err {
                         continuation.resume(throwing: err)
                     }
                 }.resume()
             })
-        } catch {
-            throw Web3AuthError.appCancelled
+        } catch let error {
+            throw Web3AuthError.runtimeError(error.localizedDescription)
         }
     }
 }
