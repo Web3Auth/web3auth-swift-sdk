@@ -2,6 +2,7 @@
 import XCTest
 
 @available(iOS 13.0, *)
+
 class Web3AuthTests: XCTestCase {
     func testSign() {
         let privKey = "bce6550a433b2e38067501222f9e75a2d4c5a433a6d27ec90cd81fbd4194cc2b"
