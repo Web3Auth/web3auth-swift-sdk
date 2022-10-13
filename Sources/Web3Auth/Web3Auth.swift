@@ -111,48 +111,47 @@ public class Web3Auth: NSObject {
      */
     public func login(_ loginParams: W3ALoginParams, _ callback: @escaping (Result<Web3AuthState>) -> Void) {
         DispatchQueue.main.async { [self] in
-            guard
-                let bundleId = Bundle.main.bundleIdentifier,
-                let redirectURL = URL(string: "\(bundleId)://auth")
-            else { return callback(.failure(Web3AuthError.noBundleIdentifierFound)) }
-            var loginParams = loginParams
-            if let loginConfig = initParams.loginConfig?.values.first, let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
-                loginParams.dappShare = savedDappShare
-            }
-            guard
-                let url = try? Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
-
-            else {
-                return callback(.failure(Web3AuthError.unknownError))
-            }
-
-            let authSession = ASWebAuthenticationSession(
-                url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
-
-                    guard
-                        authError == nil,
-                        let callbackURL = callbackURL,
-                        let callbackState = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
-                    else {
-                        let authError = authError ?? Web3AuthError.unknownError
-                        if case ASWebAuthenticationSessionError.canceledLogin = authError {
-                            return callback(.failure(Web3AuthError.userCancelled))
-                        } else {
-                            return callback(.failure(authError))
-                        }
-                    }
-                    if let safeUserInfo = callbackState.userInfo {
-                        KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
-                    }
-                    KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId ?? "")
-                    self.state = callbackState
-                    callback(.success(callbackState))
+            do {
+                guard
+                    let bundleId = Bundle.main.bundleIdentifier,
+                    let redirectURL = URL(string: "\(bundleId)://auth")
+                else { return callback(.failure(Web3AuthError.noBundleIdentifierFound)) }
+                var loginParams = loginParams
+                if let loginConfig = initParams.loginConfig?.values.first, let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
+                    loginParams.dappShare = savedDappShare
                 }
+                let url = try Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
 
-            authSession.presentationContextProvider = self
+                let authSession = ASWebAuthenticationSession(
+                    url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
 
-            if !authSession.start() {
-                callback(.failure(Web3AuthError.unknownError))
+                        guard
+                            authError == nil,
+                            let callbackURL = callbackURL,
+                            let callbackState = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
+                        else {
+                            let authError = authError ?? Web3AuthError.unknownError
+                            if case ASWebAuthenticationSessionError.canceledLogin = authError {
+                                return callback(.failure(Web3AuthError.userCancelled))
+                            } else {
+                                return callback(.failure(authError))
+                            }
+                        }
+                        if let safeUserInfo = callbackState.userInfo {
+                            KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
+                        }
+                        KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId ?? "")
+                        self.state = callbackState
+                        callback(.success(callbackState))
+                    }
+
+                authSession.presentationContextProvider = self
+
+                if !authSession.start() {
+                    callback(.failure(Web3AuthError.unknownError))
+                }
+            } catch let error {
+                callback(.failure(error))
             }
         }
     }
@@ -175,7 +174,7 @@ public class Web3Auth: NSObject {
             // Using sorted keys to produce consistent results
             var components = URLComponents(string: initParams.sdkUrl.absoluteString)
         else {
-            throw Web3AuthError.unknownError
+            throw Web3AuthError.encodingError
         }
 
         components.path = "/login"
@@ -183,7 +182,7 @@ public class Web3Auth: NSObject {
 
         guard let url = components.url
         else {
-            throw Web3AuthError.unknownError
+            throw Web3AuthError.runtimeError("Invalid URL")
         }
 
         return url
@@ -195,7 +194,7 @@ public class Web3Auth: NSObject {
             let callbackData = Data.fromBase64URL(callbackFragment),
             let callbackState = try? JSONDecoder().decode(Web3AuthState.self, from: callbackData)
         else {
-            throw Web3AuthError.unknownError
+            throw Web3AuthError.decodingError
         }
         return callbackState
     }

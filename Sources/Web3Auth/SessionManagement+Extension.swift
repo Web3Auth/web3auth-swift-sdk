@@ -14,29 +14,35 @@ extension SessionManagement {
         let ecies = try encParamsHexToBuf(encParamsHex: d)
         let result = try decrypt(privateKey: privKeyHex, opts: ecies)
         guard let dict = try JSONSerialization.jsonObject(with: result.data(using: .utf8) ?? Data()) as? [String: Any],
-              let loginDetails = Web3AuthState(dict: dict, sessionID: privKeyHex) else { throw Web3AuthError.unknownError }
+              let loginDetails = Web3AuthState(dict: dict, sessionID: privKeyHex) else { throw Web3AuthError.decodingError }
         return loginDetails
     }
 
     func encryptData(privkeyHex: String, d: String) throws -> String {
         guard let pubKey = SECP256K1.privateToPublic(privateKey: privkeyHex.hexa.data)?.web3.hexString.web3.noHexPrefix else {
-            throw Web3AuthError.unknownError
+            throw Web3AuthError.runtimeError("Invalid private key hex")
         }
-        let encParams = try encrypt(publicKey: pubKey, msg: "", opts: nil)
+        let encParams = try encrypt(publicKey: pubKey, msg: d, opts: nil)
         let data = try JSONEncoder().encode(encParams)
-        let string = String(data: data, encoding: .utf8) ?? ""
+        guard let string = String(data: data, encoding: .utf8) else { throw Web3AuthError.runtimeError("Invalid String from enc Params") }
         return string
     }
 
-    func encParamsBufToHex(encParamsHex: ECIES) -> ECIES {
-        return .init(iv: encParamsHex.iv.web3.hexData?.web3.hexString ?? "", ephemPublicKey: encParamsHex.ephemPublicKey.web3.hexData?.toHexString() ?? "", ciphertext: encParamsHex.ciphertext.web3.hexData?.toHexString() ?? "", mac: encParamsHex.mac.web3.hexData?.web3.hexString ?? "")
+    func encParamsBufToHex(encParamsHex: ECIES) throws -> ECIES {
+        guard let iv = encParamsHex.iv.web3.hexData?.web3.hexString,
+              let ephemPublicKey = encParamsHex.ephemPublicKey.web3.hexData?.toHexString(),
+              let ciphertext = encParamsHex.ciphertext.web3.hexData?.toHexString(),
+              let mac = encParamsHex.mac.web3.hexData?.web3.hexString else {
+            throw Web3AuthError.runtimeError("Invalid enc params")
+        }
+        return .init(iv: iv, ephemPublicKey: ephemPublicKey, ciphertext: ciphertext, mac: mac)
     }
 
     private func encParamsHexToBuf(encParamsHex: String) throws -> ECIES {
         let data = encParamsHex.data(using: .utf8) ?? Data()
         var arr = Array(repeating: "", count: 4)
         do {
-            let dict = try? JSONSerialization.jsonObject(with: data) as? [String: String]
+            let dict = try JSONSerialization.jsonObject(with: data) as? [String: String]
             dict?.forEach { key, value in
                 if key == "iv" {
                     arr[0] = value
@@ -71,7 +77,7 @@ extension SessionManagement {
             //  let data = inprivateKey
             let sharedSecret = SECP256K1.ecdh(pubKey: ephemPubKey, privateKey: ephemPrivateKey)
         else {
-            throw Web3AuthError.unknownError
+            throw Web3AuthError.runtimeError("ECDH error")
         }
 
         let sharedSecretData = sharedSecret.data
@@ -84,7 +90,7 @@ extension SessionManagement {
         do {
             // AES-CBCblock-256
             let aes = try AES(key: encryptionKey, blockMode: CBC(iv: iv), padding: .pkcs7)
-            let encrypt = try aes.encrypt([116, 111, 32, 97])
+            let encrypt = try aes.encrypt(msg.bytes)
             let data = Data(encrypt)
             let ciphertext = data
             var dataToMac: [UInt8] = iv
@@ -111,7 +117,7 @@ extension SessionManagement {
             let data = Data(hexString: privateKey),
             let sharedSecret = SECP256K1.ecdh(pubKey: ephemPubKey, privateKey: data)
         else {
-            throw Web3AuthError.unknownError
+            throw Web3AuthError.runtimeError("ECDH Error")
         }
         let sharedSecretData = sharedSecret.data
         let sharedSecretPrefix = tupleToArray(sharedSecretData).prefix(32)

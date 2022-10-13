@@ -5,6 +5,7 @@
 //  Created by Dhruv Jaiswal on 18/07/22.
 //
 
+import BigInt
 import Foundation
 import OSLog
 import web3
@@ -43,7 +44,10 @@ public class SessionManagement {
             let encData = try encryptData(privkeyHex: sessionID, d: "")
             let sig = try SECP256K1().sign(privkey: privKey.toHexString(), messageData: encData)
             let urlStr = "\(storageServerUrl)/store/set"
-            let data = SessionLogoutDataModel(key: publicKeyHex, data: encData, signature: sig, timeout: 1)
+            let sigData = try JSONEncoder().encode(sig)
+            let sigJsonStr = String(data: sigData, encoding: .utf8) ?? ""
+            let data = SessionLogoutDataModel(key: publicKeyHex, data: encData, signature: sigJsonStr, timeout: 1)
+            print(data)
             let encodedData = try JSONEncoder().encode(data)
             var req = URLRequest(url: URL(string: urlStr)!)
             req.httpMethod = "POST"

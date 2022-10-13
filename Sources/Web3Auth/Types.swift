@@ -1,5 +1,11 @@
 import Foundation
 
+struct Signature:Codable{
+    let r:String
+    let s:String
+}
+
+
 struct SessionLogoutDataModel: Codable {
     var key: String
     var data: String
