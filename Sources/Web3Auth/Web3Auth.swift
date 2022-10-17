@@ -8,6 +8,7 @@ import OSLog
 
 public class Web3Auth: NSObject {
     private let initParams: W3AInitParams
+    private var authSession: ASWebAuthenticationSession?
     /// You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
     public var state: Web3AuthState?
     /**
@@ -121,7 +122,7 @@ public class Web3Auth: NSObject {
         let url = try Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
 
-            let authSession = ASWebAuthenticationSession(
+            authSession = ASWebAuthenticationSession(
                 url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
 
                     guard
@@ -145,9 +146,9 @@ public class Web3Auth: NSObject {
                     return continuation.resume(returning: callbackState)
                 }
 
-            authSession.presentationContextProvider = self
+            authSession?.presentationContextProvider = self
 
-            if !authSession.start() {
+            if !(authSession?.start() ?? false) {
                 continuation.resume(throwing: Web3AuthError.unknownError)
             }
         })
