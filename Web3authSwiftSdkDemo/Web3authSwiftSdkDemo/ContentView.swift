@@ -10,7 +10,7 @@ struct ContentView: View {
                 HStack {
                     Spacer()
                     Button {
-                        Task {
+                        Task.detached {
                             try await Web3Auth().logout()
                             loggedIn.toggle()
                         }
@@ -24,18 +24,16 @@ struct ContentView: View {
             VStack {
                 Button(
                     action: {
-                        Task {
-                            await Web3Auth()
-                                .login(W3ALoginParams()) {
-                                    switch $0 {
-                                    case let .success(result):
-                                        showResult(result: result)
-                                        loggedIn.toggle()
-                                    case let .failure(error):
-                                        print("Error: \(error)")
-                                    }
-                                }
+                        Task.detached {
+                            do {
+                                let result = try await Web3Auth().login(W3ALoginParams())
+                                loggedIn = true
+                                showResult(result: result)
+                            } catch {
+                                print("Error")
+                            }
                         }
+
                     },
                     label: {
                         Text("Sign In")
@@ -46,16 +44,15 @@ struct ContentView: View {
                 Button(
                     action: {
                         Task {
-                            await Web3Auth()
-                                .login(W3ALoginParams(loginProvider: .GOOGLE)) {
-                                    switch $0 {
-                                    case let .success(result):
-                                        showResult(result: result)
-                                        loggedIn.toggle()
-                                    case let .failure(error):
-                                        print("Error: \(error)")
-                                    }
+                            Task.detached {
+                                do {
+                                    let result = try await Web3Auth().login(W3ALoginParams(loginProvider: .GOOGLE))
+                                    loggedIn = true
+                                    showResult(result: result)
+                                } catch {
+                                    print("Error")
                                 }
+                            }
                         }
                     },
                     label: {
@@ -67,16 +64,15 @@ struct ContentView: View {
                 Button(
                     action: {
                         Task {
-                            await Web3Auth()
-                                .login(W3ALoginParams(loginProvider: .APPLE)) {
-                                    switch $0 {
-                                    case let .success(result):
-                                        showResult(result: result)
-                                        loggedIn.toggle()
-                                    case let .failure(error):
-                                        print("Error: \(error)")
-                                    }
+                            Task.detached {
+                                do {
+                                    let result = try await Web3Auth().login(W3ALoginParams())
+                                    loggedIn = true
+                                    showResult(result: result)
+                                } catch {
+                                    print("Error")
                                 }
+                            }
                         }
                     },
                     label: {
@@ -88,16 +84,13 @@ struct ContentView: View {
                 Button(
                     action: {
                         Task {
-                            await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
-                                .login(W3ALoginParams(loginProvider: .GOOGLE)) {
-                                    switch $0 {
-                                    case let .success(result):
-                                        showResult(result: result)
-                                        loggedIn.toggle()
-                                    case let .failure(error):
-                                        print("Error: \(error)")
-                                    }
-                                }
+                            do {
+                                let result = try await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
+                                    .login(W3ALoginParams(loginProvider: .GOOGLE))
+                                showResult(result: result)
+                            } catch let error {
+                                print(error)
+                            }
                         }
                     },
                     label: {
@@ -115,26 +108,26 @@ struct ContentView: View {
     func showResult(result: Web3AuthState) {
         print("""
         Signed in successfully!
-            Private key: \(result.privKey)
-            Ed25519 Private key: \(result.ed25519PrivKey)
+            Private key: \(result.privKey ?? "")
+                Ed25519 Private key: \(result.ed25519PrivKey ?? "")
             User info:
-                Name: \(result.userInfo?.name)
+                Name: \(result.userInfo?.name ?? "")
                 Profile image: \(result.userInfo?.profileImage ?? "N/A")
-                Type of login: \(result.userInfo?.typeOfLogin)
+                Type of login: \(result.userInfo?.typeOfLogin ?? "")
         """)
         text = """
         Signed in successfully!
-            Private key: \(result.privKey)
-            Ed25519 Private key: \(result.ed25519PrivKey)
+            Private key: \(result.privKey ?? "")
+                Ed25519 Private key: \(result.ed25519PrivKey ?? "")
             User info:
-                Name: \(result.userInfo?.name)
+                Name: \(result.userInfo?.name ?? "")
                 Profile image: \(result.userInfo?.profileImage ?? "N/A")
-                Type of login: \(result.userInfo?.typeOfLogin)
+                Type of login: \(result.userInfo?.typeOfLogin ?? "")
         """
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct NewContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
