@@ -1,0 +1,61 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "BigInt",
+        "repositoryURL": "https://github.com/attaswift/BigInt",
+        "state": {
+          "branch": null,
+          "revision": "0ed110f7555c34ff468e72e1686e59721f2b0da6",
+          "version": "5.3.0"
+        }
+      },
+      {
+        "package": "CryptoSwift",
+        "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
+        "state": {
+          "branch": null,
+          "revision": "19b3c3ceed117c5cc883517c4e658548315ba70b",
+          "version": "1.6.0"
+        }
+      },
+      {
+        "package": "GenericJSON",
+        "repositoryURL": "https://github.com/zoul/generic-json-swift",
+        "state": {
+          "branch": null,
+          "revision": "a137894b2a217abe489cdf1ea287e6f7819b1051",
+          "version": "2.0.1"
+        }
+      },
+      {
+        "package": "KeychainSwift",
+        "repositoryURL": "https://github.com/evgenyneu/keychain-swift.git",
+        "state": {
+          "branch": "master",
+          "revision": "32a99b537d1c6f3529a08257c28a5feb70c0c5af",
+          "version": null
+        }
+      },
+      {
+        "package": "secp256k1",
+        "repositoryURL": "https://github.com/GigaBitcoin/secp256k1.swift.git",
+        "state": {
+          "branch": null,
+          "revision": "39dd39248e769ea88253a0ce300399b402a64529",
+          "version": "0.9.2"
+        }
+      },
+      {
+        "package": "web3.swift",
+        "repositoryURL": "https://github.com/argentlabs/web3.swift",
+        "state": {
+          "branch": null,
+          "revision": "0474eb5e883bc4800b3909833207a1d35e72b808",
+          "version": "0.9.3"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -14,6 +14,7 @@
 		FAD9BC2B263823A600439779 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BC2A263823A600439779 /* Assets.xcassets */; };
 		FAD9BC2E263823A600439779 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BC2D263823A600439779 /* Preview Assets.xcassets */; };
 		FAD9BCCE263831BE00439779 /* web3auth-swift-sdk in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BCCA2638317200439779 /* web3auth-swift-sdk */; };
+		FC08510928F4035300703D09 /* LoggedInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC08510828F4035300703D09 /* LoggedInView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		FAD9BC43263823A600439779 /* Web3authSwiftSdkDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web3authSwiftSdkDemoUITests.swift; sourceTree = "<group>"; };
 		FAD9BC45263823A600439779 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FAD9BCCA2638317200439779 /* web3auth-swift-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "web3auth-swift-sdk"; path = ..; sourceTree = "<group>"; };
+		FC08510828F4035300703D09 /* LoggedInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 			children = (
 				FAD9BC26263823A500439779 /* MainApp.swift */,
 				FAD9BC28263823A500439779 /* ContentView.swift */,
+				FC08510828F4035300703D09 /* LoggedInView.swift */,
 				FAD9BC2A263823A600439779 /* Assets.xcassets */,
 				FAD9BC2F263823A600439779 /* Info.plist */,
 				FAD9BC2C263823A600439779 /* Preview Content */,
@@ -184,6 +187,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FAD9BC29263823A500439779 /* ContentView.swift in Sources */,
+				FC08510928F4035300703D09 /* LoggedInView.swift in Sources */,
 				FAD9BC27263823A500439779 /* MainApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
