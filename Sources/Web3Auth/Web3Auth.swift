@@ -164,7 +164,6 @@ public class Web3Auth: NSObject {
         else {
             throw Web3AuthError.unknownError
         }
-        print(try JSONSerialization.jsonObject(with: callbackData))
         return callbackState
     }
 }
