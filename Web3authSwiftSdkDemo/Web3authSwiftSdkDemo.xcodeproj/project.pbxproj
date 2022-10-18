@@ -15,7 +15,6 @@
 		FAD9BC2E263823A600439779 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BC2D263823A600439779 /* Preview Assets.xcassets */; };
 		FAD9BCCE263831BE00439779 /* web3auth-swift-sdk in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BCCA2638317200439779 /* web3auth-swift-sdk */; };
 		FC08510928F4035300703D09 /* UserDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC08510828F4035300703D09 /* UserDetailView.swift */; };
-		FC4D53AC28FF568D007E89EC /* AsyncTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC4D53AB28FF568D007E89EC /* AsyncTest.swift */; };
 		FCA0A88428FE626E00BC04FA /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA0A88328FE626E00BC04FA /* ViewModel.swift */; };
 		FCA0A88C28FE808000BC04FA /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCA0A88B28FE808000BC04FA /* Launch Screen.storyboard */; };
 		FCA0A88E28FE810E00BC04FA /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA0A88D28FE810E00BC04FA /* LoginView.swift */; };
@@ -35,7 +34,6 @@
 		FAD9BC45263823A600439779 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FAD9BCCA2638317200439779 /* web3auth-swift-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "web3auth-swift-sdk"; path = ..; sourceTree = "<group>"; };
 		FC08510828F4035300703D09 /* UserDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailView.swift; sourceTree = "<group>"; };
-		FC4D53AB28FF568D007E89EC /* AsyncTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncTest.swift; sourceTree = "<group>"; };
 		FCA0A88328FE626E00BC04FA /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		FCA0A88B28FE808000BC04FA /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = SOURCE_ROOT; };
 		FCA0A88D28FE810E00BC04FA /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -80,7 +78,6 @@
 				FAD9BC28263823A500439779 /* ContentView.swift */,
 				FCA0A88D28FE810E00BC04FA /* LoginView.swift */,
 				FCA0A88328FE626E00BC04FA /* ViewModel.swift */,
-				FC4D53AB28FF568D007E89EC /* AsyncTest.swift */,
 				FC08510828F4035300703D09 /* UserDetailView.swift */,
 				FAD9BC2A263823A600439779 /* Assets.xcassets */,
 				FAD9BC2F263823A600439779 /* Info.plist */,
@@ -203,7 +200,6 @@
 				FC08510928F4035300703D09 /* UserDetailView.swift in Sources */,
 				FCA0A88428FE626E00BC04FA /* ViewModel.swift in Sources */,
 				FCA0A88E28FE810E00BC04FA /* LoginView.swift in Sources */,
-				FC4D53AC28FF568D007E89EC /* AsyncTest.swift in Sources */,
 				FAD9BC27263823A500439779 /* MainApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

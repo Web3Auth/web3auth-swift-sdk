@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject var vm:ViewModel
+    @StateObject var vm: ViewModel
     var body: some View {
         List {
             Button(

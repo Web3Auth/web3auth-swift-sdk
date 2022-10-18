@@ -12,6 +12,7 @@ struct UserDetailView: View {
     @State var user: Web3AuthState?
     @Binding var loggedIn: Bool
     @State private var showingAlert = false
+
     var body: some View {
         if let user = user {
             List {
@@ -43,8 +44,6 @@ struct UserDetailView: View {
                                 DispatchQueue.main.async {
                                     showingAlert = true
                                 }
-                    
-                     
                             }
                         }
                     } label: {
