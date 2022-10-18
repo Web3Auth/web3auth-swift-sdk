@@ -5,7 +5,7 @@ import Web3Auth
 struct MainApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(vm: ViewModel())
         }
     }
 }

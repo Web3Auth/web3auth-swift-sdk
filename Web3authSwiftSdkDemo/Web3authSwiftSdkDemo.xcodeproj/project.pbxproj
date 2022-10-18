@@ -14,7 +14,11 @@
 		FAD9BC2B263823A600439779 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BC2A263823A600439779 /* Assets.xcassets */; };
 		FAD9BC2E263823A600439779 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BC2D263823A600439779 /* Preview Assets.xcassets */; };
 		FAD9BCCE263831BE00439779 /* web3auth-swift-sdk in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BCCA2638317200439779 /* web3auth-swift-sdk */; };
-		FC08510928F4035300703D09 /* LoggedInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC08510828F4035300703D09 /* LoggedInView.swift */; };
+		FC08510928F4035300703D09 /* UserDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC08510828F4035300703D09 /* UserDetailView.swift */; };
+		FC4D53AC28FF568D007E89EC /* AsyncTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC4D53AB28FF568D007E89EC /* AsyncTest.swift */; };
+		FCA0A88428FE626E00BC04FA /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA0A88328FE626E00BC04FA /* ViewModel.swift */; };
+		FCA0A88C28FE808000BC04FA /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCA0A88B28FE808000BC04FA /* Launch Screen.storyboard */; };
+		FCA0A88E28FE810E00BC04FA /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA0A88D28FE810E00BC04FA /* LoginView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,7 +34,11 @@
 		FAD9BC43263823A600439779 /* Web3authSwiftSdkDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web3authSwiftSdkDemoUITests.swift; sourceTree = "<group>"; };
 		FAD9BC45263823A600439779 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FAD9BCCA2638317200439779 /* web3auth-swift-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "web3auth-swift-sdk"; path = ..; sourceTree = "<group>"; };
-		FC08510828F4035300703D09 /* LoggedInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInView.swift; sourceTree = "<group>"; };
+		FC08510828F4035300703D09 /* UserDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDetailView.swift; sourceTree = "<group>"; };
+		FC4D53AB28FF568D007E89EC /* AsyncTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncTest.swift; sourceTree = "<group>"; };
+		FCA0A88328FE626E00BC04FA /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
+		FCA0A88B28FE808000BC04FA /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = SOURCE_ROOT; };
+		FCA0A88D28FE810E00BC04FA /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,9 +75,13 @@
 		FAD9BC25263823A500439779 /* Web3authSwiftSdkDemo */ = {
 			isa = PBXGroup;
 			children = (
+				FCA0A88B28FE808000BC04FA /* Launch Screen.storyboard */,
 				FAD9BC26263823A500439779 /* MainApp.swift */,
 				FAD9BC28263823A500439779 /* ContentView.swift */,
-				FC08510828F4035300703D09 /* LoggedInView.swift */,
+				FCA0A88D28FE810E00BC04FA /* LoginView.swift */,
+				FCA0A88328FE626E00BC04FA /* ViewModel.swift */,
+				FC4D53AB28FF568D007E89EC /* AsyncTest.swift */,
+				FC08510828F4035300703D09 /* UserDetailView.swift */,
 				FAD9BC2A263823A600439779 /* Assets.xcassets */,
 				FAD9BC2F263823A600439779 /* Info.plist */,
 				FAD9BC2C263823A600439779 /* Preview Content */,
@@ -175,6 +187,7 @@
 				F04B10EC2666395100C6E51F /* Web3Auth.plist in Resources */,
 				FAD9BCCE263831BE00439779 /* web3auth-swift-sdk in Resources */,
 				FAD9BC2E263823A600439779 /* Preview Assets.xcassets in Resources */,
+				FCA0A88C28FE808000BC04FA /* Launch Screen.storyboard in Resources */,
 				FAD9BC2B263823A600439779 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -187,7 +200,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				FAD9BC29263823A500439779 /* ContentView.swift in Sources */,
-				FC08510928F4035300703D09 /* LoggedInView.swift in Sources */,
+				FC08510928F4035300703D09 /* UserDetailView.swift in Sources */,
+				FCA0A88428FE626E00BC04FA /* ViewModel.swift in Sources */,
+				FCA0A88E28FE810E00BC04FA /* LoginView.swift in Sources */,
+				FC4D53AC28FF568D007E89EC /* AsyncTest.swift in Sources */,
 				FAD9BC27263823A500439779 /* MainApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

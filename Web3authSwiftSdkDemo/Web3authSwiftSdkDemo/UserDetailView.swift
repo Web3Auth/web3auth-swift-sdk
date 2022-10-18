@@ -8,7 +8,7 @@
 import SwiftUI
 import Web3Auth
 
-struct LoggedInView: View {
+struct UserDetailView: View {
     @State var user: Web3AuthState?
     @Binding var loggedIn: Bool
     @State private var showingAlert = false
@@ -40,7 +40,11 @@ struct LoggedInView: View {
                                 try await Web3Auth().logout()
                                 loggedIn.toggle()
                             } catch {
-                                showingAlert = true
+                                DispatchQueue.main.async {
+                                    showingAlert = true
+                                }
+                    
+                     
                             }
                         }
                     } label: {
@@ -52,12 +56,13 @@ struct LoggedInView: View {
                     }
                 }
             }
+            .listStyle(.automatic)
         }
     }
 }
 
-struct LoggedInView_Previews: PreviewProvider {
+struct UserDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        LoggedInView(user: nil, loggedIn: .constant(true))
+        UserDetailView(user: .init(privKey: "12345", ed25519PrivKey: "32334", sessionId: "23234384y7735y47shdj", userInfo: nil, error: nil), loggedIn: .constant(true))
     }
 }

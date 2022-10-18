@@ -9,123 +9,33 @@ import SwiftUI
 import Web3Auth
 
 struct ContentView: View {
-    @SwiftUI.State var text = ""
-    @State var loggedIn = false
-    @State var user: Web3AuthState?
+    @StateObject var vm: ViewModel
     var body: some View {
         NavigationView {
             VStack {
-                if loggedIn {
-                    LoggedInView(user: user, loggedIn: $loggedIn)
+                if vm.isLoading {
+                    ProgressView()
                 } else {
-                    List {
-                        Button(
-                            action: {
-                                Task.detached {
-                                    do {
-                                        let result = try await Web3Auth().login(W3ALoginParams())
-                                        user = result
-                                        loggedIn = true
-                                        showResult(result: result)
-                                    } catch {
-                                        print("Error")
-                                    }
-                                }
-
-                            },
-                            label: {
-                                Text("Sign In")
-                            }
-                        )
-
-                        Button(
-                            action: {
-                                Task.detached {
-                                    do {
-                                        let result = try await Web3Auth().login(W3ALoginParams(loginProvider: .GOOGLE))
-                                        user = result
-                                        loggedIn = true
-
-                                        showResult(result: result)
-                                    } catch {
-                                        print("Error")
-                                    }
-                                }
-                            },
-                            label: {
-                                Text("Sign In with Google")
-                            }
-                        )
-
-                        Button(
-                            action: {
-                                Task.detached {
-                                    do {
-                                        let result = try await Web3Auth().login(W3ALoginParams())
-                                        user = result
-                                        loggedIn = true
-                                        showResult(result: result)
-                                    } catch {
-                                        print("Error")
-                                    }
-                                }
-                            },
-                            label: {
-                                Text("Sign In with Apple")
-                            }
-                        )
-
-                        Button(
-                            action: {
-                                Task.detached {
-                                    do {
-                                        let result = try await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet, whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
-                                            .login(W3ALoginParams(loginProvider: .GOOGLE))
-                                        user = result
-                                        loggedIn = true
-                                        showResult(result: result)
-                                    } catch let error {
-                                        print(error)
-                                    }
-                                }
-                            },
-                            label: {
-                                Text("Sign In with Whitelabel")
-                            }
-                        )
+                    if vm.loggedIn {
+                        UserDetailView(user: vm.user, loggedIn: $vm.loggedIn)
+                    } else {
+                        LoginView(vm: vm)
                     }
-                    .listStyle(.automatic)
                 }
             }
-            .navigationTitle(loggedIn ? "UserInfo" : "SignIn")
+            .navigationTitle(vm.navigationTitle)
             Spacer()
         }
-    }
-
-    func showResult(result: Web3AuthState) {
-        print("""
-        Signed in successfully!
-            Private key: \(result.privKey ?? "")
-                Ed25519 Private key: \(result.ed25519PrivKey ?? "")
-            User info:
-                Name: \(result.userInfo?.name ?? "")
-                Profile image: \(result.userInfo?.profileImage ?? "N/A")
-                Type of login: \(result.userInfo?.typeOfLogin ?? "")
-        """)
-        text = """
-        Signed in successfully!
-            Private key: \(result.privKey ?? "")
-                Ed25519 Private key: \(result.ed25519PrivKey ?? "")
-            User info:
-                Name: \(result.userInfo?.name ?? "")
-                Profile image: \(result.userInfo?.profileImage ?? "N/A")
-                Type of login: \(result.userInfo?.typeOfLogin ?? "")
-        """
+        .onAppear {
+            Task {
+                await vm.setup()
+            }
+        }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(vm: ViewModel())
     }
 }
