@@ -24,20 +24,14 @@ public class Web3Auth: NSObject {
      */
     public init(_ params: W3AInitParams) async {
         initParams = params
-        super.init()
-        await checkForSession()
-    }
-
-    func checkForSession() async {
         if let sessionID = KeychainManager.shared.get(key: .sessionID) {
-            Task {
-                do {
-                    state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
-                } catch let error {
-                    os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
-                }
+            do {
+                state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
+            } catch let error {
+                os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
             }
         }
+        super.init()
     }
 
     public func logout() async throws {
