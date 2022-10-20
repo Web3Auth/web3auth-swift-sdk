@@ -1,14 +1,30 @@
-# web3auth-swift-sdk
+# Web3Auth iOS SDK
 
-Web3Auth SDK for iOS applications.
+Web3Auth is where passwordless auth meets non-custodial key infrastructure for Web3 apps and wallets. By aggregating OAuth (Google, Twitter, Discord) logins, different wallets and innovative Multi Party Computation (MPC) - Web3Auth provides a seamless login experience to every user on your application.
 
-## Requirements
+## 📖 Documentation
+
+Checkout the official [Web3Auth Documentation](https://web3auth.io/docs) and [SDK Reference](https://web3auth.io/docs/sdk/ios/) to get started!
+
+## 💡 Features
+- Plug and Play, OAuth based Web3 Authentication Service
+- Fully decentralized, non-custodial key infrastructure
+- End to end Whitelabelable solution
+- Threshold Cryptography based Key Reconstruction
+- Multi Factor Authentication Setup & Recovery (Includes password, backup phrase, device factor editing/deletion etc)
+- Support for WebAuthn & Passwordless Login
+- Support for connecting to multiple wallets
+- DApp Active Session Management
+
+...and a lot more
+
+## ⏪ Requirements
 
 - iOS 13+
 - Xcode 11.4+ / 12.x
 - Swift 4.x / 5.x
 
-## Installation
+## ⚡ Installation
 
 If you are using the Swift Package Manager, open the following menu item in Xcode:
 
@@ -18,6 +34,12 @@ In the Choose Package Repository prompt add this url:
 
 ```
 https://github.com/web3auth/web3auth-swift-sdk
+```
+
+If you are using cocoapods , open the pod file and add 
+
+```
+pod 'Web3Auth', '3.5.1'
 ```
 
 ## Getting Started
@@ -62,7 +84,7 @@ let state = web3auth.state
 
 ```
 
-## Configuration
+## 🌟 Configuration
 
 In order to use Web3Auth you need to provide your Web3Auth **ClientId** and which **Network** to run it.
 
@@ -78,6 +100,18 @@ Task {
 
 Please also whitelist `\(bundleId)://auth` in the developer dashboard. This step is mandatory for the redirect to work.
 
-## Next steps
+## 🩹 Examples
 
-See example app in [Web3authSwiftSdkDemo](/Web3authSwiftSdkDemo)
+Checkout the examples for your preferred blockchain and platform in our [examples repository](https://github.com/Web3Auth/examples/)
+
+## 🌐 Demo
+
+Checkout the [Web3Auth Demo](https://demo-app.web3auth.io/) to see how Web3Auth can be used in an application.
+
+Further checkout the [demo folder](https://github.com/Web3Auth/web3auth-swift-sdk/tree/master/Web3authSwiftSdkDemo) within this repository, which contains a sample app.
+
+## 💬 Troubleshooting and Discussions
+
+- Have a look at our [GitHub Discussions](https://github.com/Web3Auth/Web3Auth/discussions?discussions_q=sort%3Atop) to see if anyone has any questions or issues you might be having.
+- Checkout our [Troubleshooting Documentation Page](https://web3auth.io/docs/troubleshooting) to know the common issues and solutions
+- Join our [Discord](https://discord.gg/web3auth) to join our community and get private integration support or help with your integration.
