@@ -1,19 +1,30 @@
 import Foundation
 
-struct Signature:Codable{
-    let r:String
-    let s:String
+public struct Signature: Codable {
+    let r: String
+    let s: String
+    
+   public init(r: String, s: String) {
+        self.r = r
+        self.s = s
+    }
 }
-
 
 struct SessionLogoutDataModel: Codable {
     var key: String
     var data: String
     var signature: String
     var timeout: Int
+
+    public init(key: String, data: String, signature: String, timeout: Int) {
+        self.key = key
+        self.data = data
+        self.signature = signature
+        self.timeout = timeout
+    }
 }
 
-public struct ECIES:Codable {
+public struct ECIES: Codable {
     public init(iv: String, ephemPublicKey: String, ciphertext: String, mac: String) {
         self.iv = iv
         self.ephemPublicKey = ephemPublicKey
@@ -84,7 +95,6 @@ public struct W3AWhiteLabelData: Codable {
     }
 }
 
-
 public struct W3ALoginConfig: Codable {
     public init(verifier: String, typeOfLogin: TypeOfLogin, name: String, description: String? = nil, clientId: String? = nil,
                 verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
@@ -136,7 +146,6 @@ public struct W3ALoginConfig: Codable {
     }
 }
 
-
 public struct W3AInitParams: Codable {
     public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil,
                 loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil) {
@@ -187,16 +196,15 @@ public struct W3AInitParams: Codable {
 }
 
 public struct W3ALoginParams: Codable {
-
     public init() {
-        self.loginProvider = nil
-        self.dappShare = nil
-        self.extraLoginOptions = nil
-        self.redirectUrl = nil
-        self.appState = nil
-        self.mfaLevel = nil
-        self.sessionTime = 86400
-        self.curve = .SECP256K1
+        loginProvider = nil
+        dappShare = nil
+        extraLoginOptions = nil
+        redirectUrl = nil
+        appState = nil
+        mfaLevel = nil
+        sessionTime = 86400
+        curve = .SECP256K1
     }
 
     public init(loginProvider: Web3AuthProvider?, dappShare: String? = nil,

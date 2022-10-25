@@ -1,13 +1,12 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Michael Lee on 8/3/2022.
 //
 
 import Foundation
 extension String {
-    
     func fromBase64URL() -> String? {
         var base64 = self
         base64 = base64.replacingOccurrences(of: "-", with: "+")
@@ -20,9 +19,9 @@ extension String {
         }
         return String(data: data, encoding: .utf8)
     }
-    
+
     func toBase64URL() -> String {
-        var result = Data(self.utf8).base64EncodedString()
+        var result = Data(utf8).base64EncodedString()
         result = result.replacingOccurrences(of: "+", with: "-")
         result = result.replacingOccurrences(of: "/", with: "_")
         result = result.replacingOccurrences(of: "=", with: "")
@@ -58,14 +57,23 @@ extension String {
         return self
     }
 
-    func addLeading0sForLength64() -> String {
-        if count < 64 {
-            let toAdd = String(repeating: "0", count: 64 - count)
-            return toAdd + self
+    func padStart(toLength: Int, padString: String = " ") -> String {
+        var stringLength = count
+        if stringLength < toLength {
+            var newString = ""
+            while toLength != stringLength {
+                if toLength - stringLength >= padString.count {
+                    newString.append(padString)
+                    stringLength += padString.count
+                } else {
+                    newString.append(String(padString.prefix(toLength - stringLength)))
+                    break
+                }
+            }
+            return newString + self
         } else {
             return self
         }
-        // String(format: "%064d", self)
     }
 }
 
@@ -84,5 +92,3 @@ extension Sequence where Element == UInt8 {
     var data: Data { .init(self) }
     var hexa: String { map { .init(format: "%02x", $0) }.joined() }
 }
-
-

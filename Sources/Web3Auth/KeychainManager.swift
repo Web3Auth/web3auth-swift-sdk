@@ -50,7 +50,8 @@ class KeychainManager: KeychainManagerProtocol {
 
     func saveDappShare(userInfo: Web3AuthUserInfo) {
         guard let verifer = userInfo.verifier, let veriferID = userInfo.verifierId, let dappShare = userInfo.dappShare else { return }
-        keychain.set(dappShare, forKey: verifer + veriferID)
+        let key = verifer + " | " + veriferID
+        keychain.set(dappShare, forKey: key)
     }
 
     func getDappShare(verifier: String) -> String? {

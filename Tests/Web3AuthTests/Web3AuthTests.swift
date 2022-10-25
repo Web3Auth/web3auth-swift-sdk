@@ -4,6 +4,15 @@ import XCTest
 @available(iOS 13.0, *)
 
 class Web3AuthTests: XCTestCase {
+    func testPadLeft() {
+        let str = "abc"
+        XCTAssertEqual(str.padStart(toLength: 10), "       abc")
+        XCTAssertEqual(str.padStart(toLength: 10, padString: "foo"), "foofoofabc")
+        XCTAssertEqual(str.padStart(toLength: 6, padString: "123456"), "123abc")
+        XCTAssertEqual(str.padStart(toLength: 8, padString: "0"), "00000abc")
+        XCTAssertEqual(str.padStart(toLength: 1), "abc")
+    }
+
     func testSign() {
         let privKey = "bce6550a433b2e38067501222f9e75a2d4c5a433a6d27ec90cd81fbd4194cc2b"
         let encData = "test data"
