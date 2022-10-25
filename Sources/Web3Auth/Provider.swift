@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Michael Lee on 15/12/2021.
 //
@@ -24,4 +24,5 @@ public enum Web3AuthProvider: String, Codable {
     case EMAIL_PASSWORDLESS = "email_passwordless"
     case JWT = "jwt"
 }
+
 

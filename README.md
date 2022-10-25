@@ -21,7 +21,7 @@ Checkout the official [Web3Auth Documentation](https://web3auth.io/docs) and [SD
 ## ⏪ Requirements
 
 - iOS 13+
-- Xcode 11+
+- Xcode 11.4+ / 12.x
 - Swift 4.x / 5.x
 
 ## ⚡ Installation
@@ -42,11 +42,9 @@ If you are using cocoapods , open the pod file and add
 pod 'Web3Auth', '3.5.1'
 ```
 
-then do a pod install and you are good to go.
+## Getting Started
 
-### Getting Started
-
-Authentication with In-App Web-based Flow (iOS 12+):
+Authentication with In-App Web-based Flow (iOS 13+):
 
 1. Import **Web3Auth** into your project.
 
@@ -57,15 +55,14 @@ import Web3Auth
 2. Present the In-App Web-based Login modal. The user should see a permission dialog.
 
 ```
-Web3Auth()
+ Task{
+       await Web3Auth()
     .login(OLInitParams(loginProvider: .GOOGLE)) {
         switch $0 {
         case .success(let result):
             print("""
                 Signed in successfully!
                     Private key: \(result.privKey)
-                    ed25519PrivKey : \(result.ed25519PrivKey)
-                    Session ID : \(result.sessionId)
                     User info:
                         Name: \(result.userInfo.name)
                         Profile image: \(result.userInfo.profileImage ?? "N/A")
@@ -75,6 +72,16 @@ Web3Auth()
             print("Error: \(error)")
         }
     }
+    }
+```
+
+3. You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
+```
+Task{
+let web3auth = await Web3Auth()
+let state = web3auth.state
+}
+
 ```
 
 ## 🌟 Configuration
@@ -83,12 +90,13 @@ In order to use Web3Auth you need to provide your Web3Auth **ClientId** and whic
 
 - Go to [Web3Auth Developer Dashboard](https://dashboard.web3auth.io), create or open an existing Web3Auth project and copy your Client ID, which is the **ClientId**.
 
-- You can now create an instance of the Web3Auth class using the above clientid and Network of your choice
+- Set the clientID and network in the Web3Auth initializer
+
 ```
-   Web3Auth(W3AInitParams(clientId: "your-client-id",network: .mainnet))
-   
+Task {
+ await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet)
+}
 ```
--If you want to use Whitelabel or Custom Authentication, you will also have to specify it in the dynamic paramter constructor as well.
 
 Please also whitelist `\(bundleId)://auth` in the developer dashboard. This step is mandatory for the redirect to work.
 

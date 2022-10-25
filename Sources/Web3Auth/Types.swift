@@ -1,11 +1,46 @@
-import AuthenticationServices
 import Foundation
-import SafariServices
-import UIKit
+
+public struct Signature: Codable {
+    let r: String
+    let s: String
+    
+   public init(r: String, s: String) {
+        self.r = r
+        self.s = s
+    }
+}
+
+struct SessionLogoutDataModel: Codable {
+    var key: String
+    var data: String
+    var signature: String
+    var timeout: Int
+
+    public init(key: String, data: String, signature: String, timeout: Int) {
+        self.key = key
+        self.data = data
+        self.signature = signature
+        self.timeout = timeout
+    }
+}
+
+public struct ECIES: Codable {
+    public init(iv: String, ephemPublicKey: String, ciphertext: String, mac: String) {
+        self.iv = iv
+        self.ephemPublicKey = ephemPublicKey
+        self.ciphertext = ciphertext
+        self.mac = mac
+    }
+
+    var iv: String
+    var ephemPublicKey: String
+    var ciphertext: String
+    var mac: String
+}
 
 public enum SUPPORTED_KEY_CURVES: String, Codable {
     case SECP256K1 = "secp256k1"
-    case ed25519 = "ed25519"
+    case ED25519 = "ed25519"
 }
 
 public enum MFALevel: String, Codable {
@@ -161,16 +196,15 @@ public struct W3AInitParams: Codable {
 }
 
 public struct W3ALoginParams: Codable {
-
     public init() {
-        self.loginProvider = nil
-        self.dappShare = nil
-        self.extraLoginOptions = nil
-        self.redirectUrl = nil
-        self.appState = nil
-        self.mfaLevel = nil
-        self.sessionTime = 86400
-        self.curve = .SECP256K1
+        loginProvider = nil
+        dappShare = nil
+        extraLoginOptions = nil
+        redirectUrl = nil
+        appState = nil
+        mfaLevel = nil
+        sessionTime = 86400
+        curve = .SECP256K1
     }
 
     public init(loginProvider: Web3AuthProvider?, dappShare: String? = nil,
@@ -200,7 +234,7 @@ public struct W3ALoginParams: Codable {
     }
 
     let loginProvider: String?
-    let dappShare: String?
+    var dappShare: String?
     let extraLoginOptions: ExtraLoginOptions?
     let redirectUrl: String?
     let appState: String?

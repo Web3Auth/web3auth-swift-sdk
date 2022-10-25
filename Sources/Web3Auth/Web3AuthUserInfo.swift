@@ -46,3 +46,22 @@ public struct Web3AuthUserInfo: Codable {
         oAuthAccessToken = try container.decodeIfPresent(String.self, forKey: .oAuthAccessToken)
     }
 }
+
+
+extension Web3AuthUserInfo {
+    init?(dict: [String: String]) {
+        guard let name = dict["name"],
+              let typeOfLogin = dict["typeOfLogin"] else { return nil }
+        self.name = name
+        self.typeOfLogin = typeOfLogin
+        profileImage = dict["profileImage"] ?? ""
+        aggregateVerifier = dict["aggregateVerifier"] ?? ""
+        verifier = dict["verifier"] ?? ""
+        verifierId = dict["verifierId"] ?? ""
+        email = dict["email"] ?? ""
+        dappShare = dict["dappShare"] ?? ""
+        idToken = dict["idToken"] ?? ""
+        oAuthIdToken = dict["oAuthIdToken"] ?? ""
+        oAuthAccessToken = dict["oAuthAccessToken"] ?? ""
+    }
+}

@@ -8,4 +8,8 @@ public enum Web3AuthError: Error {
     case userCancelled
     case appCancelled
     case unknownError
+    case runtimeError(String)
+    case decodingError
+    case encodingError
+    
 }
