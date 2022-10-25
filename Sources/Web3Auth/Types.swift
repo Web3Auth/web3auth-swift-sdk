@@ -3,8 +3,8 @@ import Foundation
 public struct Signature: Codable {
     let r: String
     let s: String
-    
-   public init(r: String, s: String) {
+
+    public init(r: String, s: String) {
         self.r = r
         self.s = s
     }
