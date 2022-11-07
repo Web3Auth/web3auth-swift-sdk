@@ -5,9 +5,10 @@ import UIKit
 /**
  Authentication using Web3Auth.
  */
-@available(iOS 12.0, *)
 public class Web3Auth: NSObject {
     private let initParams: W3AInitParams
+    // Ensure that there is a strong reference to the ASWebAuthenticationSession instance when the session is in progress.
+    private var authSession: ASWebAuthenticationSession?
 
     /**
      Web3Auth  component for authenticating with web-based flow.
@@ -96,29 +97,27 @@ public class Web3Auth: NSObject {
                 return callback(.failure(Web3AuthError.unknownError))
             }
 
-            let authSession = ASWebAuthenticationSession(
+            authSession = ASWebAuthenticationSession(
                 url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
 
-                guard
-                    authError == nil,
-                    let callbackURL = callbackURL,
-                    let callbackState = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
-                else {
-                    let authError = authError ?? Web3AuthError.unknownError
-                    if case ASWebAuthenticationSessionError.canceledLogin = authError {
-                        return callback(.failure(Web3AuthError.userCancelled))
-                    } else {
-                        return callback(.failure(authError))
+                    guard
+                        authError == nil,
+                        let callbackURL = callbackURL,
+                        let callbackState = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
+                    else {
+                        let authError = authError ?? Web3AuthError.unknownError
+                        if case ASWebAuthenticationSessionError.canceledLogin = authError {
+                            return callback(.failure(Web3AuthError.userCancelled))
+                        } else {
+                            return callback(.failure(authError))
+                        }
                     }
+                    callback(.success(callbackState))
                 }
-                callback(.success(callbackState))
-            }
 
-            if #available(iOS 13.0, *) {
-                authSession.presentationContextProvider = self
-            }
+            authSession?.presentationContextProvider = self
 
-            if !authSession.start() {
+            if !(authSession?.start() ?? false) {
                 callback(.failure(Web3AuthError.unknownError))
             }
         }
@@ -168,7 +167,6 @@ public class Web3Auth: NSObject {
     }
 }
 
-@available(iOS 12.0, *)
 extension Web3Auth: ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         let window = UIApplication.shared.windows.first { $0.isKeyWindow }
