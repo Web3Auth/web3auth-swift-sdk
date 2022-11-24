@@ -47,20 +47,6 @@ class ViewModel: ObservableObject {
         }
     }
 
-    func login(param: W3ALoginParams = W3ALoginParams()) {
-        Task.detached { [unowned self] in
-            do {
-                let result = try await Web3Auth().login(param)
-                await MainActor.run(body: {
-                    user = result
-                    loggedIn = true
-                })
-            } catch {
-                print("Error")
-            }
-        }
-    }
-
     func whitelabelLogin() {
         Task.detached { [unowned self] in
             do {

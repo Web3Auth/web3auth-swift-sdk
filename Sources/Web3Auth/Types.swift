@@ -96,7 +96,7 @@ public struct W3AWhiteLabelData: Codable {
 }
 
 public struct W3ALoginConfig: Codable {
-    public init(verifier: String, typeOfLogin: TypeOfLogin, name: String, description: String? = nil, clientId: String? = nil,
+    public init(verifier: String, typeOfLogin: TypeOfLogin, name: String? = nil, description: String? = nil, clientId: String? = nil,
                 verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
                 showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
         self.verifier = verifier
@@ -116,7 +116,7 @@ public struct W3ALoginConfig: Codable {
 
     let verifier: String
     let typeOfLogin: TypeOfLogin
-    let name: String
+    let name: String?
     let description: String?
     let clientId: String?
     let verifierSubIdentifier: String?
@@ -132,7 +132,7 @@ public struct W3ALoginConfig: Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         verifier = try values.decode(String.self, forKey: .verifier)
         typeOfLogin = try values.decode(TypeOfLogin.self, forKey: .typeOfLogin)
-        name = try values.decode(String.self, forKey: .name)
+        name = try values.decodeIfPresent(String.self, forKey: .name)
         description = try values.decodeIfPresent(String.self, forKey: .description)
         clientId = try values.decodeIfPresent(String.self, forKey: .clientId)
         verifierSubIdentifier = try values.decodeIfPresent(String.self, forKey: .verifierSubIdentifier)
@@ -196,21 +196,11 @@ public struct W3AInitParams: Codable {
 }
 
 public struct W3ALoginParams: Codable {
-    public init() {
-        loginProvider = nil
-        dappShare = nil
-        extraLoginOptions = nil
-        redirectUrl = nil
-        appState = nil
-        mfaLevel = nil
-        sessionTime = 86400
-        curve = .SECP256K1
-    }
 
-    public init(loginProvider: Web3AuthProvider?, dappShare: String? = nil,
+    public init(loginProvider: Web3AuthProvider, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, sessionTime: Int = 86400, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
-        self.loginProvider = loginProvider?.rawValue
+        self.loginProvider = loginProvider.rawValue
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
@@ -220,7 +210,7 @@ public struct W3ALoginParams: Codable {
         self.curve = curve
     }
 
-    public init(loginProvider: String?, dappShare: String? = nil,
+    public init(loginProvider: String, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, sessionTime: Int = 86400, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
         self.loginProvider = loginProvider
@@ -233,7 +223,7 @@ public struct W3ALoginParams: Codable {
         self.curve = curve
     }
 
-    let loginProvider: String?
+    let loginProvider: String
     var dappShare: String?
     let extraLoginOptions: ExtraLoginOptions?
     let redirectUrl: String?
@@ -244,7 +234,7 @@ public struct W3ALoginParams: Codable {
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        loginProvider = try values.decodeIfPresent(String.self, forKey: .loginProvider)
+        loginProvider = try values.decode(String.self, forKey: .loginProvider)
         dappShare = try values.decodeIfPresent(String.self, forKey: .dappShare)
         extraLoginOptions = try values.decodeIfPresent(ExtraLoginOptions.self, forKey: .extraLoginOptions)
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
