@@ -13,15 +13,6 @@ struct LoginView: View {
         List {
             Button(
                 action: {
-                    vm.login()
-                },
-                label: {
-                    Text("Sign In")
-                }
-            )
-
-            Button(
-                action: {
                     vm.login(provider: .GOOGLE)
                 },
                 label: {

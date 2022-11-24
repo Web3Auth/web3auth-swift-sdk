@@ -196,17 +196,6 @@ public struct W3AInitParams: Codable {
 }
 
 public struct W3ALoginParams: Codable {
-    public init() {
-        self.loginProvider = ""
-        self.dappShare = nil
-        self.extraLoginOptions = nil
-        self.redirectUrl = nil
-        self.appState = nil
-        self.mfaLevel = nil
-        self.sessionTime = 86400
-        self.curve = .SECP256K1
-
-    }
 
     public init(loginProvider: Web3AuthProvider, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
