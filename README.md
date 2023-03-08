@@ -39,7 +39,7 @@ https://github.com/web3auth/web3auth-swift-sdk
 If you are using cocoapods , open the pod file and add 
 
 ```
-pod 'Web3Auth', '4.0.0'
+pod 'Web3Auth', '5.0.0'
 ```
 
 ## Getting Started
