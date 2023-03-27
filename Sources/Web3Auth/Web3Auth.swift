@@ -190,6 +190,16 @@ public class Web3Auth: NSObject {
         }
         return callbackState
     }
+    
+    public func getPrivkey() -> String {
+        let privKey: String = initParams.useCoreKitKey == true ? state.coreKitKey ?? "" : state.privKey ?? ""
+        return privKey
+    }
+
+    public func getEd25519PrivKey() -> String {
+        let ed25519Key: String = initParams.useCoreKitKey == true ? state.coreKitEd25519PrivKey ?? "" : state.ed25519PrivKey ?? ""
+        return ed25519Key
+    }
 }
 
 extension Web3Auth: ASWebAuthenticationPresentationContextProviding {
