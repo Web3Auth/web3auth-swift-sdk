@@ -27,6 +27,7 @@ public class Web3Auth: NSObject {
         if let sessionID = KeychainManager.shared.get(key: .sessionID) {
             do {
                 state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
+                
             } catch let error {
                 os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
             }
@@ -199,6 +200,11 @@ public class Web3Auth: NSObject {
     public func getEd25519PrivKey() -> String {
         let ed25519Key: String = initParams.useCoreKitKey == true ? state?.coreKitEd25519PrivKey ?? "" : state?.ed25519PrivKey ?? ""
         return ed25519Key
+    }
+    
+    public func getUserInfo() throws -> Web3AuthUserInfo{
+        guard let state = state,let userInfo = state.userInfo else { throw Web3AuthError.runtimeError("No userInfo found, please login again")}
+        return userInfo
     }
 }
 

@@ -40,8 +40,6 @@ extension Web3AuthState {
     init?(dict: [String: Any],sessionID:String) {
         guard let privKey = dict["privKey"] as? String,
               let ed25519PrivKey = dict["ed25519PrivKey"] as? String,
-              let coreKitKey = dict["coreKitKey"] as? String,
-              let coreKitEd25519PrivKey = dict["coreKitEd25519PrivKey"] as? String,
               let userInfoDict = dict["store"] as? [String: String],
               let userInfo = Web3AuthUserInfo(dict: userInfoDict)
         else { return nil }
@@ -51,7 +49,7 @@ extension Web3AuthState {
         self.sessionId = sessionID
         self.userInfo = userInfo
         self.error = error
-        self.coreKitKey = coreKitKey
-        self.coreKitEd25519PrivKey = coreKitEd25519PrivKey
+        self.coreKitKey = dict["coreKitKey"] as? String ?? ""
+        self.coreKitEd25519PrivKey = dict["coreKitEd25519PrivKey"] as? String ?? ""
     }
 }

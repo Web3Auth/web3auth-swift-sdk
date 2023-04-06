@@ -41,7 +41,7 @@ class Web3AuthTests: XCTestCase {
         let redirectURL = URL(string: "com.web3auth.sdkapp://auth")!
         let initParams = W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet)
         let loginParams = W3ALoginParams(loginProvider: .GOOGLE)
-        let correctGeneratedURL = "https://sdk.openlogin.com/login#eyJpbml0Ijp7ImNsaWVudElkIjoiQkpZSXJIdXpsdUNsQkswdnZUQlVKN2tReWxWX0RqM05BLVgxcTRRdnhzMkF5M0R5U2thY09wb09iODNsRFRISlJWWTgzYkZsWXR0NHA4cFFSLW9DWXR3IiwibmV0d29yayI6InRlc3RuZXQiLCJyZWRpcmVjdFVybCI6ImNvbS53ZWIzYXV0aC5zZGthcHA6XC9cL2F1dGgiLCJzZGtVcmwiOiJodHRwczpcL1wvc2RrLm9wZW5sb2dpbi5jb20ifSwicGFyYW1zIjp7ImN1cnZlIjoic2VjcDI1NmsxIiwibG9naW5Qcm92aWRlciI6Imdvb2dsZSIsInNlc3Npb25UaW1lIjo4NjQwMH19"
+        let correctGeneratedURL = "https://sdk.openlogin.com/login#eyJpbml0Ijp7ImNoYWluTmFtZXNwYWNlIjoiZWlwNTU1IiwiY2xpZW50SWQiOiJCSllJckh1emx1Q2xCSzB2dlRCVUo3a1F5bFZfRGozTkEtWDFxNFF2eHMyQXkzRHlTa2FjT3BvT2I4M2xEVEhKUlZZODNiRmxZdHQ0cDhwUVItb0NZdHciLCJuZXR3b3JrIjoidGVzdG5ldCIsInJlZGlyZWN0VXJsIjoiY29tLndlYjNhdXRoLnNka2FwcDpcL1wvYXV0aCIsInNka1VybCI6Imh0dHBzOlwvXC9zZGsub3BlbmxvZ2luLmNvbSIsInVzZUNvcmVLaXRLZXkiOmZhbHNlfSwicGFyYW1zIjp7ImN1cnZlIjoic2VjcDI1NmsxIiwibG9naW5Qcm92aWRlciI6Imdvb2dsZSIsInNlc3Npb25UaW1lIjo4NjQwMH19"
 
         XCTAssertEqual(try? Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams), URL(string: correctGeneratedURL)!)
     }
