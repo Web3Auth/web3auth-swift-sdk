@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		F04B10EC2666395100C6E51F /* Web3Auth.plist in Resources */ = {isa = PBXBuildFile; fileRef = F04B10EB2666395100C6E51F /* Web3Auth.plist */; };
 		F0D52218266632CB000999DF /* Web3Auth in Frameworks */ = {isa = PBXBuildFile; productRef = F0D52217266632CB000999DF /* Web3Auth */; };
+		F4000A6329CD7BE80078D6ED /* Web3Auth in Frameworks */ = {isa = PBXBuildFile; productRef = F4000A6229CD7BE80078D6ED /* Web3Auth */; };
 		FAD9BC27263823A500439779 /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD9BC26263823A500439779 /* MainApp.swift */; };
 		FAD9BC29263823A500439779 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD9BC28263823A500439779 /* ContentView.swift */; };
 		FAD9BC2B263823A600439779 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAD9BC2A263823A600439779 /* Assets.xcassets */; };
@@ -45,6 +46,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F0D52218266632CB000999DF /* Web3Auth in Frameworks */,
+				F4000A6329CD7BE80078D6ED /* Web3Auth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,6 +141,7 @@
 			name = Web3authSwiftSdkDemo;
 			packageProductDependencies = (
 				F0D52217266632CB000999DF /* Web3Auth */,
+				F4000A6229CD7BE80078D6ED /* Web3Auth */,
 			);
 			productName = Web3authSwiftSdkDemo;
 			productReference = FAD9BC23263823A500439779 /* Web3authSwiftSdkDemo.app */;
@@ -167,6 +170,9 @@
 				Base,
 			);
 			mainGroup = FAD9BC1A263823A500439779;
+			packageReferences = (
+				F4000A6129CD7BE80078D6ED /* XCRemoteSwiftPackageReference "web3auth-swift-sdk" */,
+			);
 			productRefGroup = FAD9BC24263823A500439779 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -390,9 +396,25 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		F4000A6129CD7BE80078D6ED /* XCRemoteSwiftPackageReference "web3auth-swift-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Web3Auth/web3auth-swift-sdk";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		F0D52217266632CB000999DF /* Web3Auth */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = Web3Auth;
+		};
+		F4000A6229CD7BE80078D6ED /* Web3Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F4000A6129CD7BE80078D6ED /* XCRemoteSwiftPackageReference "web3auth-swift-sdk" */;
 			productName = Web3Auth;
 		};
 /* End XCSwiftPackageProductDependency section */

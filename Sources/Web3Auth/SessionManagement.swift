@@ -47,7 +47,6 @@ public class SessionManagement {
             let sigData = try JSONEncoder().encode(sig)
             let sigJsonStr = String(data: sigData, encoding: .utf8) ?? ""
             let data = SessionLogoutDataModel(key: publicKeyHex, data: encData, signature: sigJsonStr, timeout: 1)
-            print(data)
             let encodedData = try JSONEncoder().encode(data)
             var req = URLRequest(url: URL(string: urlStr)!)
             req.httpMethod = "POST"

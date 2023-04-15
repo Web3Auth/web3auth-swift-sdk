@@ -6,46 +6,35 @@
 //
 
 import SwiftUI
-import Web3Auth
 
 struct UserDetailView: View {
-    @State var user: Web3AuthState?
-    @Binding var loggedIn: Bool
+    @ObservedObject var vm:ViewModel
     @State private var showingAlert = false
 
     var body: some View {
-        if let user = user {
+        if vm.loggedIn {
             List {
                 Section {
-                    Text("\(user.privKey ?? "")")
+                    Text("\(vm.privateKey)")
                 } header: {
                     Text("Private key")
                 }
                 Section {
-                    Text("\(user.ed25519PrivKey ?? "")")
+                    Text("\(vm.ed25519PrivKey)")
                 }
                 header: {
                     Text("ED25519 Key")
                 }
                 Section {
-                    Text("Name \(user.userInfo?.name ?? "")")
-                    Text("Email \(user.userInfo?.email ?? "")")
+                    Text("Name \( vm.userInfo?.name ?? "")")
+                    Text("Email \(vm.userInfo?.email ?? "")")
                 }
                 header: {
                     Text("User Info")
                 }
                 Section {
                     Button {
-                        Task.detached {
-                            do {
-                                try await Web3Auth().logout()
-                                loggedIn.toggle()
-                            } catch {
-                                DispatchQueue.main.async {
-                                    showingAlert = true
-                                }
-                            }
-                        }
+                        vm.logout()
                     } label: {
                         Text("Logout")
                             .foregroundColor(.red)
@@ -62,6 +51,6 @@ struct UserDetailView: View {
 
 struct UserDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        UserDetailView(user: .init(privKey: "12345", ed25519PrivKey: "32334", sessionId: "23234384y7735y47shdj", userInfo: nil, error: nil), loggedIn: .constant(true))
+        UserDetailView(vm: .init())
     }
 }

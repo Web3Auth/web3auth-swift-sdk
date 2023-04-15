@@ -67,6 +67,11 @@ public enum TypeOfLogin: String, Codable {
     case jwt
 }
 
+public enum ChainNamespace: String, Codable {
+    case eip555
+    case solana
+}
+
 public struct W3AWhiteLabelData: Codable {
     public init(name: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: String? = nil, dark: Bool? = nil, theme: [String: String]? = nil) {
         self.name = name
@@ -147,23 +152,26 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil,
-                loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil) {
+    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false) {
         self.clientId = clientId
         self.network = network
-        self.sdkUrl = sdkUrl
+        self.sdkUrl = URL(string: getSdkUrl(network: self.network))!
         self.redirectUrl = redirectUrl
         self.loginConfig = loginConfig
         self.whiteLabel = whiteLabel
+        self.chainNamespace = chainNamespace
+        self.useCoreKitKey = useCoreKitKey
     }
 
     public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!) {
         self.clientId = clientId
         self.network = network
-        self.sdkUrl = sdkUrl
+        self.sdkUrl = URL(string: getSdkUrl(network: self.network))!
         redirectUrl = nil
         loginConfig = nil
         whiteLabel = nil
+        chainNamespace = ChainNamespace.eip555
+        useCoreKitKey = false
     }
 
     public init(clientId: String, network: Network) {
@@ -172,6 +180,8 @@ public struct W3AInitParams: Codable {
         redirectUrl = nil
         loginConfig = nil
         whiteLabel = nil
+        chainNamespace = ChainNamespace.eip555
+        useCoreKitKey = false
     }
 
     let clientId: String
@@ -180,6 +190,8 @@ public struct W3AInitParams: Codable {
     var redirectUrl: String?
     let loginConfig: [String: W3ALoginConfig]?
     let whiteLabel: W3AWhiteLabelData?
+    let chainNamespace: ChainNamespace?
+    let useCoreKitKey: Bool?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -192,7 +204,15 @@ public struct W3AInitParams: Codable {
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
         loginConfig = try values.decodeIfPresent([String: W3ALoginConfig].self, forKey: .loginConfig)
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
+        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey:.chainNamespace)
+        useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
     }
+}
+
+public func getSdkUrl(network: Network) -> String {
+    var sdkUrl = ""
+    sdkUrl = network == Network.testnet ? "https://dev-sdk.openlogin.com" : "https://sdk.openlogin.com"
+    return sdkUrl
 }
 
 public struct W3ALoginParams: Codable {
