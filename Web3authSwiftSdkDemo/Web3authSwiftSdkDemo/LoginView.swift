@@ -19,7 +19,7 @@ struct LoginView: View {
                     Text("Sign In with Google")
                 }
             )
-            
+
             Button(
                 action: {
                     vm.loginWithGoogleCustomVerifier()
@@ -46,6 +46,9 @@ struct LoginView: View {
                     Text("Sign In with Whitelabel")
                 }
             )
+        }
+        .alert(isPresented: $vm.showError) {
+            Alert(title: Text("Error"), message: Text(vm.errorMessage), dismissButton: .default(Text("OK")))
         }
     }
 }

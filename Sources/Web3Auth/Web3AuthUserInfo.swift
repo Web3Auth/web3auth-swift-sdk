@@ -47,7 +47,6 @@ public struct Web3AuthUserInfo: Codable {
     }
 }
 
-
 extension Web3AuthUserInfo {
     init?(dict: [String: String]) {
         guard let name = dict["name"],

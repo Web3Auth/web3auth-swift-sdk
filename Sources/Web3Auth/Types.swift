@@ -204,7 +204,7 @@ public struct W3AInitParams: Codable {
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
         loginConfig = try values.decodeIfPresent([String: W3ALoginConfig].self, forKey: .loginConfig)
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
-        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey:.chainNamespace)
+        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace)
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
     }
 }

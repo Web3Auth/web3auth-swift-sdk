@@ -8,7 +8,7 @@
 import Foundation
 
 extension Data {
-    
+
     static func fromBase64URL(_ str: String) -> Data? {
         var base64 = str
         base64 = base64.replacingOccurrences(of: "-", with: "+")
@@ -21,7 +21,7 @@ extension Data {
         }
         return data
     }
-    
+
     func toBase64URL() -> String {
         var result = self.base64EncodedString()
         result = result.replacingOccurrences(of: "+", with: "-")
@@ -49,6 +49,6 @@ extension Data {
     }
 
     func addLeading0sForLength64() -> Data {
-        Data(hex: toHexString().padStart(toLength: 64,padString: "0"))
+        Data(hex: toHexString().padStart(toLength: 64, padString: "0"))
     }
 }

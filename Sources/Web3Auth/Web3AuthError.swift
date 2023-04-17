@@ -11,5 +11,28 @@ public enum Web3AuthError: Error {
     case runtimeError(String)
     case decodingError
     case encodingError
-    
+    case noUserFound
+}
+
+extension Web3AuthError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .noBundleIdentifierFound:
+            return "No Bundle identifier found"
+        case .userCancelled:
+            return "User cancelled"
+        case .appCancelled:
+            return "App cancelled"
+        case .unknownError:
+            return "Unknown error"
+        case .runtimeError(let msg):
+            return "Runtime error \(msg)"
+        case .decodingError:
+            return "Decoding Error"
+        case .encodingError:
+            return "Encoding Error"
+        case .noUserFound:
+            return "No user found, please login again!"
+        }
+    }
 }

@@ -24,5 +24,3 @@ public enum Web3AuthProvider: String, Codable {
     case EMAIL_PASSWORDLESS = "email_passwordless"
     case JWT = "jwt"
 }
-
-
