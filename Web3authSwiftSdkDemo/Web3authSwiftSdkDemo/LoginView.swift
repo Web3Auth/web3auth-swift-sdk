@@ -19,7 +19,7 @@ struct LoginView: View {
                     Text("Sign In with Google")
                 }
             )
-            
+
             Button(
                 action: {
                     vm.loginWithGoogleCustomVerifier()

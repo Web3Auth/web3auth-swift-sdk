@@ -14,8 +14,8 @@ public enum Web3AuthError: Error {
     case noUserFound
 }
 
-extension Web3AuthError:LocalizedError{
-    public var errorDescription: String?{
+extension Web3AuthError: LocalizedError {
+    public var errorDescription: String? {
         switch self {
         case .noBundleIdentifierFound:
             return "No Bundle identifier found"

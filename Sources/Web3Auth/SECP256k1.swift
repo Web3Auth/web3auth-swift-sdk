@@ -15,10 +15,8 @@ public struct SECP256K1 {
     }
 }
 
-
 extension SECP256K1 {
     static let context = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY))
-
 
     public static func ecdh(pubKey: secp256k1_pubkey, privateKey: Data) -> secp256k1_pubkey? {
         var localPubkey = pubKey // Pointer takes a variable

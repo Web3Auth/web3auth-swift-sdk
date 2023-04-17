@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UserDetailView: View {
-    @ObservedObject var vm:ViewModel
+    @ObservedObject var vm: ViewModel
 
     var body: some View {
         if vm.loggedIn {

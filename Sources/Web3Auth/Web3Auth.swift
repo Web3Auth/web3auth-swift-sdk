@@ -1,4 +1,3 @@
-
 import AuthenticationServices
 import OSLog
 
@@ -27,7 +26,7 @@ public class Web3Auth: NSObject {
         if let sessionID = KeychainManager.shared.get(key: .sessionID) {
             do {
                 state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
-                
+
             } catch let error {
                 os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
             }
@@ -192,7 +191,7 @@ public class Web3Auth: NSObject {
         }
         return callbackState
     }
-    
+
     public func getPrivkey() throws -> String {
         guard let state = state else {throw Web3AuthError.noUserFound}
         let privKey: String = initParams.useCoreKitKey == true ? state.coreKitKey ?? "" : state.privKey ?? ""
@@ -204,9 +203,9 @@ public class Web3Auth: NSObject {
         let ed25519Key: String = initParams.useCoreKitKey == true ? state.coreKitEd25519PrivKey ?? "" : state.ed25519PrivKey ?? ""
         return ed25519Key
     }
-    
-    public func getUserInfo() throws -> Web3AuthUserInfo{
-        guard let state = state,let userInfo = state.userInfo else { throw Web3AuthError.noUserFound}
+
+    public func getUserInfo() throws -> Web3AuthUserInfo {
+        guard let state = state, let userInfo = state.userInfo else { throw Web3AuthError.noUserFound}
         return userInfo
     }
 }

@@ -18,7 +18,7 @@ extension Result {
     public static func success(result: T) -> Self {
         return .success(result)
     }
-    
+
     @available(*, deprecated, renamed: "failure(_:)")
     public static func failure(error: Error) -> Self {
         return .failure(error)
@@ -39,7 +39,7 @@ extension Result {
     public static func success(result: Success) -> Self {
         return .success(result)
     }
-    
+
     @available(*, deprecated, renamed: "failure(_:)")
     public static func failure(error: Failure) -> Self {
         return .failure(error)

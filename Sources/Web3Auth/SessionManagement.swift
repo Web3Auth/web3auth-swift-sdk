@@ -54,7 +54,7 @@ public class SessionManagement {
             req.httpBody = encodedData
             return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Void, Error>) in
                 URLSession.shared.dataTask(with: req) { data, response, error in
-                    guard error == nil, let data = data,let response = response as? HTTPURLResponse,response.statusCode == 201  else {
+                    guard error == nil, let data = data, let response = response as? HTTPURLResponse, response.statusCode == 201  else {
                         continuation.resume(throwing: error ?? Web3AuthError.unknownError)
                         return
                     }

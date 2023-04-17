@@ -14,22 +14,22 @@ class ViewModel: ObservableObject {
     @Published var user: Web3AuthState?
     @Published var isLoading = false
     @Published var navigationTitle: String = ""
-    @Published var privateKey:String = ""
-    @Published var ed25519PrivKey:String = ""
-    @Published var userInfo:Web3AuthUserInfo?
-    @Published var showError:Bool = false
-    var errorMessage:String = ""
-    private var clientID:String = "BHr_dKcxC0ecKn_2dZQmQeNdjPgWykMkcodEHkVvPMo71qzOV6SgtoN8KCvFdLN7bf34JOm89vWQMLFmSfIo84A"
-    private var network:Network = .testnet
-    private var useCoreKit:Bool = false
-    
+    @Published var privateKey: String = ""
+    @Published var ed25519PrivKey: String = ""
+    @Published var userInfo: Web3AuthUserInfo?
+    @Published var showError: Bool = false
+    var errorMessage: String = ""
+    private var clientID: String = "BHr_dKcxC0ecKn_2dZQmQeNdjPgWykMkcodEHkVvPMo71qzOV6SgtoN8KCvFdLN7bf34JOm89vWQMLFmSfIo84A"
+    private var network: Network = .testnet
+    private var useCoreKit: Bool = false
+
     func setup() async {
         guard web3Auth == nil else { return }
         await MainActor.run(body: {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = await Web3Auth(.init(clientId: clientID, network: network,useCoreKitKey: useCoreKit))
+        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, useCoreKitKey: useCoreKit))
         await MainActor.run(body: {
             if self.web3Auth?.state != nil {
                 handleUserDetails()
@@ -39,25 +39,24 @@ class ViewModel: ObservableObject {
             navigationTitle = loggedIn ? "UserInfo" : "SignIn"
         })
     }
-    
-   @MainActor func handleUserDetails(){
-       do{
+
+   @MainActor func handleUserDetails() {
+       do {
            loggedIn = true
            privateKey = try web3Auth?.getPrivkey() ?? ""
            ed25519PrivKey = try web3Auth?.getEd25519PrivKey() ?? ""
            userInfo = try web3Auth?.getUserInfo()
-       }
-       catch{
+       } catch {
            errorMessage = error.localizedDescription
            showError = true
-           
+
        }
     }
 
     func login(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network,useCoreKitKey: useCoreKit))
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, useCoreKitKey: useCoreKit))
                 try await web3Auth?.login(W3ALoginParams(loginProvider: provider))
                 await handleUserDetails()
             } catch {
@@ -65,9 +64,9 @@ class ViewModel: ObservableObject {
             }
         }
     }
-    
+
     func loginWithGoogleCustomVerifier() {
-            Task{
+            Task {
                 do {
                     web3Auth = await Web3Auth(.init(
                         clientId: clientID,
@@ -98,14 +97,13 @@ class ViewModel: ObservableObject {
                 }
             }
         }
-    
-   @MainActor func logout(){
-        Task{
-            do{
+
+   @MainActor func logout() {
+        Task {
+            do {
                 try await web3Auth?.logout()
                 loggedIn = false
-            }
-            catch{
+            } catch {
                 errorMessage = error.localizedDescription
                 showError = true
             }
