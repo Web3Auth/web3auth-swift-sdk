@@ -47,6 +47,9 @@ struct LoginView: View {
                 }
             )
         }
+        .alert(isPresented: $vm.showError) {
+            Alert(title: Text("Error"), message: Text(vm.errorMessage), dismissButton: .default(Text("OK")))
+        }
     }
 }
 

@@ -32,7 +32,7 @@ extension Web3AuthError:LocalizedError{
         case .encodingError:
             return "Encoding Error"
         case .noUserFound:
-            return "No userInfo found, please login again"
+            return "No user found, please login again!"
         }
     }
 }

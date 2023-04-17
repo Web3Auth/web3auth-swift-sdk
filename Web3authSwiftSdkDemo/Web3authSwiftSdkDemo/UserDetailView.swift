@@ -9,7 +9,6 @@ import SwiftUI
 
 struct UserDetailView: View {
     @ObservedObject var vm:ViewModel
-    @State private var showingAlert = false
 
     var body: some View {
         if vm.loggedIn {
@@ -39,12 +38,12 @@ struct UserDetailView: View {
                         Text("Logout")
                             .foregroundColor(.red)
                     }
-                    .alert(isPresented: $showingAlert) {
-                        Alert(title: Text("Error"), message: Text("Logout failed!"), dismissButton: .default(Text("OK")))
-                    }
                 }
             }
             .listStyle(.automatic)
+            .alert(isPresented: $vm.showError) {
+                Alert(title: Text("Error"), message: Text(vm.errorMessage), dismissButton: .default(Text("OK")))
+            }
         }
     }
 }

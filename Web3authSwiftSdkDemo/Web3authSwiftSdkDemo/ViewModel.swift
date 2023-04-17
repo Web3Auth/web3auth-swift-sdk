@@ -17,6 +17,8 @@ class ViewModel: ObservableObject {
     @Published var privateKey:String = ""
     @Published var ed25519PrivKey:String = ""
     @Published var userInfo:Web3AuthUserInfo?
+    @Published var showError:Bool = false
+    var errorMessage:String = ""
     private var clientID:String = "BHr_dKcxC0ecKn_2dZQmQeNdjPgWykMkcodEHkVvPMo71qzOV6SgtoN8KCvFdLN7bf34JOm89vWQMLFmSfIo84A"
     private var network:Network = .testnet
     private var useCoreKit:Bool = false
@@ -39,10 +41,17 @@ class ViewModel: ObservableObject {
     }
     
    @MainActor func handleUserDetails(){
-        loggedIn = true
-        privateKey = web3Auth?.getPrivkey() ?? ""
-        ed25519PrivKey = web3Auth?.getEd25519PrivKey() ?? ""
-        userInfo = try? web3Auth?.getUserInfo()
+       do{
+           loggedIn = true
+           privateKey = try web3Auth?.getPrivkey() ?? ""
+           ed25519PrivKey = try web3Auth?.getEd25519PrivKey() ?? ""
+           userInfo = try web3Auth?.getUserInfo()
+       }
+       catch{
+           errorMessage = error.localizedDescription
+           showError = true
+           
+       }
     }
 
     func login(provider: Web3AuthProvider) {
@@ -97,7 +106,8 @@ class ViewModel: ObservableObject {
                 loggedIn = false
             }
             catch{
-                print(error)
+                errorMessage = error.localizedDescription
+                showError = true
             }
         }
     }
