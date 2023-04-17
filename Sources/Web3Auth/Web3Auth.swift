@@ -36,14 +36,15 @@ public class Web3Auth: NSObject {
     }
 
     public func logout() async throws {
+        guard let state = state else {throw Web3AuthError.noUserFound}
         if let sessionID = KeychainManager.shared.get(key: .sessionID) {
             try await SessionManagement.shared.logout(sessionID: sessionID)
         }
         KeychainManager.shared.delete(key: .sessionID)
-        if let state = state, let verifer = state.userInfo?.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
+        if let verifer = state.userInfo?.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
-        state = nil
+        self.state = nil
     }
 
     /**
@@ -192,18 +193,20 @@ public class Web3Auth: NSObject {
         return callbackState
     }
     
-    public func getPrivkey() -> String {
-        let privKey: String = initParams.useCoreKitKey == true ? state?.coreKitKey ?? "" : state?.privKey ?? ""
+    public func getPrivkey() throws -> String {
+        guard let state = state else {throw Web3AuthError.noUserFound}
+        let privKey: String = initParams.useCoreKitKey == true ? state.coreKitKey ?? "" : state.privKey ?? ""
         return privKey
     }
 
-    public func getEd25519PrivKey() -> String {
-        let ed25519Key: String = initParams.useCoreKitKey == true ? state?.coreKitEd25519PrivKey ?? "" : state?.ed25519PrivKey ?? ""
+    public func getEd25519PrivKey() throws -> String {
+        guard let state = state else {throw Web3AuthError.noUserFound}
+        let ed25519Key: String = initParams.useCoreKitKey == true ? state.coreKitEd25519PrivKey ?? "" : state.ed25519PrivKey ?? ""
         return ed25519Key
     }
     
     public func getUserInfo() throws -> Web3AuthUserInfo{
-        guard let state = state,let userInfo = state.userInfo else { throw Web3AuthError.runtimeError("No userInfo found, please login again")}
+        guard let state = state,let userInfo = state.userInfo else { throw Web3AuthError.noUserFound}
         return userInfo
     }
 }
