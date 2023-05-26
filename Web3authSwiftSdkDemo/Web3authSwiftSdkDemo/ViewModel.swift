@@ -19,8 +19,10 @@ class ViewModel: ObservableObject {
     @Published var userInfo: Web3AuthUserInfo?
     @Published var showError: Bool = false
     var errorMessage: String = ""
-    private var clientID: String = "BHr_dKcxC0ecKn_2dZQmQeNdjPgWykMkcodEHkVvPMo71qzOV6SgtoN8KCvFdLN7bf34JOm89vWQMLFmSfIo84A"
-    private var network: Network = .testnet
+//    private var clientID: String = "BHr_dKcxC0ecKn_2dZQmQeNdjPgWykMkcodEHkVvPMo71qzOV6SgtoN8KCvFdLN7bf34JOm89vWQMLFmSfIo84A"
+  //  private var network: Network = .testnet
+        private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
+        private var network: Network = .mainnet
     private var useCoreKit: Bool = false
 
     func setup() async {
