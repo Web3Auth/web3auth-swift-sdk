@@ -45,8 +45,8 @@ class ViewModel: ObservableObject {
    @MainActor func handleUserDetails() {
        do {
            loggedIn = true
-           privateKey = try web3Auth?.getPrivkey() ?? ""
-           ed25519PrivKey = try web3Auth?.getEd25519PrivKey() ?? ""
+           privateKey = web3Auth?.getPrivkey() ?? ""
+           ed25519PrivKey = web3Auth?.getEd25519PrivKey() ?? ""
            userInfo = try web3Auth?.getUserInfo()
        } catch {
            errorMessage = error.localizedDescription
