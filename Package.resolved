@@ -50,9 +50,9 @@
         "package": "SessionManager",
         "repositoryURL": "https://github.com/Web3Auth/session-manager-swift.git",
         "state": {
-          "branch": "master",
-          "revision": "0056e66c121bdeed60a3d726577892f1cbd841bd",
-          "version": null
+          "branch": null,
+          "revision": "c35ff97dededda353279111d0ee8468eac46213a",
+          "version": "2.0.0"
         }
       },
       {

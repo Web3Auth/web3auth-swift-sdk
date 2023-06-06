@@ -13,5 +13,6 @@ Pod::Spec.new do |spec|
   spec.dependency 'KeychainSwift', '~> 20.0.0'
   spec.dependency 'web3.swift', '~> 0.9.3'
   spec.dependency 'CryptoSwift', '~> 1.5.1'
+  spec.dependency 'TorusSessionManager', '~> 2.0.0'
   spec.exclude_files = [ 'docs/**' ]
 end

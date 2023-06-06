@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
         "state": {
           "branch": null,
-          "revision": "19b3c3ceed117c5cc883517c4e658548315ba70b",
-          "version": "1.6.0"
+          "revision": "eee9ad754926c40a0f7e73f152357d37b119b7fa",
+          "version": "1.7.1"
         }
       },
       {
@@ -50,9 +50,9 @@
         "package": "SessionManager",
         "repositoryURL": "https://github.com/Web3Auth/session-manager-swift.git",
         "state": {
-          "branch": "master",
-          "revision": "e36a3df0faae6093d1357fd45530e369377f6775",
-          "version": null
+          "branch": null,
+          "revision": "c35ff97dededda353279111d0ee8468eac46213a",
+          "version": "2.0.0"
         }
       },
       {
