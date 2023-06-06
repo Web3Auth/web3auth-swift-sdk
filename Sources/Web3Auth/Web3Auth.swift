@@ -9,9 +9,11 @@ import SessionManager
 public class Web3Auth: NSObject {
     private let initParams: W3AInitParams
     private var authSession: ASWebAuthenticationSession?
-    /// You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
+    // You can check the state variable before logging the user in, if the user
+    // has an active session the state variable will already have all the values you 
+    // get from login so the user does not have to re-login
     public var state: Web3AuthState?
-    var sessionManager:SessionManager
+    var sessionManager: SessionManager
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -28,7 +30,8 @@ public class Web3Auth: NSObject {
         sessionManager = .init()
             do {
                 let loginDetailsDict = try await sessionManager.authorizeSession()
-                guard let loginDetails = Web3AuthState(dict: loginDetailsDict,sessionID: sessionManager.getSessionID() ?? "", network: initParams.network) else { throw Web3AuthError.decodingError}
+                guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",
+                network: initParams.network) else { throw Web3AuthError.decodingError }
                 state = loginDetails
             } catch let error {
                 os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
@@ -185,22 +188,27 @@ public class Web3Auth: NSObject {
             let callbackFragment = callbackURL.fragment,
             let callbackData = Data.fromBase64URL(callbackFragment),
             let callbackState = try? JSONDecoder().decode(Web3AuthState.self, from: callbackData)
-                
+
         else {
             throw Web3AuthError.decodingError
         }
         return callbackState
     }
 
-    public func getPrivkey() throws -> String {
-        guard let state = state else {throw Web3AuthError.noUserFound}
-        let privKey: String = initParams.useCoreKitKey == true ? state.coreKitKey ?? "" : state.privKey ?? ""
+    public func getPrivkey() -> String {
+        if state == nil {
+            return ""
+        }
+        let privKey: String = initParams.useCoreKitKey == true ? state?.coreKitKey ?? "" : state?.privKey ?? ""
         return privKey
     }
 
-    public func getEd25519PrivKey() throws -> String {
-        guard let state = state else {throw Web3AuthError.noUserFound}
-        let ed25519Key: String = initParams.useCoreKitKey == true ? state.coreKitEd25519PrivKey ?? "" : state.ed25519PrivKey ?? ""
+    public func getEd25519PrivKey() -> String {
+        if state == nil {
+            return ""
+        }
+        let ed25519Key: String = initParams.useCoreKitKey == true ?
+        state?.coreKitEd25519PrivKey ?? "" : state?.ed25519PrivKey ?? ""
         return ed25519Key
     }
 
