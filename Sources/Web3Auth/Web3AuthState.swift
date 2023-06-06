@@ -39,7 +39,7 @@ extension Web3AuthState {
     init?(dict: [String: Any], sessionID: String,network:Network) {
         guard let privKey = dict["privKey"] as? String,
               let ed25519PrivKey = dict["ed25519PrivKey"] as? String,
-              let userInfoDict = dict[network == .testnet ? "userInfo" : "store"] as? [String: String],
+              let userInfoDict = dict["userInfo"] as? [String: String],
               let userInfo = Web3AuthUserInfo(dict: userInfoDict)
         else { return nil }
         let error = dict["error"] as? String

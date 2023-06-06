@@ -87,7 +87,7 @@ class ViewModel: ObservableObject {
                     )
                      try await web3Auth?.login(
                         W3ALoginParams(
-                        loginProvider: .GOOGLE,
+                            loginProvider: "random",
                         dappShare: nil,
                         extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil),
                         mfaLevel: .DEFAULT,
