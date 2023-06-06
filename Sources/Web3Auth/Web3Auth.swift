@@ -1,5 +1,6 @@
 import AuthenticationServices
 import OSLog
+import SessionManager
 
 /**
  Authentication using Web3Auth.
@@ -10,6 +11,7 @@ public class Web3Auth: NSObject {
     private var authSession: ASWebAuthenticationSession?
     /// You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
     public var state: Web3AuthState?
+    var sessionManager:SessionManager
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -23,23 +25,20 @@ public class Web3Auth: NSObject {
      */
     public init(_ params: W3AInitParams) async {
         initParams = params
-        if let sessionID = KeychainManager.shared.get(key: .sessionID) {
+        sessionManager = .init()
             do {
-                state = try await SessionManagement.shared.getActiveSession(sessionID: sessionID)
-
+                let loginDetailsDict = try await sessionManager.authorizeSession()
+                guard let loginDetails = Web3AuthState(dict: loginDetailsDict,sessionID: sessionManager.getSessionID() ?? "", network: initParams.network) else { throw Web3AuthError.decodingError}
+                state = loginDetails
             } catch let error {
                 os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
             }
-        }
         super.init()
     }
 
     public func logout() async throws {
         guard let state = state else {throw Web3AuthError.noUserFound}
-        if let sessionID = KeychainManager.shared.get(key: .sessionID) {
-            try await SessionManagement.shared.logout(sessionID: sessionID)
-        }
-        KeychainManager.shared.delete(key: .sessionID)
+        try await sessionManager.invalidateSession()
         if let verifer = state.userInfo?.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
@@ -136,7 +135,7 @@ public class Web3Auth: NSObject {
                     if let safeUserInfo = callbackState.userInfo {
                         KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                     }
-                    KeychainManager.shared.save(key: .sessionID, val: callbackState.sessionId ?? "")
+                    self.sessionManager.setSessionID(callbackState.sessionId ?? "")
                     self.state = callbackState
                     return continuation.resume(returning: callbackState)
                 }
@@ -186,6 +185,7 @@ public class Web3Auth: NSObject {
             let callbackFragment = callbackURL.fragment,
             let callbackData = Data.fromBase64URL(callbackFragment),
             let callbackState = try? JSONDecoder().decode(Web3AuthState.self, from: callbackData)
+                
         else {
             throw Web3AuthError.decodingError
         }

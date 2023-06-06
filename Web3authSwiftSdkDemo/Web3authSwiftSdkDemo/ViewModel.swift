@@ -21,6 +21,8 @@ class ViewModel: ObservableObject {
     var errorMessage: String = ""
     private var clientID: String = "BHr_dKcxC0ecKn_2dZQmQeNdjPgWykMkcodEHkVvPMo71qzOV6SgtoN8KCvFdLN7bf34JOm89vWQMLFmSfIo84A"
     private var network: Network = .testnet
+  //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
+  //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false
 
     func setup() async {
@@ -70,9 +72,9 @@ class ViewModel: ObservableObject {
                 do {
                     web3Auth = await Web3Auth(.init(
                         clientId: clientID,
-                        network: .testnet,
+                        network: network,
                         loginConfig: [
-                            TypeOfLogin.google.rawValue:
+                            "random":
                                     .init(
                                         verifier: "w3a-agg-example",
                                         typeOfLogin: .google,
@@ -85,7 +87,7 @@ class ViewModel: ObservableObject {
                     )
                      try await web3Auth?.login(
                         W3ALoginParams(
-                        loginProvider: .GOOGLE,
+                            loginProvider: "random",
                         dappShare: nil,
                         extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil),
                         mfaLevel: .DEFAULT,
@@ -113,8 +115,8 @@ class ViewModel: ObservableObject {
     func whitelabelLogin() {
         Task.detached { [unowned self] in
             do {
-                web3Auth = await Web3Auth(W3AInitParams(clientId: "BKWc-6_pz5wgoZ5jvmgvbytxt7A8dvTTgsByZ87b8f-7NZW5zdhbznxT2MWJYJEv_O6MClj-g_HS4lYPJ4uQFhk",
-                                                        network: .mainnet,
+                web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
+                                                        network: network,
                                                         whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
                 let result = try await self.web3Auth?
                     .login(W3ALoginParams(loginProvider: .GOOGLE))
