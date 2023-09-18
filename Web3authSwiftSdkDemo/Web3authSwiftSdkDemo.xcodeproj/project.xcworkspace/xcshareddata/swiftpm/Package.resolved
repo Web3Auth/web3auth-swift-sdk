@@ -1,77 +1,70 @@
 {
-  "pins" : [
-    {
-      "identity" : "bigint",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/attaswift/BigInt",
-      "state" : {
-        "revision" : "0ed110f7555c34ff468e72e1686e59721f2b0da6",
-        "version" : "5.3.0"
+  "object": {
+    "pins": [
+      {
+        "package": "BigInt",
+        "repositoryURL": "https://github.com/attaswift/BigInt",
+        "state": {
+          "branch": null,
+          "revision": "0ed110f7555c34ff468e72e1686e59721f2b0da6",
+          "version": "5.3.0"
+        }
+      },
+      {
+        "package": "CryptoSwift",
+        "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
+        "state": {
+          "branch": null,
+          "revision": "eee9ad754926c40a0f7e73f152357d37b119b7fa",
+          "version": "1.7.1"
+        }
+      },
+      {
+        "package": "GenericJSON",
+        "repositoryURL": "https://github.com/zoul/generic-json-swift",
+        "state": {
+          "branch": null,
+          "revision": "0a06575f4038b504e78ac330913d920f1630f510",
+          "version": "2.0.2"
+        }
+      },
+      {
+        "package": "KeychainSwift",
+        "repositoryURL": "https://github.com/evgenyneu/keychain-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "d108a1fa6189e661f91560548ef48651ed8d93b9",
+          "version": "20.0.0"
+        }
+      },
+      {
+        "package": "secp256k1",
+        "repositoryURL": "https://github.com/Boilertalk/secp256k1.swift",
+        "state": {
+          "branch": null,
+          "revision": "cd187c632fb812fd93711a9f7e644adb7e5f97f0",
+          "version": "0.1.7"
+        }
+      },
+      {
+        "package": "SessionManager",
+        "repositoryURL": "https://github.com/Web3Auth/session-manager-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "c35ff97dededda353279111d0ee8468eac46213a",
+          "version": "2.0.0"
+        }
+      },
+      {
+        "package": "web3.swift",
+        "repositoryURL": "https://github.com/argentlabs/web3.swift",
+        "state": {
+          "branch": null,
+          "revision": "0474eb5e883bc4800b3909833207a1d35e72b808",
+          "version": "0.9.3"
+        }
       }
-    },
-    {
-      "identity" : "cryptoswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
-      "state" : {
-        "revision" : "eee9ad754926c40a0f7e73f152357d37b119b7fa",
-        "version" : "1.7.1"
-      }
-    },
-    {
-      "identity" : "generic-json-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/zoul/generic-json-swift",
-      "state" : {
-        "revision" : "0a06575f4038b504e78ac330913d920f1630f510",
-        "version" : "2.0.2"
-      }
-    },
-    {
-      "identity" : "keychain-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/evgenyneu/keychain-swift.git",
-      "state" : {
-        "revision" : "d108a1fa6189e661f91560548ef48651ed8d93b9",
-        "version" : "20.0.0"
-      }
-    },
-    {
-      "identity" : "secp256k1.swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Boilertalk/secp256k1.swift",
-      "state" : {
-        "revision" : "cd187c632fb812fd93711a9f7e644adb7e5f97f0",
-        "version" : "0.1.7"
-      }
-    },
-    {
-      "identity" : "session-manager-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Web3Auth/session-manager-swift.git",
-      "state" : {
-        "revision" : "c35ff97dededda353279111d0ee8468eac46213a",
-        "version" : "2.0.0"
-      }
-    },
-    {
-      "identity" : "web3.swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/argentlabs/web3.swift",
-      "state" : {
-        "revision" : "0474eb5e883bc4800b3909833207a1d35e72b808",
-        "version" : "0.9.3"
-      }
-    },
-    {
-      "identity" : "web3auth-swift-sdk",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Web3Auth/web3auth-swift-sdk",
-      "state" : {
-        "branch" : "master",
-        "revision" : "e450799b4e56426b1cf6f08ad0ff3d127885f0c7"
-      }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }

@@ -47,6 +47,22 @@ public class Web3Auth: NSObject {
         }
         self.state = nil
     }
+    
+    public func getLoginId<T: Encodable>(data: T) async throws -> String? {
+        return try await sessionManager.createSession(data: data)
+    }
+    
+    private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthState {
+        //let sessionId = callbackURL.fragment?.components(separatedBy: "&")[0].components(separatedBy: "=")[1]
+        //self.sessionManager.setSessionID(sessionId ?? "")
+        let loginDetailsDict = try await sessionManager.authorizeSession()
+        guard
+            let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",network: initParams.network)
+        else {
+            throw Web3AuthError.decodingError
+        }
+        return loginDetails
+    }
 
     /**
      Web3Auth component for authenticating with web-based flow.
@@ -112,11 +128,29 @@ public class Web3Auth: NSObject {
             let bundleId = Bundle.main.bundleIdentifier,
             let redirectURL = URL(string: "\(bundleId)://auth")
         else { throw Web3AuthError.noBundleIdentifierFound }
+        print("bundleId: ", bundleId)
+        print("redirectURL: ", redirectURL)
         var loginParams = loginParams
-        if let loginConfig = initParams.loginConfig?.values.first, let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
+        //assign loginParams redirectUrl from intiParamas redirectUrl
+        loginParams.redirectUrl = "\(bundleId)://auth"
+        if let loginConfig = initParams.loginConfig?.values.first,
+           let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
             loginParams.dappShare = savedDappShare
         }
-        let url = try Web3Auth.generateAuthSessionURL(redirectURL: redirectURL, initParams: initParams, loginParams: loginParams)
+
+        let sdkUrlParams = SdkUrlParams(options: initParams, params: loginParams, actionType: "login")
+        print("sdkUrlParams: ", sdkUrlParams)
+        let encodedObj = try JSONEncoder().encode(sdkUrlParams)
+        let jsonString = String(data: encodedObj, encoding: .utf8) ?? ""
+        print("CreateSession_jsonData: ", jsonString)
+        let loginId = try await getLoginId(data: sdkUrlParams)
+        
+        let jsonObject: [String: String?] = [
+            "loginId": loginId
+        ]
+
+        let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject)
+        
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
 
             authSession = ASWebAuthenticationSession(
@@ -125,7 +159,7 @@ public class Web3Auth: NSObject {
                     guard
                         authError == nil,
                         let callbackURL = callbackURL,
-                        let callbackState = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
+                        let sessionId = try? Web3Auth.decodeSessionStringfromCallbackURL(callbackURL)
                     else {
                         let authError = authError ?? Web3AuthError.unknownError
                         if case ASWebAuthenticationSessionError.canceledLogin = authError {
@@ -135,13 +169,23 @@ public class Web3Auth: NSObject {
                         }
                         return
                     }
-                    if let safeUserInfo = callbackState.userInfo {
-                        KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
+                    
+                    self.sessionManager.setSessionID(sessionId)
+                    Task {
+                        do {
+                            let loginDetails = try await self.getLoginDetails(callbackURL)
+                            if let safeUserInfo = loginDetails.userInfo {
+                                KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
+                            }
+                            self.sessionManager.setSessionID(loginDetails.sessionId ?? "")
+                            self.state = loginDetails
+                            return continuation.resume(returning: loginDetails)
+                        } catch {
+                            print("Error: \(error)")
+                        }
                     }
-                    self.sessionManager.setSessionID(callbackState.sessionId ?? "")
-                    self.state = callbackState
-                    return continuation.resume(returning: callbackState)
-                }
+                    //let loginDetails = try await getLoginDetails(callbackURL)
+                 }
 
             authSession?.presentationContextProvider = self
 
@@ -151,35 +195,28 @@ public class Web3Auth: NSObject {
         })
     }
 
-    static func generateAuthSessionURL(redirectURL: URL, initParams: W3AInitParams, loginParams: W3ALoginParams) throws -> URL {
-        var overridenInitParams = initParams
-
-        // Init params redirectUrl has to be overriden unless users have their own tricks
-        if overridenInitParams.redirectUrl == nil {
-            overridenInitParams.redirectUrl = redirectURL.absoluteString
-        }
-
-        let sdkUrlParams = SdkUrlParams(initParams: overridenInitParams, params: loginParams)
+    static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?]) throws -> URL {
+        //let sdkUrlParams = SdkUrlParams(initParams: overridenInitParams, params: loginParams, actionType: actionType)
 
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting.insert(.sortedKeys)
 
         guard
-            let data = try? jsonEncoder.encode(sdkUrlParams),
+            let data = try? jsonEncoder.encode(jsonObject),
             // Using sorted keys to produce consistent results
             var components = URLComponents(string: initParams.sdkUrl.absoluteString)
         else {
             throw Web3AuthError.encodingError
         }
 
-        components.path = "/login"
-        components.fragment = data.toBase64URL()
+        components.path = "/start"
+        components.fragment = "b64Params=" + data.toBase64URL()
 
         guard let url = components.url
         else {
             throw Web3AuthError.runtimeError("Invalid URL")
         }
-
+        print("urlToOpen", url)
         return url
     }
 
@@ -193,6 +230,11 @@ public class Web3Auth: NSObject {
             throw Web3AuthError.decodingError
         }
         return callbackState
+    }
+    
+    static func decodeSessionStringfromCallbackURL(_ callbackURL: URL) throws -> String? {
+        let callbackFragment = callbackURL.fragment
+        return callbackFragment?.components(separatedBy: "&")[0].components(separatedBy: "=")[1]
     }
 
     public func getPrivkey() -> String {

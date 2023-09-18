@@ -9,4 +9,6 @@ public enum Network: String, Codable {
     case cyan
     case aqua
     case celeste
+    case sapphire_devnet
+    case sapphire_mainnet
 }

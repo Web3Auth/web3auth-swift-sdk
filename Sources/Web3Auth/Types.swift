@@ -152,10 +152,11 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false) {
         self.clientId = clientId
         self.network = network
-        self.sdkUrl = URL(string: getSdkUrl(network: self.network))!
+        self.buildEnv = buildEnv
+        self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))!
         self.redirectUrl = redirectUrl
         self.loginConfig = loginConfig
         self.whiteLabel = whiteLabel
@@ -163,10 +164,11 @@ public struct W3AInitParams: Codable {
         self.useCoreKitKey = useCoreKitKey
     }
 
-    public init(clientId: String, network: Network, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!) {
         self.clientId = clientId
         self.network = network
-        self.sdkUrl = URL(string: getSdkUrl(network: self.network))!
+        self.buildEnv = buildEnv
+        self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))!
         redirectUrl = nil
         loginConfig = nil
         whiteLabel = nil
@@ -177,6 +179,7 @@ public struct W3AInitParams: Codable {
     public init(clientId: String, network: Network) {
         self.clientId = clientId
         self.network = network
+        buildEnv = BuildEnv.production
         redirectUrl = nil
         loginConfig = nil
         whiteLabel = nil
@@ -186,6 +189,7 @@ public struct W3AInitParams: Codable {
 
     let clientId: String
     let network: Network
+    let buildEnv: BuildEnv
     var sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!
     var redirectUrl: String?
     let loginConfig: [String: W3ALoginConfig]?
@@ -197,6 +201,7 @@ public struct W3AInitParams: Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         clientId = try values.decode(String.self, forKey: .clientId)
         network = try values.decode(Network.self, forKey: .network)
+        buildEnv = try values.decode(BuildEnv.self, forKey: .buildEnv)
         let customSdkUrl = try values.decodeIfPresent(String.self, forKey: .sdkUrl)
         if customSdkUrl != nil {
             sdkUrl = URL(string: customSdkUrl!)!
@@ -209,10 +214,17 @@ public struct W3AInitParams: Codable {
     }
 }
 
-public func getSdkUrl(network: Network) -> String {
-    var sdkUrl = ""
-    sdkUrl = network == Network.testnet ? "https://dev-sdk.openlogin.com" : "https://sdk.openlogin.com"
-    return sdkUrl
+public func getSdkUrl(buildEnv: BuildEnv) -> String {
+    let openLoginVersion = "v5"
+
+    switch buildEnv {
+    case .staging:
+        return "https://staging-auth.web3auth.io/\(openLoginVersion)"
+    case .testing:
+        return "https://develop-auth.web3auth.io"
+    default:
+        return "https://auth.web3auth.io/\(openLoginVersion)"
+    }
 }
 
 public struct W3ALoginParams: Codable {
@@ -246,7 +258,7 @@ public struct W3ALoginParams: Codable {
     let loginProvider: String
     var dappShare: String?
     let extraLoginOptions: ExtraLoginOptions?
-    let redirectUrl: String?
+    var redirectUrl: String?
     let appState: String?
     let mfaLevel: MFALevel?
     let sessionTime: Int
@@ -329,16 +341,19 @@ public struct ExtraLoginOptions: Codable {
 }
 
 struct SdkUrlParams: Codable {
-    internal init(initParams: W3AInitParams, params: W3ALoginParams) {
-        self.initParams = initParams
+    internal init(options: W3AInitParams, params: W3ALoginParams, actionType: String) {
+        self.options = options
         self.params = params
+        self.actionType = actionType
     }
 
-    let initParams: W3AInitParams
+    let options: W3AInitParams
     let params: W3ALoginParams
-
+    let actionType: String
+    
     enum CodingKeys: String, CodingKey {
-        case initParams = "init"
+        case options = "options"
         case params
+        case actionType
     }
 }
