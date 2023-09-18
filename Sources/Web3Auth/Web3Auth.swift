@@ -53,8 +53,6 @@ public class Web3Auth: NSObject {
     }
     
     private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthState {
-        //let sessionId = callbackURL.fragment?.components(separatedBy: "&")[0].components(separatedBy: "=")[1]
-        //self.sessionManager.setSessionID(sessionId ?? "")
         let loginDetailsDict = try await sessionManager.authorizeSession()
         guard
             let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",network: initParams.network)
@@ -128,8 +126,6 @@ public class Web3Auth: NSObject {
             let bundleId = Bundle.main.bundleIdentifier,
             let redirectURL = URL(string: "\(bundleId)://auth")
         else { throw Web3AuthError.noBundleIdentifierFound }
-        print("bundleId: ", bundleId)
-        print("redirectURL: ", redirectURL)
         var loginParams = loginParams
         //assign loginParams redirectUrl from intiParamas redirectUrl
         loginParams.redirectUrl = "\(bundleId)://auth"
@@ -139,10 +135,7 @@ public class Web3Auth: NSObject {
         }
 
         let sdkUrlParams = SdkUrlParams(options: initParams, params: loginParams, actionType: "login")
-        print("sdkUrlParams: ", sdkUrlParams)
-        let encodedObj = try JSONEncoder().encode(sdkUrlParams)
-        let jsonString = String(data: encodedObj, encoding: .utf8) ?? ""
-        print("CreateSession_jsonData: ", jsonString)
+
         let loginId = try await getLoginId(data: sdkUrlParams)
         
         let jsonObject: [String: String?] = [
@@ -184,7 +177,6 @@ public class Web3Auth: NSObject {
                             print("Error: \(error)")
                         }
                     }
-                    //let loginDetails = try await getLoginDetails(callbackURL)
                  }
 
             authSession?.presentationContextProvider = self
@@ -196,8 +188,6 @@ public class Web3Auth: NSObject {
     }
 
     static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?]) throws -> URL {
-        //let sdkUrlParams = SdkUrlParams(initParams: overridenInitParams, params: loginParams, actionType: actionType)
-
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting.insert(.sortedKeys)
 
@@ -216,7 +206,7 @@ public class Web3Auth: NSObject {
         else {
             throw Web3AuthError.runtimeError("Invalid URL")
         }
-        print("urlToOpen", url)
+
         return url
     }
 
