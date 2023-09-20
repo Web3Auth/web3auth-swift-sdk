@@ -174,7 +174,7 @@ public class Web3Auth: NSObject {
                             self.state = loginDetails
                             return continuation.resume(returning: loginDetails)
                         } catch {
-                            print("Error: \(error)")
+                            continuation.resume(throwing: Web3AuthError.unknownError)
                         }
                     }
                  }
