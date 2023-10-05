@@ -73,30 +73,36 @@ public enum ChainNamespace: String, Codable {
 }
 
 public struct W3AWhiteLabelData: Codable {
-    public init(name: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: String? = nil, dark: Bool? = nil, theme: [String: String]? = nil) {
-        self.name = name
+    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = nil, dark: ThemeModes? = nil, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false) {
+        self.appName = appName
         self.logoLight = logoLight
         self.logoDark = logoDark
         self.defaultLanguage = defaultLanguage
         self.dark = dark
         self.theme = theme
+        self.appUrl = appUrl
+        self.useLogoLoader = useLogoLoader
     }
 
-    let name: String?
+    let appName: String?
     let logoLight: String?
     let logoDark: String?
-    let defaultLanguage: String?
-    let dark: Bool?
+    let defaultLanguage: Language?
+    let dark: ThemeModes?
     let theme: [String: String]?
+    let appUrl: String?
+    let useLogoLoader: Bool?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        name = try values.decodeIfPresent(String.self, forKey: .name)
+        appName = try values.decodeIfPresent(String.self, forKey: .appName)
         logoLight = try values.decodeIfPresent(String.self, forKey: .logoLight)
         logoDark = try values.decodeIfPresent(String.self, forKey: .logoDark)
-        defaultLanguage = try values.decodeIfPresent(String.self, forKey: .defaultLanguage)
-        dark = try values.decodeIfPresent(Bool.self, forKey: .dark)
+        defaultLanguage = try values.decodeIfPresent(Language.self, forKey: .defaultLanguage)
+        dark = try values.decodeIfPresent(ThemeModes.self, forKey: .dark)
         theme = try values.decodeIfPresent([String: String].self, forKey: .theme)
+        appUrl = try values.decodeIfPresent(String.self, forKey: .appUrl)
+        useLogoLoader = try values.decodeIfPresent(Bool.self, forKey: .useLogoLoader)
     }
 }
 
@@ -152,7 +158,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -162,6 +168,7 @@ public struct W3AInitParams: Codable {
         self.whiteLabel = whiteLabel
         self.chainNamespace = chainNamespace
         self.useCoreKitKey = useCoreKitKey
+        self.mfaSettings = mfaSettings
     }
 
     public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!) {
@@ -174,6 +181,7 @@ public struct W3AInitParams: Codable {
         whiteLabel = nil
         chainNamespace = ChainNamespace.eip555
         useCoreKitKey = false
+        mfaSettings = nil
     }
 
     public init(clientId: String, network: Network) {
@@ -185,6 +193,7 @@ public struct W3AInitParams: Codable {
         whiteLabel = nil
         chainNamespace = ChainNamespace.eip555
         useCoreKitKey = false
+        mfaSettings = nil
     }
 
     let clientId: String
@@ -196,6 +205,7 @@ public struct W3AInitParams: Codable {
     let whiteLabel: W3AWhiteLabelData?
     let chainNamespace: ChainNamespace?
     let useCoreKitKey: Bool?
+    let mfaSettings: MfaSettings?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -211,6 +221,7 @@ public struct W3AInitParams: Codable {
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
         chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace)
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
+        mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
     }
 }
 
@@ -337,6 +348,47 @@ public struct ExtraLoginOptions: Codable {
         leeway = try values.decodeIfPresent(Int.self, forKey: .leeway)
         verifierIdField = try values.decodeIfPresent(String.self, forKey: .verifierIdField)
         isVerifierIdCaseSensitive = try values.decodeIfPresent(Bool.self, forKey: .isVerifierIdCaseSensitive)
+    }
+}
+
+public struct MfaSettings: Codable {
+    public init(deviceShareFactor: MfaSetting?, backUpShareFactor: MfaSetting?, socialBackupFactor: MfaSetting?, passwordFactor: MfaSetting?) {
+        self.deviceShareFactor = deviceShareFactor
+        self.backUpShareFactor = backUpShareFactor
+        self.socialBackupFactor = socialBackupFactor
+        self.passwordFactor = passwordFactor
+    }
+    
+    let deviceShareFactor: MfaSetting?
+    let backUpShareFactor: MfaSetting?
+    let socialBackupFactor: MfaSetting?
+    let passwordFactor: MfaSetting?
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        deviceShareFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .deviceShareFactor)
+        backUpShareFactor = try values.decode(MfaSetting.self, forKey: .backUpShareFactor)
+        socialBackupFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .socialBackupFactor)
+        passwordFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .passwordFactor)
+    }
+}
+
+public struct MfaSetting: Codable {
+    public init(enable: Bool? = nil, priority: Int?, mandatory: Bool? = nil) {
+        self.enable = enable
+        self.priority = priority
+        self.mandatory = mandatory
+    }
+
+    let enable: Bool?
+    let priority: Int?
+    let mandatory: Bool?
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        enable = try values.decodeIfPresent(Bool.self, forKey: .enable)
+        priority = try values.decode(Int.self, forKey: .priority)
+        mandatory = try values.decodeIfPresent(Bool.self, forKey: .mandatory)
     }
 }
 

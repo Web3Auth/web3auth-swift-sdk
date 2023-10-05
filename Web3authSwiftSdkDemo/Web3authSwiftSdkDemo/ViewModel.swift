@@ -75,6 +75,7 @@ class ViewModel: ObservableObject {
                         clientId: clientID,
                         network: network,
                         buildEnv: .testing,
+                        whiteLabel: WhitelabelLogin(),
                         loginConfig: [
                             "random":
                                     .init(
