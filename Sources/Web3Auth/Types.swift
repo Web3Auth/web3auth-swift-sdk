@@ -73,12 +73,12 @@ public enum ChainNamespace: String, Codable {
 }
 
 public struct W3AWhiteLabelData: Codable {
-    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = nil, dark: ThemeModes? = nil, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false) {
+    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = nil, mode: ThemeModes? = nil, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false) {
         self.appName = appName
         self.logoLight = logoLight
         self.logoDark = logoDark
         self.defaultLanguage = defaultLanguage
-        self.dark = dark
+        self.mode = mode
         self.theme = theme
         self.appUrl = appUrl
         self.useLogoLoader = useLogoLoader
@@ -88,7 +88,7 @@ public struct W3AWhiteLabelData: Codable {
     let logoLight: String?
     let logoDark: String?
     let defaultLanguage: Language?
-    let dark: ThemeModes?
+    let mode: ThemeModes?
     let theme: [String: String]?
     let appUrl: String?
     let useLogoLoader: Bool?
@@ -99,7 +99,7 @@ public struct W3AWhiteLabelData: Codable {
         logoLight = try values.decodeIfPresent(String.self, forKey: .logoLight)
         logoDark = try values.decodeIfPresent(String.self, forKey: .logoDark)
         defaultLanguage = try values.decodeIfPresent(Language.self, forKey: .defaultLanguage)
-        dark = try values.decodeIfPresent(ThemeModes.self, forKey: .dark)
+        mode = try values.decodeIfPresent(ThemeModes.self, forKey: .mode)
         theme = try values.decodeIfPresent([String: String].self, forKey: .theme)
         appUrl = try values.decodeIfPresent(String.self, forKey: .appUrl)
         useLogoLoader = try values.decodeIfPresent(Bool.self, forKey: .useLogoLoader)

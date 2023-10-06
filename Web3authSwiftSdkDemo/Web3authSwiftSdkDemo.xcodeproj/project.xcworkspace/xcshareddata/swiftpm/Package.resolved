@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Web3Auth/web3auth-swift-sdk",
       "state" : {
-        "branch" : "master",
-        "revision" : "f0d0c9ea71f43169abb1d17cd1ffe21a382ad7b7"
+        "branch" : "feat/sapphire-network-and-oprnloginv5-updates",
+        "revision" : "0996e957106c48dcaae33b9a73b8377043faf1cc"
       }
     }
   ],

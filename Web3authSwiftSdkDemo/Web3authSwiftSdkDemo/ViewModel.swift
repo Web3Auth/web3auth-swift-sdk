@@ -59,7 +59,7 @@ class ViewModel: ObservableObject {
     func login(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: BuildEnv.testing, useCoreKitKey: useCoreKit))
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
                 try await web3Auth?.login(W3ALoginParams(loginProvider: provider))
                 await handleUserDetails()
             } catch {
@@ -74,7 +74,7 @@ class ViewModel: ObservableObject {
                     web3Auth = await Web3Auth(.init(
                         clientId: clientID,
                         network: network,
-                        buildEnv: .testing,
+                        buildEnv: buildEnv,
                         loginConfig: [
                             "random":
                                     .init(
@@ -119,8 +119,8 @@ class ViewModel: ObservableObject {
             do {
                 web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
                                                         network: network,
-                                                        buildEnv: BuildEnv.testing,
-                                                        whiteLabel: W3AWhiteLabelData(name: "Web3Auth Stub", dark: true, theme: ["primary": "#123456"])))
+                                                        buildEnv: buildEnv,
+                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .de, theme: ["primary": "#123456"])))
                 let result = try await self.web3Auth?
                     .login(W3ALoginParams(loginProvider: .GOOGLE))
                 await handleUserDetails()
