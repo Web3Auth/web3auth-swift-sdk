@@ -367,27 +367,27 @@ public struct MfaSettings: Codable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         deviceShareFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .deviceShareFactor)
-        backUpShareFactor = try values.decode(MfaSetting.self, forKey: .backUpShareFactor)
+        backUpShareFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .backUpShareFactor)
         socialBackupFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .socialBackupFactor)
         passwordFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .passwordFactor)
     }
 }
 
 public struct MfaSetting: Codable {
-    public init(enable: Bool? = nil, priority: Int?, mandatory: Bool? = nil) {
+    public init(enable: Bool, priority: Int?, mandatory: Bool? = nil) {
         self.enable = enable
         self.priority = priority
         self.mandatory = mandatory
     }
 
-    let enable: Bool?
+    let enable: Bool
     let priority: Int?
     let mandatory: Bool?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        enable = try values.decodeIfPresent(Bool.self, forKey: .enable)
-        priority = try values.decode(Int.self, forKey: .priority)
+        enable = try values.decode(Bool.self, forKey: .enable)
+        priority = try values.decodeIfPresent(Int.self, forKey: .priority)
         mandatory = try values.decodeIfPresent(Bool.self, forKey: .mandatory)
     }
 }
