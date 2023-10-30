@@ -158,7 +158,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -171,7 +171,7 @@ public struct W3AInitParams: Codable {
         self.mfaSettings = mfaSettings
     }
 
-    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://auth.web3auth.io/v5")!) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
