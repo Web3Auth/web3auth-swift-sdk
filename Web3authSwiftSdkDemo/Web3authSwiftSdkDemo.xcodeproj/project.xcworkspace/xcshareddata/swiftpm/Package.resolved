@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "eee9ad754926c40a0f7e73f152357d37b119b7fa",
-        "version" : "1.7.1"
+        "revision" : "db51c407d3be4a051484a141bf0bff36c43d3b1e",
+        "version" : "1.8.0"
       }
     },
     {
@@ -69,7 +69,7 @@
       "location" : "https://github.com/Web3Auth/web3auth-swift-sdk",
       "state" : {
         "branch" : "master",
-        "revision" : "e450799b4e56426b1cf6f08ad0ff3d127885f0c7"
+        "revision" : "f0d0c9ea71f43169abb1d17cd1ffe21a382ad7b7"
       }
     }
   ],
