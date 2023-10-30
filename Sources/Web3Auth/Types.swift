@@ -199,7 +199,7 @@ public struct W3AInitParams: Codable {
     let clientId: String
     let network: Network
     let buildEnv: BuildEnv
-    var sdkUrl: URL = URL(string: "https://sdk.openlogin.com")!
+    var sdkUrl: URL = URL(string: "https://auth.web3auth.io/v5")!
     var redirectUrl: String?
     let loginConfig: [String: W3ALoginConfig]?
     let whiteLabel: W3AWhiteLabelData?
