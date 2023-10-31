@@ -194,7 +194,7 @@ public class Web3Auth: NSObject {
         guard
             let data = try? jsonEncoder.encode(jsonObject),
             // Using sorted keys to produce consistent results
-            var components = URLComponents(string: initParams.sdkUrl.absoluteString)
+            var components = URLComponents(string: initParams.sdkUrl!.absoluteString)
         else {
             throw Web3AuthError.encodingError
         }

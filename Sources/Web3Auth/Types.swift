@@ -73,7 +73,7 @@ public enum ChainNamespace: String, Codable {
 }
 
 public struct W3AWhiteLabelData: Codable {
-    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = nil, mode: ThemeModes? = nil, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false) {
+    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = Language.en, mode: ThemeModes? = ThemeModes.auto, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false) {
         self.appName = appName
         self.logoLight = logoLight
         self.logoDark = logoDark
@@ -98,8 +98,8 @@ public struct W3AWhiteLabelData: Codable {
         appName = try values.decodeIfPresent(String.self, forKey: .appName)
         logoLight = try values.decodeIfPresent(String.self, forKey: .logoLight)
         logoDark = try values.decodeIfPresent(String.self, forKey: .logoDark)
-        defaultLanguage = try values.decodeIfPresent(Language.self, forKey: .defaultLanguage)
-        mode = try values.decodeIfPresent(ThemeModes.self, forKey: .mode)
+        defaultLanguage = try values.decodeIfPresent(Language.self, forKey: .defaultLanguage) ?? Language.en
+        mode = try values.decodeIfPresent(ThemeModes.self, forKey: .mode) ?? ThemeModes.auto
         theme = try values.decodeIfPresent([String: String].self, forKey: .theme)
         appUrl = try values.decodeIfPresent(String.self, forKey: .appUrl)
         useLogoLoader = try values.decodeIfPresent(Bool.self, forKey: .useLogoLoader)
@@ -107,7 +107,7 @@ public struct W3AWhiteLabelData: Codable {
 }
 
 public struct W3ALoginConfig: Codable {
-    public init(verifier: String, typeOfLogin: TypeOfLogin, name: String? = nil, description: String? = nil, clientId: String? = nil,
+    public init(verifier: String, typeOfLogin: TypeOfLogin, name: String? = nil, description: String? = nil, clientId: String,
                 verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
                 showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
         self.verifier = verifier
@@ -129,7 +129,7 @@ public struct W3ALoginConfig: Codable {
     let typeOfLogin: TypeOfLogin
     let name: String?
     let description: String?
-    let clientId: String?
+    let clientId: String
     let verifierSubIdentifier: String?
     let logoHover: String?
     let logoLight: String?
@@ -145,7 +145,7 @@ public struct W3ALoginConfig: Codable {
         typeOfLogin = try values.decode(TypeOfLogin.self, forKey: .typeOfLogin)
         name = try values.decodeIfPresent(String.self, forKey: .name)
         description = try values.decodeIfPresent(String.self, forKey: .description)
-        clientId = try values.decodeIfPresent(String.self, forKey: .clientId)
+        clientId = try values.decode(String.self, forKey: .clientId)
         verifierSubIdentifier = try values.decodeIfPresent(String.self, forKey: .verifierSubIdentifier)
         logoHover = try values.decodeIfPresent(String.self, forKey: .logoHover)
         logoLight = try values.decodeIfPresent(String.self, forKey: .logoLight)
@@ -158,11 +158,11 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
-        self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))!
+        self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))
         self.redirectUrl = redirectUrl
         self.loginConfig = loginConfig
         self.whiteLabel = whiteLabel
@@ -171,23 +171,11 @@ public struct W3AInitParams: Codable {
         self.mfaSettings = mfaSettings
     }
 
-    public init(clientId: String, network: Network, buildEnv: BuildEnv, sdkUrl: URL = URL(string: "https://auth.web3auth.io/v5")!) {
-        self.clientId = clientId
-        self.network = network
-        self.buildEnv = buildEnv
-        self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))!
-        redirectUrl = nil
-        loginConfig = nil
-        whiteLabel = nil
-        chainNamespace = ChainNamespace.eip555
-        useCoreKitKey = false
-        mfaSettings = nil
-    }
-
     public init(clientId: String, network: Network) {
         self.clientId = clientId
         self.network = network
         buildEnv = BuildEnv.production
+        sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
         redirectUrl = nil
         loginConfig = nil
         whiteLabel = nil
@@ -198,8 +186,8 @@ public struct W3AInitParams: Codable {
 
     let clientId: String
     let network: Network
-    let buildEnv: BuildEnv
-    var sdkUrl: URL = URL(string: "https://auth.web3auth.io/v5")!
+    let buildEnv: BuildEnv?
+    var sdkUrl: URL?
     var redirectUrl: String?
     let loginConfig: [String: W3ALoginConfig]?
     let whiteLabel: W3AWhiteLabelData?
@@ -211,21 +199,23 @@ public struct W3AInitParams: Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         clientId = try values.decode(String.self, forKey: .clientId)
         network = try values.decode(Network.self, forKey: .network)
-        buildEnv = try values.decode(BuildEnv.self, forKey: .buildEnv)
+        buildEnv = try values.decodeIfPresent(BuildEnv.self, forKey: .buildEnv) ?? BuildEnv.production
         let customSdkUrl = try values.decodeIfPresent(String.self, forKey: .sdkUrl)
         if customSdkUrl != nil {
             sdkUrl = URL(string: customSdkUrl!)!
+        } else {
+            sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
         }
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
         loginConfig = try values.decodeIfPresent([String: W3ALoginConfig].self, forKey: .loginConfig)
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
-        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace)
+        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip555
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
     }
 }
 
-public func getSdkUrl(buildEnv: BuildEnv) -> String {
+public func getSdkUrl(buildEnv: BuildEnv?) -> String {
     let openLoginVersion = "v5"
 
     switch buildEnv {
@@ -358,12 +348,12 @@ public struct MfaSettings: Codable {
         self.socialBackupFactor = socialBackupFactor
         self.passwordFactor = passwordFactor
     }
-    
+
     let deviceShareFactor: MfaSetting?
     let backUpShareFactor: MfaSetting?
     let socialBackupFactor: MfaSetting?
     let passwordFactor: MfaSetting?
-    
+
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         deviceShareFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .deviceShareFactor)
@@ -393,16 +383,11 @@ public struct MfaSetting: Codable {
 }
 
 struct SdkUrlParams: Codable {
-    internal init(options: W3AInitParams, params: W3ALoginParams, actionType: String) {
-        self.options = options
-        self.params = params
-        self.actionType = actionType
-    }
 
     let options: W3AInitParams
     let params: W3ALoginParams
     let actionType: String
-    
+
     enum CodingKeys: String, CodingKey {
         case options = "options"
         case params
