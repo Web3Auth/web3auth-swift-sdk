@@ -68,7 +68,7 @@ public enum TypeOfLogin: String, Codable {
 }
 
 public enum ChainNamespace: String, Codable {
-    case eip555
+    case eip155
     case solana
 }
 
@@ -158,7 +158,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip555, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -179,7 +179,7 @@ public struct W3AInitParams: Codable {
         redirectUrl = nil
         loginConfig = nil
         whiteLabel = nil
-        chainNamespace = ChainNamespace.eip555
+        chainNamespace = ChainNamespace.eip155
         useCoreKitKey = false
         mfaSettings = nil
     }
@@ -209,7 +209,7 @@ public struct W3AInitParams: Codable {
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
         loginConfig = try values.decodeIfPresent([String: W3ALoginConfig].self, forKey: .loginConfig)
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
-        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip555
+        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip155
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
     }
