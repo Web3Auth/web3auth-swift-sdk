@@ -158,7 +158,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTIme: Int? = 86400) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -169,6 +169,7 @@ public struct W3AInitParams: Codable {
         self.chainNamespace = chainNamespace
         self.useCoreKitKey = useCoreKitKey
         self.mfaSettings = mfaSettings
+        self.sessionTime = sessionTIme
     }
 
     public init(clientId: String, network: Network) {
@@ -182,6 +183,7 @@ public struct W3AInitParams: Codable {
         chainNamespace = ChainNamespace.eip155
         useCoreKitKey = false
         mfaSettings = nil
+        sessionTime = 86400
     }
 
     let clientId: String
@@ -194,6 +196,7 @@ public struct W3AInitParams: Codable {
     let chainNamespace: ChainNamespace?
     let useCoreKitKey: Bool?
     let mfaSettings: MfaSettings?
+    var sessionTime: Int?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -212,6 +215,7 @@ public struct W3AInitParams: Codable {
         chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip155
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
+        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
     }
 }
 

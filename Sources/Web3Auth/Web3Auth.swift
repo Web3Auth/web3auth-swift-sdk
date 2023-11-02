@@ -7,7 +7,7 @@ import SessionManager
  */
 
 public class Web3Auth: NSObject {
-    private let initParams: W3AInitParams
+    private var initParams: W3AInitParams
     private var authSession: ASWebAuthenticationSession?
     // You can check the state variable before logging the user in, if the user
     // has an active session the state variable will already have all the values you 
@@ -134,6 +134,10 @@ public class Web3Auth: NSObject {
             loginParams.dappShare = savedDappShare
         }
 
+        if(loginParams.sessionTime > 0) {
+            initParams.sessionTime = loginParams.sessionTime
+        }
+        
         let sdkUrlParams = SdkUrlParams(options: initParams, params: loginParams, actionType: "login")
 
         let loginId = try await getLoginId(data: sdkUrlParams)

@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "9497e442486aab515c8486ef8153a506f93a5032",
-        "version" : "2.61.0"
+        "revision" : "853522d90871b4b63262843196685795b5008c46",
+        "version" : "2.61.1"
       }
     },
     {
@@ -150,7 +150,7 @@
       "location" : "https://github.com/Web3Auth/web3auth-swift-sdk",
       "state" : {
         "branch" : "master",
-        "revision" : "b30c43bfb2d5e057083e119ac7af8c2b695e67f5"
+        "revision" : "e6878a256b6d98d7e8c1fac2c8a41992315bdb81"
       }
     },
     {
