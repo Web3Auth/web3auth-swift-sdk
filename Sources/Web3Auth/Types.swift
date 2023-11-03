@@ -158,7 +158,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTIme: Int = 86400) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -169,6 +169,7 @@ public struct W3AInitParams: Codable {
         self.chainNamespace = chainNamespace
         self.useCoreKitKey = useCoreKitKey
         self.mfaSettings = mfaSettings
+        self.sessionTime = min(7 * 86400, sessionTIme)
     }
 
     public init(clientId: String, network: Network) {
@@ -182,6 +183,7 @@ public struct W3AInitParams: Codable {
         chainNamespace = ChainNamespace.eip155
         useCoreKitKey = false
         mfaSettings = nil
+        sessionTime = 86400
     }
 
     let clientId: String
@@ -194,6 +196,7 @@ public struct W3AInitParams: Codable {
     let chainNamespace: ChainNamespace?
     let useCoreKitKey: Bool?
     let mfaSettings: MfaSettings?
+    let sessionTime: Int
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -212,6 +215,7 @@ public struct W3AInitParams: Codable {
         chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip155
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
+        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
     }
 }
 
@@ -232,27 +236,25 @@ public struct W3ALoginParams: Codable {
 
     public init(loginProvider: Web3AuthProvider, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
-                mfaLevel: MFALevel? = nil, sessionTime: Int = 86400, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
+                mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
         self.loginProvider = loginProvider.rawValue
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
         self.appState = appState
         self.mfaLevel = mfaLevel
-        self.sessionTime = min(7 * 86400, sessionTime)
         self.curve = curve
     }
 
     public init(loginProvider: String, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
-                mfaLevel: MFALevel? = nil, sessionTime: Int = 86400, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
+                mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
         self.loginProvider = loginProvider
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
         self.appState = appState
         self.mfaLevel = mfaLevel
-        self.sessionTime = min(7 * 86400, sessionTime)
         self.curve = curve
     }
 
@@ -262,7 +264,6 @@ public struct W3ALoginParams: Codable {
     var redirectUrl: String?
     let appState: String?
     let mfaLevel: MFALevel?
-    let sessionTime: Int
     let curve: SUPPORTED_KEY_CURVES
 
     public init(from decoder: Decoder) throws {
@@ -273,7 +274,6 @@ public struct W3ALoginParams: Codable {
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
         appState = try values.decodeIfPresent(String.self, forKey: .appState)
         mfaLevel = try values.decodeIfPresent(MFALevel.self, forKey: .mfaLevel)
-        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
         curve = try values.decodeIfPresent(SUPPORTED_KEY_CURVES.self, forKey: .curve) ?? .SECP256K1
     }
 }
