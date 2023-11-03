@@ -133,10 +133,6 @@ public class Web3Auth: NSObject {
            let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
             loginParams.dappShare = savedDappShare
         }
-
-        if(loginParams.sessionTime > 0) {
-            initParams.sessionTime = loginParams.sessionTime
-        }
         
         let sdkUrlParams = SdkUrlParams(options: initParams, params: loginParams, actionType: "login")
 
