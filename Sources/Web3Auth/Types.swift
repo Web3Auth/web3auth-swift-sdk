@@ -220,7 +220,7 @@ public struct W3AInitParams: Codable {
 }
 
 public func getSdkUrl(buildEnv: BuildEnv?) -> String {
-    let openLoginVersion = "v5"
+    let openLoginVersion = "v6"
 
     switch buildEnv {
     case .staging:
