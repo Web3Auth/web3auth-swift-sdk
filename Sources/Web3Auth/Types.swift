@@ -281,7 +281,7 @@ public struct W3ALoginParams: Codable {
 public struct ExtraLoginOptions: Codable {
     public init(display: String?, prompt: String?, max_age: String?, ui_locales: String?,
                 id_token_hint: String?, id_token: String?, login_hint: String?, acr_values: String?, scope: String?,
-                audience: String?, connection: String?, domain: String?, client_id: String?, redirect_uri: String?, leeway: Int?, verifierIdField: String?, isVerifierIdCaseSensitive: Bool?) {
+                audience: String?, connection: String?, domain: String?, client_id: String?, redirect_uri: String?, leeway: Int?, verifierIdField: String?, isVerifierIdCaseSensitive: Bool?, additionalParams: [String : String]?) {
         self.display = display
         self.prompt = prompt
         self.max_age = max_age
@@ -299,6 +299,7 @@ public struct ExtraLoginOptions: Codable {
         self.leeway = leeway
         self.verifierIdField = verifierIdField
         self.isVerifierIdCaseSensitive = isVerifierIdCaseSensitive
+        self.additionalParams = additionalParams
     }
 
     let display: String?
@@ -318,6 +319,7 @@ public struct ExtraLoginOptions: Codable {
     let leeway: Int?
     let verifierIdField: String?
     let isVerifierIdCaseSensitive: Bool?
+    let additionalParams: [String : String]?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -338,6 +340,7 @@ public struct ExtraLoginOptions: Codable {
         leeway = try values.decodeIfPresent(Int.self, forKey: .leeway)
         verifierIdField = try values.decodeIfPresent(String.self, forKey: .verifierIdField)
         isVerifierIdCaseSensitive = try values.decodeIfPresent(Bool.self, forKey: .isVerifierIdCaseSensitive)
+        additionalParams = try values.decodeIfPresent([String : String].self, forKey: .additionalParams)
     }
 }
 
