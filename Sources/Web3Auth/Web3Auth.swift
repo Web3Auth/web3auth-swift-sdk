@@ -54,6 +54,9 @@ public class Web3Auth: NSObject {
     
     private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthState {
         let loginDetailsDict = try await sessionManager.authorizeSession()
+        print("loginDetailsDict: \(loginDetailsDict)")
+        print("sessionID: \(sessionManager.getSessionID())")
+        print("network: \(initParams.network)")
         guard
             let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",network: initParams.network)
         else {
