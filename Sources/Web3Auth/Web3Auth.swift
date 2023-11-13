@@ -154,6 +154,8 @@ public class Web3Auth: NSObject {
                         let callbackURL = callbackURL,
                         let sessionId = try? Web3Auth.decodeSessionStringfromCallbackURL(callbackURL)
                     else {
+
+                        print("Failed to decode decodeSessionStringfromCallbackURL")
                         let authError = authError ?? Web3AuthError.unknownError
                         if case ASWebAuthenticationSessionError.canceledLogin = authError {
                             continuation.resume(throwing: Web3AuthError.userCancelled)
@@ -174,6 +176,8 @@ public class Web3Auth: NSObject {
                             self.state = loginDetails
                             return continuation.resume(returning: loginDetails)
                         } catch {
+                            print("Failed to get login details");
+                            print("Error: \(error.localizedDescription)")
                             continuation.resume(throwing: Web3AuthError.unknownError)
                         }
                     }
@@ -182,6 +186,7 @@ public class Web3Auth: NSObject {
             authSession?.presentationContextProvider = self
 
             if !(authSession?.start() ?? false) {
+                print("Auth session start failed");
                 continuation.resume(throwing: Web3AuthError.unknownError)
             }
         })
