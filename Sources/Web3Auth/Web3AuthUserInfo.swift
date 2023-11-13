@@ -53,10 +53,9 @@ public struct Web3AuthUserInfo: Codable {
 
 extension Web3AuthUserInfo {
     init?(dict: [String: Any]) {
-        guard let name = dict["name"],
-              let typeOfLogin = dict["typeOfLogin"] else { return nil }
-        self.name = name as? String
+        guard let typeOfLogin = dict["typeOfLogin"] else { return nil }
         self.typeOfLogin = typeOfLogin as? String
+        name = dict["name"] as? String ?? ""
         profileImage = dict["profileImage"] as? String ?? ""
         aggregateVerifier = dict["aggregateVerifier"] as? String ?? ""
         verifier = dict["verifier"] as? String ?? ""
