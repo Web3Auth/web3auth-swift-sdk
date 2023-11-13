@@ -54,9 +54,6 @@ public class Web3Auth: NSObject {
     
     private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthState {
         let loginDetailsDict = try await sessionManager.authorizeSession()
-        print("loginDetailsDict: \(loginDetailsDict)")
-        print("sessionID: \(sessionManager.getSessionID())")
-        print("network: \(initParams.network)")
         guard
             let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",network: initParams.network)
         else {
@@ -157,8 +154,6 @@ public class Web3Auth: NSObject {
                         let callbackURL = callbackURL,
                         let sessionId = try? Web3Auth.decodeSessionStringfromCallbackURL(callbackURL)
                     else {
-
-                        print("Failed to decode decodeSessionStringfromCallbackURL")
                         let authError = authError ?? Web3AuthError.unknownError
                         if case ASWebAuthenticationSessionError.canceledLogin = authError {
                             continuation.resume(throwing: Web3AuthError.userCancelled)
@@ -171,9 +166,7 @@ public class Web3Auth: NSObject {
                     self.sessionManager.setSessionID(sessionId)
                     Task {
                         do {
-                            print("start get login details \(callbackURL)");
                             let loginDetails = try await self.getLoginDetails(callbackURL)
-                            print("end get login details");
                             if let safeUserInfo = loginDetails.userInfo {
                                 KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                             }
@@ -181,8 +174,6 @@ public class Web3Auth: NSObject {
                             self.state = loginDetails
                             return continuation.resume(returning: loginDetails)
                         } catch {
-                            print("Failed to get login details");
-                            print("Error: \(error.localizedDescription)")
                             continuation.resume(throwing: Web3AuthError.unknownError)
                         }
                     }
@@ -191,7 +182,6 @@ public class Web3Auth: NSObject {
             authSession?.presentationContextProvider = self
 
             if !(authSession?.start() ?? false) {
-                print("Auth session start failed");
                 continuation.resume(throwing: Web3AuthError.unknownError)
             }
         })
