@@ -168,7 +168,9 @@ public class Web3Auth: NSObject {
                     self.sessionManager.setSessionID(sessionId)
                     Task {
                         do {
+                            print("start get login details \(callbackURL)");
                             let loginDetails = try await self.getLoginDetails(callbackURL)
+                            print("end get login details");
                             if let safeUserInfo = loginDetails.userInfo {
                                 KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                             }
