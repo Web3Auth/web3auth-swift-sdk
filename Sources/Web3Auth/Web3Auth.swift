@@ -186,6 +186,36 @@ public class Web3Auth: NSObject {
             }
         })
     }
+    
+    public func launchWalletServices(_ loginParams: W3ALoginParams) async throws {
+        
+        let sessionId = self.sessionManager.getSessionID()
+        if !(sessionId ?? "").isEmpty {
+            guard
+                let bundleId = Bundle.main.bundleIdentifier,
+                let redirectURL = URL(string: "\(bundleId)://auth")
+            else { throw Web3AuthError.noBundleIdentifierFound }
+            var loginParams = loginParams
+            //assign loginParams redirectUrl from intiParamas redirectUrl
+            loginParams.redirectUrl = "\(bundleId)://auth"
+            if let loginConfig = initParams.loginConfig?.values.first,
+               let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
+                loginParams.dappShare = savedDappShare
+            }
+            
+            let sdkUrlParams = SdkUrlParams(options: initParams, params: loginParams, actionType: "login")
+
+            let loginId = try await getLoginId(data: sdkUrlParams)
+            
+            let jsonObject: [String: String?] = [
+                "loginId": loginId,
+                "sessionId": sessionId
+            ]
+
+            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject)
+            // TODO() handle code after opening url.
+        }
+    }
 
     static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?]) throws -> URL {
         let jsonEncoder = JSONEncoder()

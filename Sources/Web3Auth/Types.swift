@@ -163,6 +163,7 @@ public struct W3AInitParams: Codable {
         self.network = network
         self.buildEnv = buildEnv
         self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))
+        self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
         self.redirectUrl = redirectUrl
         self.loginConfig = loginConfig
         self.whiteLabel = whiteLabel
@@ -177,6 +178,7 @@ public struct W3AInitParams: Codable {
         self.network = network
         buildEnv = BuildEnv.production
         sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
+        walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
         redirectUrl = nil
         loginConfig = nil
         whiteLabel = nil
@@ -190,6 +192,7 @@ public struct W3AInitParams: Codable {
     let network: Network
     let buildEnv: BuildEnv?
     var sdkUrl: URL?
+    var walletSdkUrl: URL?
     var redirectUrl: String?
     let loginConfig: [String: W3ALoginConfig]?
     let whiteLabel: W3AWhiteLabelData?
@@ -209,6 +212,7 @@ public struct W3AInitParams: Codable {
         } else {
             sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
         }
+        walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
         loginConfig = try values.decodeIfPresent([String: W3ALoginConfig].self, forKey: .loginConfig)
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
@@ -229,6 +233,21 @@ public func getSdkUrl(buildEnv: BuildEnv?) -> String {
         return "https://develop-auth.web3auth.io"
     default:
         return "https://auth.web3auth.io/\(openLoginVersion)"
+    }
+}
+
+public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
+    guard let buildEnv = buildEnv else {
+        return "https://wallet.web3auth.io"
+    }
+
+    switch buildEnv {
+    case .staging:
+        return "https://staging-wallet.web3auth.io"
+    case .testing:
+        return "https://develop-wallet.web3auth.io"
+    default:
+        return "https://wallet.web3auth.io"
     }
 }
 
