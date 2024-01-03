@@ -142,7 +142,7 @@ public class Web3Auth: NSObject {
             "loginId": loginId
         ]
 
-        let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject)
+        let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, isWalletServices: false)
         
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
 
@@ -212,19 +212,24 @@ public class Web3Auth: NSObject {
                 "sessionId": sessionId
             ]
 
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject)
+            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, isWalletServices: true)
             // TODO() handle code after opening url.
+        }
+        else {
+            throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
         }
     }
 
-    static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?]) throws -> URL {
+    static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?], isWalletServices: Bool) throws -> URL {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting.insert(.sortedKeys)
 
         guard
             let data = try? jsonEncoder.encode(jsonObject),
             // Using sorted keys to produce consistent results
-            var components = URLComponents(string: initParams.sdkUrl!.absoluteString)
+            var components = isWalletServices ?
+                URLComponents(string: initParams.walletSdkUrl!.absoluteString) :
+                URLComponents(string: initParams.sdkUrl!.absoluteString)
         else {
             throw Web3AuthError.encodingError
         }
