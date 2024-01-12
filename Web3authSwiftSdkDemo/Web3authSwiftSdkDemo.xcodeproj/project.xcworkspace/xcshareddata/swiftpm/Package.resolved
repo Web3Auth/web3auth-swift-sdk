@@ -149,8 +149,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Web3Auth/web3auth-swift-sdk",
       "state" : {
-        "branch" : "feat/wallet-services",
-        "revision" : "4eafb2f59ccee266b91165e95b32c0c52bec986f"
+        "revision" : "44de21305783e75ebf5211feb0580ac01ff811d3"
       }
     },
     {
