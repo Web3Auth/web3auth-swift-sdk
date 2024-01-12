@@ -15,6 +15,7 @@ public class Web3Auth: NSObject {
     public var state: Web3AuthState?
     var sessionManager: SessionManager
     var webViewDelegate: WebViewDelegate?
+    var webViewController: WebViewController = WebViewController()
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -287,7 +288,8 @@ public class Web3Auth: NSObject {
 
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, isWalletServices: true)
             // TODO() handle code for opening url.
-            webViewDelegate?.openWebViewController(url: url)
+            await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
+            //webViewDelegate?.openWebViewController(url: url)
         }
         else {
             throw Web3AuthError.runtimeError("SessionId not found. Please login first.")

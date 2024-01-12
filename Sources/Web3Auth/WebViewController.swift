@@ -20,6 +20,10 @@ class WebViewController: UIViewController, WebViewDelegate {
         webView = WKWebView()
         webView.navigationDelegate = self
         self.view = webView
+        let loadURL = "https://staging-wallet.web3auth.io/start#b64Params=eyJsb2dpbklkIjoiZjE3MjA5ZWIzOWRiMjU4MGJiOGI5ZWFlMTU4OTRkZGFhNDk2YTJiZGM3ZDA3N2RlZTMxMWE0ZWFhNTMzNThiZiIsInNlc3Npb25JZCI6IjU1Zjg5ZjlmZmUyOWE0ZjJkMDQ2YmRkODM1NTZlYmVlZjk3OGFiZDc4ZTlkNjBkZDUyYjI0MWE5MzJjZmU3ODIifQ"
+        let url = URL(string: loadURL)!
+        webView.load(URLRequest(url: url))
+        activityIndicator.stopAnimating()
         webView.allowsBackForwardNavigationGestures = true
     }
     

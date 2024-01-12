@@ -91,7 +91,7 @@ class ViewModel: ObservableObject {
                         W3ALoginParams(
                             loginProvider: "random",
                         dappShare: nil,
-                        extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil),
+                        extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
                         mfaLevel: .DEFAULT,
                         curve: .SECP256K1
                         ))
@@ -113,6 +113,17 @@ class ViewModel: ObservableObject {
             }
         }
     }
+    
+    @MainActor func launchWalletServices() {
+        Task {
+            do {
+                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE))
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+     }
 
     func whitelabelLogin() {
         Task.detached { [unowned self] in
