@@ -410,9 +410,25 @@ struct SdkUrlParams: Codable {
     let params: W3ALoginParams
     let actionType: String
 
+
     enum CodingKeys: String, CodingKey {
         case options = "options"
         case params
         case actionType
+    }
+}
+
+struct SetUpMFAParams: Codable {
+
+    let options: W3AInitParams
+    let params: W3ALoginParams
+    let actionType: String
+    let sessionId: String
+
+    enum CodingKeys: String, CodingKey {
+        case options = "options"
+        case params
+        case actionType
+        case sessionId
     }
 }
