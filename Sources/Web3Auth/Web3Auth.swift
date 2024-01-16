@@ -29,7 +29,7 @@ public class Web3Auth: NSObject {
     public init(_ params: W3AInitParams) async {
         initParams = params
         sessionManager = .init()
-        print("sessionId:" + sessionManager.getSessionID()!)
+        print("sessionId:" + (sessionManager.getSessionID() ?? ""))
             do {
                 let loginDetailsDict = try await sessionManager.authorizeSession()
                 guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",
