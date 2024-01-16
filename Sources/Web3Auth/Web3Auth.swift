@@ -281,6 +281,8 @@ public class Web3Auth: NSObject {
 
             let loginId = try await getLoginId(data: sdkUrlParams)
             
+            self.sessionManager.setSessionID(loginId ?? "")
+            
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
                 "sessionId": sessionId
