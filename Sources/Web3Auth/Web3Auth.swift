@@ -29,7 +29,7 @@ public class Web3Auth: NSObject {
     public init(_ params: W3AInitParams) async {
         initParams = params
         sessionManager = .init()
-        print("sessionId:" + (sessionManager.getSessionID() ?? ""))
+        print("sessionId: " + (sessionManager.getSessionID() ?? ""))
             do {
                 let loginDetailsDict = try await sessionManager.authorizeSession()
                 guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",
@@ -166,6 +166,7 @@ public class Web3Auth: NSObject {
                     }
                     
                     self.sessionManager.setSessionID(sessionId)
+                    print("sessionId during setSessionID: " + sessionId)
                     Task {
                         do {
                             let loginDetails = try await self.getLoginDetails(callbackURL)
@@ -173,6 +174,7 @@ public class Web3Auth: NSObject {
                                 KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                             }
                             self.sessionManager.setSessionID(loginDetails.sessionId ?? "")
+                            print("sessionId during setSessionID: " + (loginDetails.sessionId ?? ""))
                             self.state = loginDetails
                             return continuation.resume(returning: loginDetails)
                         } catch {
@@ -287,7 +289,7 @@ public class Web3Auth: NSObject {
             ]
 
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, isWalletServices: true)
-            
+            print("sessionId in wallet services before opening webview: " + (sessionManager.getSessionID() ?? ""))
             //open url in webview
             await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
             await webViewController.webView.load(URLRequest(url: url))
