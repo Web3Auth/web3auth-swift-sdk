@@ -281,7 +281,9 @@ public class Web3Auth: NSObject {
             
             let sdkUrlParams = SdkUrlParams(options: initParams, params: loginParams, actionType: "login")
             print("sessionId in wallet services before calling getLoginId: " + (sessionManager.getSessionID() ?? ""))
+            let _sessionId = sessionManager.getSessionID() ?? ""
             let loginId = try await getLoginId(data: sdkUrlParams)
+            self.sessionManager.setSessionID(_sessionId)
             print("sessionId in wallet services after calling getLoginId: " + (sessionManager.getSessionID() ?? ""))
             print("loginId after createSession: " + (loginId ?? ""))
             
