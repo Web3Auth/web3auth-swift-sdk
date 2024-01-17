@@ -12,16 +12,30 @@ import WebKit
 class WebViewController: UIViewController {
     
     var webView : WKWebView!
+    var popupWebView: WKWebView?
     let activityIndicator = UIActivityIndicatorView(style: .large)
      
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupWebView()
         activityIndicator.startAnimating()
-        webView = WKWebView()
-        webView.navigationDelegate = self
-        self.view = webView
         activityIndicator.stopAnimating()
-        webView.allowsBackForwardNavigationGestures = true
+    }
+    
+    func setupWebView() {
+        let preferences = WKPreferences()
+        preferences.javaScriptEnabled = true
+        preferences.javaScriptCanOpenWindowsAutomatically = true
+
+        let configuration = WKWebViewConfiguration()
+        configuration.preferences = preferences
+
+        webView = WKWebView(frame: view.bounds, configuration: configuration)
+        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        webView.uiDelegate = self
+        webView.navigationDelegate = self
+
+        view.addSubview(webView)
     }
 }
   
@@ -34,4 +48,22 @@ extension WebViewController : WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         activityIndicator.stopAnimating()
     }
+}
+
+extension WebViewController: WKUIDelegate {
+func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+    popupWebView = WKWebView(frame: view.bounds, configuration: configuration)
+    popupWebView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    popupWebView!.navigationDelegate = self
+    popupWebView!.uiDelegate = self
+    view.addSubview(popupWebView!)
+    return popupWebView!
+}
+
+func webViewDidClose(_ webView: WKWebView) {
+    if webView == popupWebView {
+        popupWebView?.removeFromSuperview()
+        popupWebView = nil
+    }
+}
 }
