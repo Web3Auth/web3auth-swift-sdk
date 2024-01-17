@@ -29,6 +29,7 @@ class WebViewController: UIViewController {
 
         let configuration = WKWebViewConfiguration()
         configuration.preferences = preferences
+        configuration.applicationNameForUserAgent = "Version/8.0.2 Safari/600.2.5"
 
         webView = WKWebView(frame: view.bounds, configuration: configuration)
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
