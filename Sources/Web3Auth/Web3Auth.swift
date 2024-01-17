@@ -172,6 +172,7 @@ public class Web3Auth: NSObject {
                                 KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                             }
                             self.sessionManager.setSessionID(loginDetails.sessionId ?? "")
+
                             self.state = loginDetails
                             return continuation.resume(returning: loginDetails)
                         } catch {
@@ -289,7 +290,7 @@ public class Web3Auth: NSObject {
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, isWalletServices: true)
             //open url in webview
             await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
-            await webViewController.webView.load(URLRequest(url: url))
+            await webViewController.webView.load(URLRequest(url: URL(string: "https://www.google.com")!))
         }
         else {
             throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
