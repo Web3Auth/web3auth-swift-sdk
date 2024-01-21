@@ -4,7 +4,7 @@ import Foundation
 /**
  Result object for Web3Auth APIs requests.
  
- - Success: Request completed successfuly with it's response body.
+ - Success: Request completed successfully with it's response body.
  - Failure: Request failed with a specific error.
  */
 public enum Result<T> {
@@ -28,7 +28,7 @@ extension Result {
 /**
  Result object for Web3Auth APIs requests.
  
- - Success: Request completed successfuly with it's response body.
+ - Success: Request completed successfully with it's response body.
  - Failure: Request failed with a specific error.
  */
 public typealias Result<T> = Swift.Result<T, Error>
