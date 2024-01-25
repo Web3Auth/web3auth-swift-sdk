@@ -206,7 +206,9 @@ public class Web3Auth: NSObject {
             
             let sdkUrlParams = SetUpMFAParams(options: initParams, params: loginParams, actionType: "enable_mfa", sessionId: sessionId ?? "")
             
+            let _sessionId = sessionManager.getSessionID() ?? ""
             let loginId = try await getLoginId(data: sdkUrlParams)
+            self.sessionManager.setSessionID(_sessionId)
             
             let jsonObject: [String: String?] = [
                 "loginId": loginId

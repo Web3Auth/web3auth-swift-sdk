@@ -124,6 +124,17 @@ class ViewModel: ObservableObject {
             }
         }
      }
+    
+    @MainActor func setupMFA() {
+        Task {
+            do {
+                try await web3Auth?.setupMFA(W3ALoginParams(loginProvider: .GOOGLE))
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+     }
 
     func whitelabelLogin() {
         Task.detached { [unowned self] in
