@@ -162,7 +162,12 @@ public struct W3AInitParams: Codable {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
-        self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))
+        if sdkUrl != nil {
+                    self.sdkUrl = sdkUrl
+                } else {
+                    // Handle the case where urlString is nil
+                    self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))
+                }
         self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
         self.redirectUrl = redirectUrl
         self.loginConfig = loginConfig
