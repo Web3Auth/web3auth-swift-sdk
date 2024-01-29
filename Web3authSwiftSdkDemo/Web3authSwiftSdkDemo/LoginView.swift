@@ -13,10 +13,10 @@ struct LoginView: View {
         List {
             Button(
                 action: {
-                    vm.login(provider: .GOOGLE)
+                    vm.login(provider: .EMAIL_PASSWORDLESS)
                 },
                 label: {
-                    Text("Sign In with Google")
+                    Text("Sign In with Email Passwordless")
                 }
             )
 

@@ -158,7 +158,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTIme: Int = 86400) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -170,7 +170,7 @@ public struct W3AInitParams: Codable {
         self.chainNamespace = chainNamespace
         self.useCoreKitKey = useCoreKitKey
         self.mfaSettings = mfaSettings
-        self.sessionTime = min(7 * 86400, sessionTIme)
+        self.sessionTime = min(7 * 86400, sessionTime)
     }
 
     public init(clientId: String, network: Network) {

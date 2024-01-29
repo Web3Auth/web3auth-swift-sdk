@@ -143,7 +143,7 @@ public class Web3Auth: NSObject {
             "loginId": loginId
         ]
 
-        let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, isWalletServices: false)
+        let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
         
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
 
@@ -214,7 +214,7 @@ public class Web3Auth: NSObject {
                 "loginId": loginId
             ]
             
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, isWalletServices: false)
+            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
             
             return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Bool, Error>) in
                 
@@ -289,7 +289,24 @@ public class Web3Auth: NSObject {
                 "sessionId": sessionId
             ]
 
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, isWalletServices: true)
+            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: "wallet")
+            //open url in webview
+            await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
+            await webViewController.webView.load(URLRequest(url: url))
+        }
+        else {
+            throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
+        }
+    }
+    
+    public func launchClaimFlow(sdkUrl: String) async throws {
+        let sessionId = self.sessionManager.getSessionID()
+        if !(sessionId ?? "").isEmpty {
+            let jsonObject: [String: String?] = [
+                "sessionId": sessionId
+            ]
+
+            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: sdkUrl, path: "claim")
             //open url in webview
             await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
             await webViewController.webView.load(URLRequest(url: url))
@@ -299,21 +316,19 @@ public class Web3Auth: NSObject {
         }
     }
 
-    static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?], isWalletServices: Bool) throws -> URL {
+    static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?], sdkUrl: String?, path: String) throws -> URL {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting.insert(.sortedKeys)
 
         guard
             let data = try? jsonEncoder.encode(jsonObject),
             // Using sorted keys to produce consistent results
-            var components = isWalletServices ?
-                URLComponents(string: initParams.walletSdkUrl!.absoluteString) :
-                URLComponents(string: initParams.sdkUrl!.absoluteString)
+            var components = URLComponents(string: sdkUrl ?? "")
         else {
             throw Web3AuthError.encodingError
         }
 
-        components.path = isWalletServices ? "/wallet" : "/start"
+        components.path = "/" + path
         components.fragment = "b64Params=" + data.toBase64URL()
 
         guard let url = components.url

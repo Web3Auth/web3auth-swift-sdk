@@ -59,8 +59,18 @@ class ViewModel: ObservableObject {
     func login(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
-                try await web3Auth?.login(W3ALoginParams(loginProvider: provider))
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, sdkUrl: URL(string: "https://mocaverse-auth.web3auth.com"), loginConfig: [
+                    "loginConfig": W3ALoginConfig(
+                        verifier: "web3auth-auth0-email-passwordless-sapphire-devnet",
+                        typeOfLogin: TypeOfLogin.jwt,
+                        clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
+                    )
+                ], useCoreKitKey: useCoreKit))
+                try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
+                                                         extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "testtorus91@gmail.com", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
+                                                         mfaLevel: .DEFAULT,
+                                                         curve: .SECP256K1
+                                                        ))
                 await handleUserDetails()
             } catch {
                 print("Error")
