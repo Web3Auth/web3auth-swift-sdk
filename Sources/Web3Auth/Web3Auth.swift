@@ -362,6 +362,13 @@ public class Web3Auth: NSObject {
         guard let state = state, let userInfo = state.userInfo else { throw Web3AuthError.noUserFound}
         return userInfo
     }
+    
+    public func getWeb3AuthResponse() throws -> Web3AuthState {
+        guard let state = state else {
+                throw Web3AuthError.noUserFound
+            }
+        return state
+    }
 }
 
 extension Web3Auth: ASWebAuthenticationPresentationContextProviding {

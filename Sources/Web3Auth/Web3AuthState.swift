@@ -11,9 +11,15 @@ public struct Web3AuthState: Codable {
     public let error: String?
     public let coreKitKey: String?
     public let coreKitEd25519PrivKey: String?
+    public var factorKey: String?
+    public var signatures: [String]?
+    public var tssShareIndex: Int?
+    public var tssPubKey: String?
+    public var tssShare: String?
+    public var tssNonce: Int?
 
     public init(privKey: String?, ed25519PrivKey: String?, sessionId: String?, userInfo: Web3AuthUserInfo?, error: String?,
-                coreKitKey: String?, coreKitEd25519PrivKey: String?) {
+                coreKitKey: String?, coreKitEd25519PrivKey: String?, factorKey: String?, signatures: [String]?, tssShareIndex: Int?, tssPubKey: String?, tssShare: String?, tssNonce: Int?) {
         self.privKey = privKey
         self.ed25519PrivKey = ed25519PrivKey
         self.sessionId = sessionId
@@ -21,6 +27,12 @@ public struct Web3AuthState: Codable {
         self.error = error
         self.coreKitKey = coreKitKey
         self.coreKitEd25519PrivKey = coreKitEd25519PrivKey
+        self.factorKey = factorKey
+        self.signatures = signatures
+        self.tssShareIndex = tssShareIndex
+        self.tssPubKey = tssPubKey
+        self.tssShare = tssShare
+        self.tssNonce = tssNonce
     }
 
     public init(from decoder: Decoder) throws {
@@ -32,6 +44,12 @@ public struct Web3AuthState: Codable {
         error = try container.decodeIfPresent(String.self, forKey: .error)
         coreKitKey = try container.decodeIfPresent(String.self, forKey: .coreKitKey)
         coreKitEd25519PrivKey = try container.decodeIfPresent(String.self, forKey: .coreKitEd25519PrivKey)
+        factorKey = try container.decodeIfPresent(String.self, forKey: .factorKey)
+        signatures = try container.decodeIfPresent([String].self, forKey: .signatures)
+        tssShareIndex = try container.decodeIfPresent(Int.self, forKey: .tssShareIndex)
+        tssPubKey = try container.decodeIfPresent(String.self, forKey: .tssPubKey)
+        tssShare = try container.decodeIfPresent(String.self, forKey: .tssShare)
+        tssNonce = try container.decodeIfPresent(Int.self, forKey: .tssNonce)
     }
 }
 
@@ -50,5 +68,11 @@ extension Web3AuthState {
         self.error = error
         self.coreKitKey = dict["coreKitKey"] as? String ?? ""
         self.coreKitEd25519PrivKey = dict["coreKitEd25519PrivKey"] as? String ?? ""
+        self.factorKey = dict["factorKey"] as? String
+        self.signatures = dict["signatures"] as? [String]
+        self.tssShareIndex = dict["tssShareIndex"] as? Int
+        self.tssPubKey = dict["tssPubKey"] as? String
+        self.tssShare = dict["tssShare"] as? String
+        self.tssNonce = dict["tssShare"] as? Int
     }
 }
