@@ -286,10 +286,11 @@ public class Web3Auth: NSObject {
     
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
-                "sessionId": sessionId
+                "sessionId": sessionId,
+                "redirectPath" : "/claim"
             ]
 
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: "wallet")
+            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: "login")
             //open url in webview
             await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
             await webViewController.webView.load(URLRequest(url: url))
@@ -299,22 +300,6 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func launchClaimFlow(sdkUrl: String) async throws {
-        let sessionId = self.sessionManager.getSessionID()
-        if !(sessionId ?? "").isEmpty {
-            let jsonObject: [String: String?] = [
-                "sessionId": sessionId
-            ]
-
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: sdkUrl, path: "claim")
-            
-            await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
-            await webViewController.webView.load(URLRequest(url: url))
-        }
-        else {
-            throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
-        }
-    }
 
     static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?], sdkUrl: String?, path: String) throws -> URL {
         let jsonEncoder = JSONEncoder()
