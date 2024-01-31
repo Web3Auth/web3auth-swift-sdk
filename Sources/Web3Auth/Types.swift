@@ -158,15 +158,19 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v5")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = URL(string: "https://auth.web3auth.io/v6")!, walletSdkUrl: URL? = URL(string: "https://wallet.web3auth.io")!, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
         if sdkUrl != nil {
                     self.sdkUrl = sdkUrl
                 } else {
-                    // Handle the case where urlString is nil
                     self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))
+                }
+        if walletSdkUrl != nil {
+                    self.walletSdkUrl = walletSdkUrl
+                } else {
+                    self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
                 }
         self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
         self.redirectUrl = redirectUrl
@@ -217,7 +221,12 @@ public struct W3AInitParams: Codable {
         } else {
             sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
         }
-        walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
+        let customWalletSdkUrl = try values.decodeIfPresent(String.self, forKey: .walletSdkUrl)
+        if customWalletSdkUrl != nil {
+            walletSdkUrl = URL(string: customSdkUrl!)!
+        } else {
+            walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
+        }
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
         loginConfig = try values.decodeIfPresent([String: W3ALoginConfig].self, forKey: .loginConfig)
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
