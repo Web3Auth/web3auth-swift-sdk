@@ -172,7 +172,6 @@ public struct W3AInitParams: Codable {
                 } else {
                     self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
                 }
-        self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
         self.redirectUrl = redirectUrl
         self.loginConfig = loginConfig
         self.whiteLabel = whiteLabel
