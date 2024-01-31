@@ -59,7 +59,8 @@ class ViewModel: ObservableObject {
     func login(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, sdkUrl: URL(string: "https://mocaverse-auth.web3auth.com"), loginConfig: [
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, sdkUrl: URL(string: "https://mocaverse-auth.web3auth.com"),
+                    walletSdkUrl: URL(string: "https://mocaverse-auth.web3auth.com"), loginConfig: [
                     "loginConfig": W3ALoginConfig(
                         verifier: "web3auth-auth0-email-passwordless-sapphire-devnet",
                         typeOfLogin: TypeOfLogin.jwt,

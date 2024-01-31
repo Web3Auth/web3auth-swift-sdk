@@ -223,7 +223,7 @@ public struct W3AInitParams: Codable {
         }
         let customWalletSdkUrl = try values.decodeIfPresent(String.self, forKey: .walletSdkUrl)
         if customWalletSdkUrl != nil {
-            walletSdkUrl = URL(string: customSdkUrl!)!
+            walletSdkUrl = URL(string: customWalletSdkUrl!)!
         } else {
             walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
         }
