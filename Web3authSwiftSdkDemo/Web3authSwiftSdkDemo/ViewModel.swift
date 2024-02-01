@@ -143,7 +143,12 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE))
+                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE), chainConfig: ChainConfig(
+                    chainNamespace: .eip155,
+                    chainId: "0x1",
+                    rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
+                    ticker: "ETH"
+                ))
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
