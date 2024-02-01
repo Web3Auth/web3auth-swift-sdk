@@ -46,7 +46,7 @@ class ViewModel: ObservableObject {
    @MainActor func handleUserDetails() {
        do {
            loggedIn = true
-           privateKey = web3Auth?.getPrivkey() ?? ""
+           privateKey = ((web3Auth?.getPrivkey() != "") ? web3Auth?.getPrivkey() : try web3Auth?.getWeb3AuthResponse().factorKey) ?? ""
            ed25519PrivKey = web3Auth?.getEd25519PrivKey() ?? ""
            userInfo = try web3Auth?.getUserInfo()
        } catch {
@@ -69,6 +69,21 @@ class ViewModel: ObservableObject {
                 ], useCoreKitKey: useCoreKit))
                 try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                          extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "testtorus91@gmail.com", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
+                                                         mfaLevel: .DEFAULT,
+                                                         curve: .SECP256K1
+                                                        ))
+                await handleUserDetails()
+            } catch {
+                print("Error")
+            }
+        }
+    }
+    
+    func loginWithGoogle(provider: Web3AuthProvider) {
+        Task {
+            do {
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
+                try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                          mfaLevel: .DEFAULT,
                                                          curve: .SECP256K1
                                                         ))

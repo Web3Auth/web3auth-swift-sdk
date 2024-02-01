@@ -19,7 +19,14 @@ struct LoginView: View {
                     Text("Sign In with Email Passwordless")
                 }
             )
-
+            Button(
+                action: {
+                    vm.loginWithGoogle(provider: .GOOGLE)
+                },
+                label: {
+                    Text("Sign In with Google")
+                }
+            )
             Button(
                 action: {
                     vm.loginWithGoogleCustomVerifier()
