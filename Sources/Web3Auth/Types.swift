@@ -417,12 +417,47 @@ public struct MfaSetting: Codable {
     }
 }
 
-struct SdkUrlParams: Codable {
+public struct ChainConfig: Codable {
+    public init(chainNamespace: ChainNamespace = ChainNamespace.eip155, decimals: Int = 18, blockExplorerUrl: String? = nil, chainId: String, displayName: String? = nil, logo: String? = nil, rpcTarget: String, ticker: String, tickerName: String? = nil) {
+        self.chainNamespace = chainNamespace
+        self.decimals = decimals
+        self.blockExplorerUrl = blockExplorerUrl
+        self.chainId = chainId
+        self.displayName = displayName
+        self.logo = logo
+        self.rpcTarget = rpcTarget
+        self.ticker = ticker
+        self.tickerName = tickerName
+    }
 
+    public let chainNamespace: ChainNamespace
+    public let decimals: Int
+    public let blockExplorerUrl: String?
+    public let chainId: String?
+    public let displayName: String?
+    public let logo: String?
+    public let rpcTarget: String
+    public let ticker: String
+    public let tickerName: String?
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip155
+        decimals = try values.decodeIfPresent(Int.self, forKey: .decimals) ?? 18
+        blockExplorerUrl = try values.decodeIfPresent(String.self, forKey: .blockExplorerUrl)
+        chainId = try values.decodeIfPresent(String.self, forKey: .chainId)
+        displayName = try values.decodeIfPresent(String.self, forKey: .displayName)
+        logo = try values.decodeIfPresent(String.self, forKey: .logo)
+        rpcTarget = try values.decodeIfPresent(String.self, forKey: .rpcTarget) ?? ""
+        ticker = try values.decodeIfPresent(String.self, forKey: .ticker) ?? ""
+        tickerName = try values.decodeIfPresent(String.self, forKey: .tickerName)
+    }
+}
+
+struct SdkUrlParams: Codable {
     let options: W3AInitParams
     let params: W3ALoginParams
     let actionType: String
-
 
     enum CodingKeys: String, CodingKey {
         case options = "options"
@@ -431,8 +466,21 @@ struct SdkUrlParams: Codable {
     }
 }
 
-struct SetUpMFAParams: Codable {
+struct WalletServicesParams: Codable {
+    let options: W3AInitParams
+    let params: W3ALoginParams
+    let chainConfig: ChainConfig
+    let actionType: String?
 
+    enum CodingKeys: String, CodingKey {
+        case options = "options"
+        case params
+        case chainConfig
+        case actionType
+    }
+}
+
+struct SetUpMFAParams: Codable {
     let options: W3AInitParams
     let params: W3ALoginParams
     let actionType: String

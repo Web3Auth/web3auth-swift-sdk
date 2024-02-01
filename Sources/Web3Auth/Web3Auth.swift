@@ -263,8 +263,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func launchWalletServices(_ loginParams: W3ALoginParams) async throws {
-        
+    public func launchWalletServices(_ loginParams: W3ALoginParams, chainConfig: ChainConfig) async throws {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
@@ -278,19 +277,40 @@ public class Web3Auth: NSObject {
                let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
                 loginParams.dappShare = savedDappShare
             }
+
+            let walletServicesParams: WalletServicesParams
+            if let walletSdkUrl = initParams.walletSdkUrl?.absoluteString, walletSdkUrl.contains("mocaverse") {
+                walletServicesParams = WalletServicesParams(options: initParams, params: loginParams, chainConfig: chainConfig, actionType: "login")
+            } else {
+                walletServicesParams = WalletServicesParams(options: initParams, params: loginParams, chainConfig: chainConfig, actionType: "")
+            }
             
-            let sdkUrlParams = SdkUrlParams(options: initParams, params: loginParams, actionType: "login")
             let _sessionId = sessionManager.getSessionID() ?? ""
-            let loginId = try await getLoginId(data: sdkUrlParams)
+            let loginId = try await getLoginId(data: walletServicesParams)
             self.sessionManager.setSessionID(_sessionId)
     
-            let jsonObject: [String: String?] = [
-                "loginId": loginId,
-                "sessionId": sessionId,
-                "redirectPath" : "/claim"
-            ]
-
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: "login")
+            let jsonObject: [String: String?]
+            if let walletSdkUrl = initParams.walletSdkUrl?.absoluteString, walletSdkUrl.contains("mocaverse") {
+                jsonObject = [
+                    "loginId": loginId,
+                    "sessionId": sessionId,
+                    "redirectPath" : "/claim"
+                ]
+            } else {
+                jsonObject = [
+                    "loginId": loginId,
+                    "sessionId": sessionId,
+                ]
+            }
+            
+            var path: String
+            if let walletSdkUrl = initParams.walletSdkUrl?.absoluteString, walletSdkUrl.contains("mocaverse") {
+                path = "login" //for mocaverse
+            } else {
+                path = "wallet"
+            }
+            
+            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: path)
             //open url in webview
             await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
             await webViewController.webView.load(URLRequest(url: url))
