@@ -25,6 +25,12 @@ class ViewModel: ObservableObject {
   //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
   //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false
+    private var chainConfig: ChainConfig = ChainConfig(
+        chainNamespace: ChainNamespace.eip155,
+        chainId: "0x1",
+        rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
+        ticker: "ETH"
+    )
 
     func setup() async {
         guard web3Auth == nil else { return }
@@ -32,7 +38,7 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
+        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit, chainConfig: chainConfig))
         await MainActor.run(body: {
             if self.web3Auth?.state != nil {
                 handleUserDetails()
@@ -66,7 +72,7 @@ class ViewModel: ObservableObject {
                         typeOfLogin: TypeOfLogin.jwt,
                         clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
                     )
-                ], useCoreKitKey: useCoreKit))
+                ], useCoreKitKey: useCoreKit, chainConfig: chainConfig))
                 try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                          extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "testtorus91@gmail.com", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
                                                          mfaLevel: .DEFAULT,
@@ -82,7 +88,7 @@ class ViewModel: ObservableObject {
     func loginWithGoogle(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit, chainConfig: chainConfig))
                 try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                          mfaLevel: .DEFAULT,
                                                          curve: .SECP256K1
@@ -110,7 +116,8 @@ class ViewModel: ObservableObject {
                                         clientId: "774338308167-q463s7kpvja16l4l0kko3nb925ikds2p.apps.googleusercontent.com",
                                         verifierSubIdentifier: "w3a-google"
                                     )
-                        ]
+                        ],
+                        chainConfig: chainConfig
                     )
                     )
                      try await web3Auth?.login(
@@ -143,12 +150,7 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE), chainConfig: ChainConfig(
-                    chainNamespace: .eip155,
-                    chainId: "0x1",
-                    rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
-                    ticker: "ETH"
-                ))
+                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE))
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
@@ -162,7 +164,7 @@ class ViewModel: ObservableObject {
                 web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
                                                         network: network,
                                                         buildEnv: buildEnv,
-                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
+                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]), chainConfig: chainConfig))
                 try await self.web3Auth?.setupMFA(W3ALoginParams(loginProvider: .GOOGLE, mfaLevel: MFALevel.MANDATORY))
             } catch {
                 errorMessage = error.localizedDescription
@@ -177,7 +179,7 @@ class ViewModel: ObservableObject {
                 web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
                                                         network: network,
                                                         buildEnv: buildEnv,
-                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
+                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]), chainConfig: chainConfig))
                 let result = try await self.web3Auth?
                     .login(W3ALoginParams(loginProvider: .GOOGLE))
                 await handleUserDetails()

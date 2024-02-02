@@ -204,10 +204,10 @@ public class Web3Auth: NSObject {
                 loginParams.dappShare = savedDappShare
             }
             
-            let sdkUrlParams = SetUpMFAParams(options: initParams, params: loginParams, actionType: "enable_mfa", sessionId: sessionId ?? "")
+            let setUpMFAParams = SetUpMFAParams(options: initParams, params: loginParams, actionType: "enable_mfa", sessionId: sessionId ?? "")
             
             let _sessionId = sessionManager.getSessionID() ?? ""
-            let loginId = try await getLoginId(data: sdkUrlParams)
+            let loginId = try await getLoginId(data: setUpMFAParams)
             self.sessionManager.setSessionID(_sessionId)
             
             let jsonObject: [String: String?] = [
@@ -263,7 +263,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func launchWalletServices(_ loginParams: W3ALoginParams, chainConfig: ChainConfig) async throws {
+    public func launchWalletServices(_ loginParams: W3ALoginParams) async throws {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
@@ -280,9 +280,9 @@ public class Web3Auth: NSObject {
 
             let walletServicesParams: WalletServicesParams
             if let walletSdkUrl = initParams.walletSdkUrl?.absoluteString, walletSdkUrl.contains("mocaverse") {
-                walletServicesParams = WalletServicesParams(options: initParams, params: loginParams, chainConfig: chainConfig, actionType: "login")
+                walletServicesParams = WalletServicesParams(options: initParams, params: loginParams, actionType: "login")
             } else {
-                walletServicesParams = WalletServicesParams(options: initParams, params: loginParams, chainConfig: chainConfig, actionType: "")
+                walletServicesParams = WalletServicesParams(options: initParams, params: loginParams, actionType: "")
             }
             
             let _sessionId = sessionManager.getSessionID() ?? ""

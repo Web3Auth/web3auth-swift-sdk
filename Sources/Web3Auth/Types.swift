@@ -473,13 +473,11 @@ struct SdkUrlParams: Codable {
 struct WalletServicesParams: Codable {
     let options: W3AInitParams
     let params: W3ALoginParams
-    let chainConfig: ChainConfig
     let actionType: String?
 
     enum CodingKeys: String, CodingKey {
         case options = "options"
         case params
-        case chainConfig
         case actionType
     }
 }
