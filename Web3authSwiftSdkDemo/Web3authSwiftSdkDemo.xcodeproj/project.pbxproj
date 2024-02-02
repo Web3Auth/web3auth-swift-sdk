@@ -402,7 +402,7 @@
 			repositoryURL = "https://github.com/Web3Auth/web3auth-swift-sdk";
 			requirement = {
 				kind = revision;
-				revision = 1ff893c6085aedca2893b2a86c35dfca41eafad7;
+				revision = d8877ca5ef352a3fb9662d3e3db02b1b1386096b;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
