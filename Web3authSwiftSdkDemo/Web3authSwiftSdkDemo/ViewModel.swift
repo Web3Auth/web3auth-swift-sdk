@@ -31,6 +31,11 @@ class ViewModel: ObservableObject {
         rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
         ticker: "ETH"
     )
+    private var loginConfig: W3ALoginConfig = W3ALoginConfig(
+        verifier: "web3auth-auth0-email-passwordless-sapphire-devnet",
+        typeOfLogin: TypeOfLogin.jwt,
+        clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
+    )
 
     func setup() async {
         guard web3Auth == nil else { return }
@@ -38,7 +43,9 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit, chainConfig: chainConfig))
+        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv,
+                                        sdkUrl: URL(string: "https://auth.mocaverse.xyz"), walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
+                                        loginConfig: ["loginConfig": loginConfig], useCoreKitKey: useCoreKit, chainConfig: chainConfig))
         await MainActor.run(body: {
             if self.web3Auth?.state != nil {
                 handleUserDetails()
@@ -65,14 +72,6 @@ class ViewModel: ObservableObject {
     func login(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, sdkUrl: URL(string: "https://mocaverse-auth.web3auth.com"),
-                    walletSdkUrl: URL(string: "https://mocaverse-auth.web3auth.com"), loginConfig: [
-                    "loginConfig": W3ALoginConfig(
-                        verifier: "web3auth-auth0-email-passwordless-sapphire-devnet",
-                        typeOfLogin: TypeOfLogin.jwt,
-                        clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
-                    )
-                ], useCoreKitKey: useCoreKit, chainConfig: chainConfig))
                 try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                          extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "testtorus91@gmail.com", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
                                                          mfaLevel: .DEFAULT,
