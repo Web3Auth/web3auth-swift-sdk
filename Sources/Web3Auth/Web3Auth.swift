@@ -294,7 +294,7 @@ public class Web3Auth: NSObject {
                 jsonObject = [
                     "loginId": loginId,
                     "sessionId": sessionId,
-                    "redirectPath" : "/claim"
+                    "redirectPath" : "/wallet"
                 ]
             } else {
                 jsonObject = [
