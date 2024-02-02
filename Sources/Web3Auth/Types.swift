@@ -158,7 +158,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, chainConfig: ChainConfig) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -179,9 +179,10 @@ public struct W3AInitParams: Codable {
         self.useCoreKitKey = useCoreKitKey
         self.mfaSettings = mfaSettings
         self.sessionTime = min(7 * 86400, sessionTime)
+        self.chainConfig = chainConfig
     }
 
-    public init(clientId: String, network: Network) {
+    public init(clientId: String, network: Network, chainConfig: ChainConfig) {
         self.clientId = clientId
         self.network = network
         buildEnv = BuildEnv.production
@@ -194,6 +195,7 @@ public struct W3AInitParams: Codable {
         useCoreKitKey = false
         mfaSettings = nil
         sessionTime = 86400
+        self.chainConfig = chainConfig
     }
 
     let clientId: String
@@ -208,6 +210,7 @@ public struct W3AInitParams: Codable {
     let useCoreKitKey: Bool?
     let mfaSettings: MfaSettings?
     let sessionTime: Int
+    let chainConfig: ChainConfig
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -233,6 +236,7 @@ public struct W3AInitParams: Codable {
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
         sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
+        chainConfig = try values.decode(ChainConfig.self, forKey: .chainConfig)
     }
 }
 
