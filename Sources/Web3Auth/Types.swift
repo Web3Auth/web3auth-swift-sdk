@@ -182,7 +182,7 @@ public struct W3AInitParams: Codable {
         self.chainConfig = chainConfig
     }
 
-    public init(clientId: String, network: Network, chainConfig: ChainConfig) {
+    public init(clientId: String, network: Network) {
         self.clientId = clientId
         self.network = network
         buildEnv = BuildEnv.production
@@ -195,7 +195,7 @@ public struct W3AInitParams: Codable {
         useCoreKitKey = false
         mfaSettings = nil
         sessionTime = 86400
-        self.chainConfig = chainConfig
+        chainConfig = ChainConfig(chainId: "0x1", rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d", ticker: "ETH")
     }
 
     let clientId: String
