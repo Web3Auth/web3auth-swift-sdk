@@ -254,17 +254,18 @@ public func getSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
+    let walletServicesVersion = "v1"
     guard let buildEnv = buildEnv else {
         return "https://wallet.web3auth.io"
     }
 
     switch buildEnv {
     case .staging:
-        return "https://staging-wallet.web3auth.io"
+        return "https://staging-wallet.web3auth.io/\(walletServicesVersion)"
     case .testing:
         return "https://develop-wallet.web3auth.io"
     default:
-        return "https://wallet.web3auth.io"
+        return "https://wallet.web3auth.io/\(walletServicesVersion)"
     }
 }
 
