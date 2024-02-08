@@ -198,14 +198,21 @@ public class Web3Auth: NSObject {
                 let redirectURL = URL(string: "\(bundleId)://auth")
             else { throw Web3AuthError.noBundleIdentifierFound }
             
-            let jsonData = try? JSONEncoder().encode(w3ALoginParams.extraLoginOptions)
-            let extraLoginOptions = String(data: jsonData!, encoding: .utf8)
+            var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
+            if(w3ALoginParams?.extraLoginOptions != nil) {
+                extraLoginOptions = w3ALoginParams?.extraLoginOptions
+            } else {
+                extraLoginOptions?.login_hint = state?.userInfo?.verifierId
+            }
+            
+            let jsonData = try? JSONEncoder().encode(extraLoginOptions)
+            let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
             
             let params: [String: String?] = [
                 "loginProvider": state?.userInfo?.typeOfLogin,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
                 "redirectUrl": redirectURL.absoluteString,
-                "extraLoginOptions" : extraLoginOptions
+                "extraLoginOptions" : _extraLoginOptions
             ]
             
             let setUpMFAParams = SetUpMFAParams(options: initParams, params: params, actionType: "enable_mfa", sessionId: sessionId ?? "")

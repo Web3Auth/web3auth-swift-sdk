@@ -324,9 +324,9 @@ public struct W3ALoginParams: Codable {
 }
 
 public struct ExtraLoginOptions: Codable {
-    public init(display: String?, prompt: String?, max_age: String?, ui_locales: String?,
-                id_token_hint: String?, id_token: String?, login_hint: String?, acr_values: String?, scope: String?,
-                audience: String?, connection: String?, domain: String?, client_id: String?, redirect_uri: String?, leeway: Int?, verifierIdField: String?, isVerifierIdCaseSensitive: Bool?, additionalParams: [String : String]?) {
+    public init(display: String? = nil, prompt: String? = nil, max_age: String? = nil, ui_locales: String? = nil,
+                id_token_hint: String? = nil, id_token: String? = nil, login_hint: String? = nil, acr_values: String? = nil, scope: String? = nil,
+                audience: String? = nil, connection: String? = nil, domain: String? = nil, client_id: String? = nil, redirect_uri: String? = nil, leeway: Int? = 0, verifierIdField: String? = nil, isVerifierIdCaseSensitive: Bool? = false, additionalParams: [String : String]? = nil) {
         self.display = display
         self.prompt = prompt
         self.max_age = max_age
@@ -353,7 +353,7 @@ public struct ExtraLoginOptions: Codable {
     let ui_locales: String?
     let id_token_hint: String?
     let id_token: String?
-    let login_hint: String?
+    var login_hint: String?
     let acr_values: String?
     let scope: String?
     let audience: String?
