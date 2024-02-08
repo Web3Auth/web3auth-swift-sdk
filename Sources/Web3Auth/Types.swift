@@ -38,6 +38,10 @@ public struct ECIES: Codable {
     var mac: String
 }
 
+public struct SessionResponse: Codable {
+    let sessionId: String
+}
+
 public enum SUPPORTED_KEY_CURVES: String, Codable {
     case SECP256K1 = "secp256k1"
     case ED25519 = "ed25519"
@@ -158,7 +162,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, chainConfig: ChainConfig) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, chainConfig: ChainConfig?) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -195,7 +199,7 @@ public struct W3AInitParams: Codable {
         useCoreKitKey = false
         mfaSettings = nil
         sessionTime = 86400
-        chainConfig = ChainConfig(chainId: "0x1", rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d", ticker: "ETH")
+        chainConfig = nil
     }
 
     let clientId: String
@@ -210,7 +214,7 @@ public struct W3AInitParams: Codable {
     let useCoreKitKey: Bool?
     let mfaSettings: MfaSettings?
     let sessionTime: Int
-    let chainConfig: ChainConfig
+    var chainConfig: ChainConfig?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -241,7 +245,7 @@ public struct W3AInitParams: Codable {
 }
 
 public func getSdkUrl(buildEnv: BuildEnv?) -> String {
-    let openLoginVersion = "v6"
+    let openLoginVersion = "v7"
 
     switch buildEnv {
     case .staging:
@@ -273,7 +277,7 @@ public struct W3ALoginParams: Codable {
 
     public init(loginProvider: Web3AuthProvider, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
-                mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
+                mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
         self.loginProvider = loginProvider.rawValue
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
@@ -281,11 +285,12 @@ public struct W3ALoginParams: Codable {
         self.appState = appState
         self.mfaLevel = mfaLevel
         self.curve = curve
+        self.dappUrl = dappUrl
     }
 
     public init(loginProvider: String, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
-                mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1) {
+                mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
         self.loginProvider = loginProvider
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
@@ -293,6 +298,7 @@ public struct W3ALoginParams: Codable {
         self.appState = appState
         self.mfaLevel = mfaLevel
         self.curve = curve
+        self.dappUrl = dappUrl
     }
 
     let loginProvider: String
@@ -302,6 +308,7 @@ public struct W3ALoginParams: Codable {
     let appState: String?
     let mfaLevel: MFALevel?
     let curve: SUPPORTED_KEY_CURVES
+    let dappUrl: String?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -312,6 +319,7 @@ public struct W3ALoginParams: Codable {
         appState = try values.decodeIfPresent(String.self, forKey: .appState)
         mfaLevel = try values.decodeIfPresent(MFALevel.self, forKey: .mfaLevel)
         curve = try values.decodeIfPresent(SUPPORTED_KEY_CURVES.self, forKey: .curve) ?? .SECP256K1
+        dappUrl = try values.decode(String.self, forKey: .dappUrl)
     }
 }
 
@@ -382,17 +390,22 @@ public struct ExtraLoginOptions: Codable {
 }
 
 public struct MfaSettings: Codable {
-    public init(deviceShareFactor: MfaSetting?, backUpShareFactor: MfaSetting?, socialBackupFactor: MfaSetting?, passwordFactor: MfaSetting?) {
+    public init(deviceShareFactor: MfaSetting?, backUpShareFactor: MfaSetting?, socialBackupFactor: MfaSetting?, passwordFactor: MfaSetting?, passkeysFactor: MfaSetting?,
+                                                            authenticatorFactor: MfaSetting?) {
         self.deviceShareFactor = deviceShareFactor
         self.backUpShareFactor = backUpShareFactor
         self.socialBackupFactor = socialBackupFactor
         self.passwordFactor = passwordFactor
+        self.passkeysFactor = passkeysFactor
+        self.authenticatorFactor = authenticatorFactor
     }
 
     let deviceShareFactor: MfaSetting?
     let backUpShareFactor: MfaSetting?
     let socialBackupFactor: MfaSetting?
     let passwordFactor: MfaSetting?
+    let passkeysFactor: MfaSetting?
+    let authenticatorFactor: MfaSetting?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -400,6 +413,8 @@ public struct MfaSettings: Codable {
         backUpShareFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .backUpShareFactor)
         socialBackupFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .socialBackupFactor)
         passwordFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .passwordFactor)
+        passkeysFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .passkeysFactor)
+        authenticatorFactor = try values.decodeIfPresent(MfaSetting.self, forKey: .authenticatorFactor)
     }
 }
 
@@ -474,18 +489,16 @@ struct SdkUrlParams: Codable {
 struct WalletServicesParams: Codable {
     let options: W3AInitParams
     let params: W3ALoginParams
-    let actionType: String?
 
     enum CodingKeys: String, CodingKey {
         case options = "options"
         case params
-        case actionType
     }
 }
 
 struct SetUpMFAParams: Codable {
     let options: W3AInitParams
-    let params: W3ALoginParams
+    let params: [String: String?]
     let actionType: String
     let sessionId: String
 
