@@ -190,7 +190,7 @@ public class Web3Auth: NSObject {
         })
     }
     
-    public func enableMFA(_ loginParams: W3ALoginParams?) async throws -> Bool{
+    public func enableMFA(_ loginParams: W3ALoginParams? = nil) async throws -> Bool{
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
