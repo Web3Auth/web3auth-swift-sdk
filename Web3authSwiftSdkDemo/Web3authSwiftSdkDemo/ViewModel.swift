@@ -21,7 +21,7 @@ class ViewModel: ObservableObject {
     var errorMessage: String = ""
     private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
     private var network: Network = .sapphire_devnet
-    private var buildEnv: BuildEnv = .production
+    private var buildEnv: BuildEnv = .testing
   //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
   //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false
@@ -89,7 +89,7 @@ class ViewModel: ObservableObject {
     func loginWithGoogle(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit, chainConfig: chainConfig))
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: .testing, useCoreKitKey: useCoreKit, chainConfig: chainConfig))
                 try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                          mfaLevel: .DEFAULT,
                                                          curve: .SECP256K1
@@ -151,7 +151,7 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE))
+                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE), chainConfig: chainConfig)
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
@@ -159,14 +159,14 @@ class ViewModel: ObservableObject {
         }
      }
     
-    @MainActor func setupMFA() {
+    @MainActor func enableMFA() {
         Task {
             do {
                 web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
                                                         network: network,
                                                         buildEnv: buildEnv,
                                                         whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]), chainConfig: chainConfig))
-                try await self.web3Auth?.setupMFA(W3ALoginParams(loginProvider: .GOOGLE, mfaLevel: MFALevel.MANDATORY))
+                try await self.web3Auth?.enableMFA()
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true

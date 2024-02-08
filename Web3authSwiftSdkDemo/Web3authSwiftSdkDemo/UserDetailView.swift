@@ -39,7 +39,7 @@ struct UserDetailView: View {
                             .foregroundColor(.green)
                     }
                     Button {
-                        vm.setupMFA()
+                        vm.enableMFA()
                     } label: {
                         Text("Setup MFA")
                             .foregroundColor(.green)
