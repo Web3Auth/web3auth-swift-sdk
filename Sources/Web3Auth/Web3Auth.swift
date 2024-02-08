@@ -15,7 +15,7 @@ public class Web3Auth: NSObject {
     public var state: Web3AuthState?
     var sessionManager: SessionManager
     var webViewController: WebViewController = WebViewController()
-    private var w3ALoginParams: W3ALoginParams
+    private var w3ALoginParams: W3ALoginParams?
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -130,13 +130,13 @@ public class Web3Auth: NSObject {
         else { throw Web3AuthError.noBundleIdentifierFound }
         w3ALoginParams = loginParams
         //assign loginParams redirectUrl from intiParamas redirectUrl
-        w3ALoginParams.redirectUrl = "\(bundleId)://auth"
+        w3ALoginParams?.redirectUrl = "\(bundleId)://auth"
         if let loginConfig = initParams.loginConfig?.values.first,
            let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
-            w3ALoginParams.dappShare = savedDappShare
+            w3ALoginParams?.dappShare = savedDappShare
         }
         
-        let sdkUrlParams = SdkUrlParams(options: initParams, params: w3ALoginParams, actionType: "login")
+        let sdkUrlParams = SdkUrlParams(options: initParams, params: w3ALoginParams!, actionType: "login")
 
         let loginId = try await getLoginId(data: sdkUrlParams)
         
