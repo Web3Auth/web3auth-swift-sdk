@@ -199,7 +199,7 @@ public class Web3Auth: NSObject {
             throw Web3AuthError.encodingError
         }
 
-        components.path = "/start"
+        components.path = components.path + "/start"
         components.fragment = "b64Params=" + data.toBase64URL()
 
         guard let url = components.url
