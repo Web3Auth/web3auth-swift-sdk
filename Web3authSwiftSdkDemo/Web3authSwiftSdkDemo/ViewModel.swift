@@ -21,7 +21,7 @@ class ViewModel: ObservableObject {
     var errorMessage: String = ""
     private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
     private var network: Network = .sapphire_devnet
-    private var buildEnv: BuildEnv = .testing
+    private var buildEnv: BuildEnv = .production
   //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
   //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false
@@ -44,8 +44,10 @@ class ViewModel: ObservableObject {
             navigationTitle = "Loading"
         })
         web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv,
-                                        sdkUrl: URL(string: "https://auth.mocaverse.xyz"), walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
-                                        loginConfig: ["loginConfig": loginConfig], useCoreKitKey: useCoreKit, chainConfig: chainConfig))
+                                        //sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
+                                        //walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
+                                        //loginConfig: ["loginConfig": loginConfig],
+                                        useCoreKitKey: useCoreKit, chainConfig: chainConfig))
         await MainActor.run(body: {
             if self.web3Auth?.state != nil {
                 handleUserDetails()
