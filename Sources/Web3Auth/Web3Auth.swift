@@ -335,16 +335,9 @@ public class Web3Auth: NSObject {
     }
 
     static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> SessionResponse {
-        guard
+       guard
             let callbackFragment = callbackURL.fragment,
-            let tmp = try? callbackFragment.components(separatedBy: "=")[1].components(separatedBy: "=")[1]
-                
-        else {
-            throw Web3AuthError.decodingError
-        }
-        
-        guard
-            let callbackData = Data.fromBase64URL(tmp),
+            let callbackData = Data.fromBase64URL(callbackFragment.components(separatedBy: "b64Params=")[1]),
             let callbackState = try? JSONDecoder().decode(SessionResponse.self, from: callbackData)
 
         else {
