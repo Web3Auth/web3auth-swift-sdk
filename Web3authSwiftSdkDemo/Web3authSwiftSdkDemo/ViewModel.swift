@@ -89,7 +89,7 @@ class ViewModel: ObservableObject {
     func loginWithGoogle(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: .testing, useCoreKitKey: useCoreKit, chainConfig: chainConfig))
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
                 try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                          mfaLevel: .DEFAULT,
                                                          curve: .SECP256K1
@@ -117,8 +117,7 @@ class ViewModel: ObservableObject {
                                         clientId: "774338308167-q463s7kpvja16l4l0kko3nb925ikds2p.apps.googleusercontent.com",
                                         verifierSubIdentifier: "w3a-google"
                                     )
-                        ],
-                        chainConfig: chainConfig
+                        ]
                     )
                     )
                      try await web3Auth?.login(
@@ -165,7 +164,7 @@ class ViewModel: ObservableObject {
                 web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
                                                         network: network,
                                                         buildEnv: buildEnv,
-                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]), chainConfig: chainConfig))
+                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
                 try await self.web3Auth?.enableMFA()
             } catch {
                 errorMessage = error.localizedDescription
@@ -180,7 +179,7 @@ class ViewModel: ObservableObject {
                 web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
                                                         network: network,
                                                         buildEnv: buildEnv,
-                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]), chainConfig: chainConfig))
+                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
                 let result = try await self.web3Auth?
                     .login(W3ALoginParams(loginProvider: .GOOGLE))
                 await handleUserDetails()
