@@ -33,6 +33,18 @@ struct UserDetailView: View {
                 }
                 Section {
                     Button {
+                        vm.launchWalletServices()
+                    } label: {
+                        Text("Launch Wallet Services")
+                            .foregroundColor(.green)
+                    }
+                    Button {
+                        vm.enableMFA()
+                    } label: {
+                        Text("Setup MFA")
+                            .foregroundColor(.green)
+                    }
+                    Button {
                         vm.logout()
                     } label: {
                         Text("Logout")
