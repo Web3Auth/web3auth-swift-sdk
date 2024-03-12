@@ -431,7 +431,7 @@ public class Web3Auth: NSObject {
         signResponse = response
     }
 
-    static func getSignResponse() -> SignResponse? {
+    public static func getSignResponse() -> SignResponse? {
         return signResponse
     }
 }
