@@ -431,7 +431,10 @@ public class Web3Auth: NSObject {
         signResponse = response
     }
 
-    public static func getSignResponse() -> SignResponse? {
+    public static func getSignResponse() throws -> SignResponse? {
+        if signResponse == nil {
+            throw Web3AuthError.noUserFound
+        }
         return signResponse
     }
 }
