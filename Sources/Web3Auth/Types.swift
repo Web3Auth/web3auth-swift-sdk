@@ -44,8 +44,8 @@ public struct SessionResponse: Codable {
 
 public struct SignResponse: Codable {
     let success: Bool
-    let result: String
-    let error: String
+    let result: String?
+    let error: String?
 }
 
 public enum SUPPORTED_KEY_CURVES: String, Codable {
