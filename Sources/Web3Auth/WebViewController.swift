@@ -52,7 +52,7 @@ class WebViewController: UIViewController {
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if let redirectUrl = redirectUrl, !redirectUrl.isEmpty {
-                if let url = navigationAction.request.url {
+                if let url = navigationAction.request.url, url.absoluteString.contains(redirectUrl) {
                     let uri = URL(string: url.absoluteString)
                     let host = uri?.host ?? ""
                     let fragment = uri?.fragment ?? ""
