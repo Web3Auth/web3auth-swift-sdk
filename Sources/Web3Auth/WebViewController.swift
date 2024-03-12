@@ -56,7 +56,8 @@ class WebViewController: UIViewController {
                     let uri = URL(string: url.absoluteString)
                     let host = uri?.host ?? ""
                     let fragment = uri?.fragment ?? ""
-                    let b64ParamString = Data.fromBase64URL(fragment.components(separatedBy: "b64Params=")[1])!
+                    let component = fragment.components(separatedBy: "=")
+                    let b64ParamString = Data.fromBase64URL(component[1])!
                     let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString)
                     Web3Auth.setSignResponse(signResponse)
                     dismiss(animated: true, completion: nil)
