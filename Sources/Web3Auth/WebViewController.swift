@@ -56,13 +56,10 @@ class WebViewController: UIViewController {
                     let uri = URL(string: url.absoluteString)
                     let host = uri?.host ?? ""
                     let fragment = uri?.fragment ?? ""
-                    if let fragment = url.fragment {
-                        if let b64ParamString = Data.fromBase64URL(fragment.components(separatedBy: "b64Params=")[1]),
-                           let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString) {
-                            Web3Auth.setSignResponse(signResponse)
-                            dismiss(animated: true, completion: nil)
-                        }
-                    }
+                    let b64ParamString = Data.fromBase64URL(fragment.components(separatedBy: "b64Params=")[1])!
+                    let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString)
+                    Web3Auth.setSignResponse(signResponse)
+                    dismiss(animated: true, completion: nil)
                 }
             }
             decisionHandler(.allow)
