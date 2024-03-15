@@ -178,14 +178,14 @@ class ViewModel: ObservableObject {
         }
      }
     
-    @MainActor func signMessage() {
+    @MainActor func request() {
         Task {
             var params = [Any]()
             params.append("Hello, Web3Auth from Android!")
             params.append("0x764dd67c0420b43a39ab337463d8995622f226a2")
             params.append("Web3Auth")
             do {
-                try await self.web3Auth?.signMessage(W3ALoginParams(loginProvider: .GOOGLE, mfaLevel: .NONE), method: "personal_sign", requestParams: params)
+                try await self.web3Auth?.request(W3ALoginParams(loginProvider: .GOOGLE, mfaLevel: .NONE), method: "personal_sign", requestParams: params)
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
