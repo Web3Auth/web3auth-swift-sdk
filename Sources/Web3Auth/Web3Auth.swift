@@ -312,7 +312,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func signMessage(_ loginParams: W3ALoginParams, method: String, requestParams: [Any], path: String? = "wallet/request") async throws {
+    public func request(_ loginParams: W3ALoginParams, method: String, requestParams: [Any], path: String? = "wallet/request") async throws {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
