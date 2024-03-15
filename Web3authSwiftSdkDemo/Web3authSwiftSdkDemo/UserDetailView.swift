@@ -45,7 +45,7 @@ struct UserDetailView: View {
                             .foregroundColor(.green)
                     }
                     Button {
-                        vm.signMessage()
+                        vm.request()
                     } label: {
                         Text("Sign Message")
                             .foregroundColor(.green)
