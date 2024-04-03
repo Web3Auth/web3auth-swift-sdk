@@ -16,6 +16,7 @@ public class Web3Auth: NSObject {
     var sessionManager: SessionManager
     var webViewController: WebViewController = WebViewController()
     private var w3ALoginParams: W3ALoginParams?
+    private static var signResponse: SignResponse?
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -311,6 +312,52 @@ public class Web3Auth: NSObject {
         }
     }
     
+    public func request(_ loginParams: W3ALoginParams, method: String, requestParams: [Any], path: String? = "wallet/request") async throws {
+        let sessionId = self.sessionManager.getSessionID()
+        if !(sessionId ?? "").isEmpty {
+            guard
+                let bundleId = Bundle.main.bundleIdentifier,
+                let redirectURL = URL(string: "\(bundleId)://auth")
+            else { throw Web3AuthError.noBundleIdentifierFound }
+            var loginParams = loginParams
+            //assign loginParams redirectUrl from intiParamas redirectUrl
+            loginParams.redirectUrl = "\(bundleId)://auth"
+            if let loginConfig = initParams.loginConfig?.values.first,
+               let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
+                loginParams.dappShare = savedDappShare
+            }
+            
+            let walletServicesParams = WalletServicesParams(options: initParams, params: loginParams)
+            
+            let _sessionId = sessionManager.getSessionID() ?? ""
+            let loginId = try await getLoginId(data: walletServicesParams)
+            self.sessionManager.setSessionID(_sessionId)
+            
+            var signMessageMap: [String: String] = [:]
+            signMessageMap["loginId"] = loginId
+            signMessageMap["sessionId"] = sessionId
+
+            var requestData: [String: Any] = [:]
+            requestData["method"] = method
+            requestData["params"] = try? JSONSerialization.jsonObject(with: JSONSerialization.data(withJSONObject: requestParams), options: []) as? [Any]
+
+            if let requestDataJson = try? JSONSerialization.data(withJSONObject: requestData, options: []),
+               let requestDataJsonString = String(data: requestDataJson, encoding: .utf8) {
+                // Add the requestData JSON string to signMessageMap as a property
+                signMessageMap["request"] = requestDataJsonString
+            }
+
+            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: signMessageMap, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: path)
+            //open url in webview
+            await webViewController = WebViewController(redirectUrl: loginParams.redirectUrl)
+            await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
+            await webViewController.webView.load(URLRequest(url: url))
+        }
+        else {
+            throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
+        }
+    }
+    
     static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?], sdkUrl: String?, path: String?) throws -> URL {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting.insert(.sortedKeys)
@@ -322,7 +369,6 @@ public class Web3Auth: NSObject {
         else {
             throw Web3AuthError.encodingError
         }
-
         components.path = components.path + "/" + path!
         components.fragment = "b64Params=" + data.toBase64URL()
 
@@ -378,6 +424,17 @@ public class Web3Auth: NSObject {
                 throw Web3AuthError.noUserFound
             }
         return state
+    }
+    
+    static func setSignResponse(_ response: SignResponse?) {
+        signResponse = response
+    }
+
+    public static func getSignResponse() throws -> SignResponse? {
+        if signResponse == nil {
+            throw Web3AuthError.noUserFound
+        }
+        return signResponse
     }
 }
 

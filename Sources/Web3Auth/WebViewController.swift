@@ -14,7 +14,17 @@ class WebViewController: UIViewController {
     var webView : WKWebView!
     var popupWebView: WKWebView?
     let activityIndicator = UIActivityIndicatorView(style: .large)
-     
+    var redirectUrl: String?
+    
+    init(redirectUrl: String? = nil) {
+        self.redirectUrl = redirectUrl
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupWebView()
@@ -39,6 +49,22 @@ class WebViewController: UIViewController {
 
         view.addSubview(webView)
     }
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            if let redirectUrl = redirectUrl, !redirectUrl.isEmpty {
+                if let url = navigationAction.request.url, url.absoluteString.contains(redirectUrl) {
+                    let uri = URL(string: url.absoluteString)
+                    let host = uri?.host ?? ""
+                    let fragment = uri?.fragment ?? ""
+                    let component = fragment.components(separatedBy: "=")
+                    let b64ParamString = Data.fromBase64URL(component[1])!
+                    let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString)
+                    Web3Auth.setSignResponse(signResponse)
+                    dismiss(animated: true, completion: nil)
+                }
+            }
+            decisionHandler(.allow)
+        }
 }
   
   

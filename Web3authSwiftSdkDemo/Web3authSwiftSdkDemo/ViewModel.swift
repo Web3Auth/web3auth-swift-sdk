@@ -7,6 +7,7 @@
 
 import Foundation
 import Web3Auth
+import web3
 
 class ViewModel: ObservableObject {
     var web3Auth: Web3Auth?
@@ -69,6 +70,10 @@ class ViewModel: ObservableObject {
            showError = true
 
        }
+    }
+    
+    func getSignResponse() -> SignResponse? {
+        return try? Web3Auth.getSignResponse()
     }
 
     func login(provider: Web3AuthProvider) {
@@ -166,6 +171,21 @@ class ViewModel: ObservableObject {
                                                         buildEnv: buildEnv,
                                                         whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
                 try await self.web3Auth?.enableMFA()
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+     }
+    
+    @MainActor func request() {
+        Task {
+            var params = [Any]()
+            params.append("Hello, Web3Auth from Android!")
+            params.append("0x764dd67c0420b43a39ab337463d8995622f226a2")
+            params.append("Web3Auth")
+            do {
+                try await self.web3Auth?.request(W3ALoginParams(loginProvider: .GOOGLE, mfaLevel: .NONE), method: "personal_sign", requestParams: params)
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true

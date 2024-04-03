@@ -42,6 +42,18 @@ public struct SessionResponse: Codable {
     let sessionId: String
 }
 
+public struct SignResponse: Codable {
+    public let success: Bool
+    public let result: String?
+    public let error: String?
+    
+    public init(success: Bool, result: String?, error: String?) {
+        self.success = success
+        self.result = result
+        self.error = error
+    }
+}
+
 public enum SUPPORTED_KEY_CURVES: String, Codable {
     case SECP256K1 = "secp256k1"
     case ED25519 = "ed25519"
