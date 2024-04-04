@@ -378,9 +378,13 @@ public class Web3Auth: NSObject {
 
     static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> SessionResponse {
         guard
-            let host = callbackURL.host,
-            let fragment = callbackURL.fragment,
-            let urlString = host + "?" + fragment,
+            var urlString: String?
+            if let host = callbackURL.host, let fragment = callbackURL.fragment {
+                urlString = host + "?" + fragment
+                print(urlString!)
+            } else {
+                print("URL does not contain host or fragment")
+            }
             let components = URLComponents(string: urlString ?? ""),
             let queryItems = components.queryItems,
             let b64ParamsItem = queryItems.first(where: { $0.name == "b64Params" }),
