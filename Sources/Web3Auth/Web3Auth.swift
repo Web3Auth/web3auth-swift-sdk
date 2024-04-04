@@ -285,11 +285,7 @@ public class Web3Auth: NSObject {
             var loginParams = loginParams
             //assign loginParams redirectUrl from intiParamas redirectUrl
             loginParams.redirectUrl = "\(bundleId)://auth"
-            if let loginConfig = initParams.loginConfig?.values.first,
-               let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
-                loginParams.dappShare = savedDappShare
-            }
-            
+
             initParams.chainConfig = chainConfig
             let walletServicesParams = WalletServicesParams(options: initParams, params: loginParams)
             

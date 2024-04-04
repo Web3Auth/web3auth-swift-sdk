@@ -257,7 +257,7 @@ public struct W3AInitParams: Codable {
 }
 
 public func getSdkUrl(buildEnv: BuildEnv?) -> String {
-    let openLoginVersion = "v7"
+    let openLoginVersion = "v8"
 
     switch buildEnv {
     case .staging:
@@ -450,7 +450,7 @@ public struct MfaSetting: Codable {
 }
 
 public struct ChainConfig: Codable {
-    public init(chainNamespace: ChainNamespace = ChainNamespace.eip155, decimals: Int = 18, blockExplorerUrl: String? = nil, chainId: String, displayName: String? = nil, logo: String? = nil, rpcTarget: String, ticker: String, tickerName: String? = nil) {
+    public init(chainNamespace: ChainNamespace = ChainNamespace.eip155, decimals: Int? = 18, blockExplorerUrl: String? = nil, chainId: String, displayName: String? = nil, logo: String? = nil, rpcTarget: String, ticker: String? = nil, tickerName: String? = nil) {
         self.chainNamespace = chainNamespace
         self.decimals = decimals
         self.blockExplorerUrl = blockExplorerUrl
@@ -463,13 +463,13 @@ public struct ChainConfig: Codable {
     }
 
     public let chainNamespace: ChainNamespace
-    public let decimals: Int
+    public let decimals: Int?
     public let blockExplorerUrl: String?
     public let chainId: String?
     public let displayName: String?
     public let logo: String?
     public let rpcTarget: String
-    public let ticker: String
+    public let ticker: String?
     public let tickerName: String?
 
     public init(from decoder: Decoder) throws {
@@ -481,7 +481,7 @@ public struct ChainConfig: Codable {
         displayName = try values.decodeIfPresent(String.self, forKey: .displayName)
         logo = try values.decodeIfPresent(String.self, forKey: .logo)
         rpcTarget = try values.decodeIfPresent(String.self, forKey: .rpcTarget) ?? ""
-        ticker = try values.decodeIfPresent(String.self, forKey: .ticker) ?? ""
+        ticker = try values.decodeIfPresent(String.self, forKey: .ticker)
         tickerName = try values.decodeIfPresent(String.self, forKey: .tickerName)
     }
 }
