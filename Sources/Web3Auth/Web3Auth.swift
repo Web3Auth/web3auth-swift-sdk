@@ -380,7 +380,7 @@ public class Web3Auth: NSObject {
         guard
             let host = callbackURL.host,
             let fragment = callbackURL.fragment,
-            let urlString = "\(host)?\(fragment)",
+            let urlString = host + "?" + fragment,
             let components = URLComponents(string: urlString ?? ""),
             let queryItems = components.queryItems,
             let b64ParamsItem = queryItems.first(where: { $0.name == "b64Params" }),
