@@ -33,6 +33,43 @@ struct UserDetailView: View {
                 }
                 Section {
                     Button {
+                        vm.launchWalletServices()
+                    } label: {
+                        Text("Launch Wallet Services")
+                            .foregroundColor(.green)
+                    }
+                    Button {
+                        vm.enableMFA()
+                    } label: {
+                        Text("Setup MFA")
+                            .foregroundColor(.green)
+                    }
+                    Button {
+                        vm.request()
+                    } label: {
+                        Text("Sign Message")
+                            .foregroundColor(.green)
+                    }
+                    Button {
+                        let alertController = UIAlertController(title: "Sign Response", message: nil, preferredStyle: .alert)
+                        
+                        var message = ""
+                        if let error = vm.getSignResponse()?.error {
+                            message += "Error: \(error)\n"
+                        }
+                        if let result = vm.getSignResponse()?.result {
+                            message += "Result: \(result)\n"
+                        }
+                        alertController.message = message
+                        
+                        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                        alertController.addAction(okAction)
+                        UIApplication.shared.windows.first?.rootViewController?.present(alertController, animated: true, completion: nil)
+                    } label: {
+                        Text("Get Sign Response")
+                            .foregroundColor(.green)
+                    }
+                    Button {
                         vm.logout()
                     } label: {
                         Text("Logout")

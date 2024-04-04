@@ -17,4 +17,5 @@ public enum Language: String, Codable {
     case fr
     case pt
     case nl
+    case tr
 }

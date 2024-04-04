@@ -7,6 +7,7 @@
 
 import Foundation
 import Web3Auth
+import web3
 
 class ViewModel: ObservableObject {
     var web3Auth: Web3Auth?
@@ -21,10 +22,21 @@ class ViewModel: ObservableObject {
     var errorMessage: String = ""
     private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
     private var network: Network = .sapphire_devnet
-    private var buildEnv: BuildEnv = .staging
+    private var buildEnv: BuildEnv = .testing
   //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
   //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false
+    private var chainConfig: ChainConfig = ChainConfig(
+        chainNamespace: ChainNamespace.eip155,
+        chainId: "0x1",
+        rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
+        ticker: "ETH"
+    )
+    private var loginConfig: W3ALoginConfig = W3ALoginConfig(
+        verifier: "web3auth-auth0-email-passwordless-sapphire-devnet",
+        typeOfLogin: TypeOfLogin.jwt,
+        clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
+    )
 
     func setup() async {
         guard web3Auth == nil else { return }
@@ -32,7 +44,11 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
+        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv,
+                                        //sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
+                                        //walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
+                                        //loginConfig: ["loginConfig": loginConfig],
+                                        useCoreKitKey: useCoreKit, chainConfig: chainConfig))
         await MainActor.run(body: {
             if self.web3Auth?.state != nil {
                 handleUserDetails()
@@ -46,7 +62,7 @@ class ViewModel: ObservableObject {
    @MainActor func handleUserDetails() {
        do {
            loggedIn = true
-           privateKey = web3Auth?.getPrivkey() ?? ""
+           privateKey = ((web3Auth?.getPrivkey() != "") ? web3Auth?.getPrivkey() : try web3Auth?.getWeb3AuthResponse().factorKey) ?? ""
            ed25519PrivKey = web3Auth?.getEd25519PrivKey() ?? ""
            userInfo = try web3Auth?.getUserInfo()
        } catch {
@@ -55,12 +71,34 @@ class ViewModel: ObservableObject {
 
        }
     }
+    
+    func getSignResponse() -> SignResponse? {
+        return try? Web3Auth.getSignResponse()
+    }
 
     func login(provider: Web3AuthProvider) {
         Task {
             do {
+                try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
+                                                         extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "testtorus91@gmail.com", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
+                                                         mfaLevel: .DEFAULT,
+                                                         curve: .SECP256K1
+                                                        ))
+                await handleUserDetails()
+            } catch {
+                print("Error")
+            }
+        }
+    }
+    
+    func loginWithGoogle(provider: Web3AuthProvider) {
+        Task {
+            do {
                 web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
-                try await web3Auth?.login(W3ALoginParams(loginProvider: provider))
+                try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
+                                                         mfaLevel: .DEFAULT,
+                                                         curve: .SECP256K1
+                                                        ))
                 await handleUserDetails()
             } catch {
                 print("Error")
@@ -91,7 +129,7 @@ class ViewModel: ObservableObject {
                         W3ALoginParams(
                             loginProvider: "random",
                         dappShare: nil,
-                        extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil),
+                        extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
                         mfaLevel: .DEFAULT,
                         curve: .SECP256K1
                         ))
@@ -113,6 +151,47 @@ class ViewModel: ObservableObject {
             }
         }
     }
+    
+    @MainActor func launchWalletServices() {
+        Task {
+            do {
+                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE), chainConfig: chainConfig)
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+     }
+    
+    @MainActor func enableMFA() {
+        Task {
+            do {
+                web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
+                                                        network: network,
+                                                        buildEnv: buildEnv,
+                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
+                try await self.web3Auth?.enableMFA()
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+     }
+    
+    @MainActor func request() {
+        Task {
+            var params = [Any]()
+            params.append("Hello, Web3Auth from Android!")
+            params.append("0x764dd67c0420b43a39ab337463d8995622f226a2")
+            params.append("Web3Auth")
+            do {
+                try await self.web3Auth?.request(W3ALoginParams(loginProvider: .GOOGLE, mfaLevel: .NONE), method: "personal_sign", requestParams: params)
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+     }
 
     func whitelabelLogin() {
         Task.detached { [unowned self] in
