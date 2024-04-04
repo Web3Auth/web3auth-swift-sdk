@@ -52,12 +52,14 @@ class WebViewController: UIViewController {
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if let redirectUrl = redirectUrl, !redirectUrl.isEmpty {
                 if let url = navigationAction.request.url, url.absoluteString.contains(redirectUrl) {
-                    let uri = URL(string: url.absoluteString)
-                    let host = uri?.host ?? ""
-                    let fragment = uri?.fragment ?? ""
-                    let component = fragment.components(separatedBy: "=")
-                    let b64ParamString = Data.fromBase64URL(component[1])!
-                    let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString)
+                    let host = url.host ?? ""
+                    let fragment = url.fragment ?? ""
+                    let component = URLComponents.init(string: host + "?" + fragment)
+                    let queryItems = component?.queryItems
+                    let b64ParamsItem = queryItems?.first(where: { $0.name == "b64Params" })
+                    let callbackFragment = (b64ParamsItem?.value)!
+                    let b64ParamString = Data.fromBase64URL(callbackFragment)
+                    let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString!)
                     Web3Auth.setSignResponse(signResponse)
                     dismiss(animated: true, completion: nil)
                 }
