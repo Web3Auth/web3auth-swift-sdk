@@ -9,7 +9,7 @@ import UIKit
 import WebKit
   
   
-class WebViewController: UIViewController {
+class WebViewController: UIViewController, WKScriptMessageHandler {
     
     var webView : WKWebView!
     var popupWebView: WKWebView?
@@ -39,6 +39,7 @@ class WebViewController: UIViewController {
 
         let configuration = WKWebViewConfiguration()
         configuration.preferences = preferences
+        configuration.userContentController.add(self, name: "JSBridge")
         configuration.applicationNameForUserAgent = "Version/8.0.2 Safari/600.2.5"
 
         webView = WKWebView(frame: view.bounds, configuration: configuration)
@@ -66,6 +67,12 @@ class WebViewController: UIViewController {
             }
             decisionHandler(.allow)
         }
+    
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "JSBridge" {
+            dismiss(animated: true, completion: nil)
+        }
+    }
 }
   
   
