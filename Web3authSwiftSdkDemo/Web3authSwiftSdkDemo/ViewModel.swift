@@ -29,8 +29,7 @@ class ViewModel: ObservableObject {
     private var chainConfig: ChainConfig = ChainConfig(
         chainNamespace: ChainNamespace.eip155,
         chainId: "0x1",
-        rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
-        ticker: "ETH"
+        rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d"
     )
     private var loginConfig: W3ALoginConfig = W3ALoginConfig(
         verifier: "web3auth-auth0-email-passwordless-sapphire-devnet",
