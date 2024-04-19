@@ -275,7 +275,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func launchWalletServices(_ loginParams: W3ALoginParams, chainConfig: ChainConfig, path: String? = "wallet") async throws {
+    public func launchWalletServices(_ loginParams: W3ALoginParams, path: String? = "wallet") async throws {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
@@ -286,7 +286,6 @@ public class Web3Auth: NSObject {
             //assign loginParams redirectUrl from intiParamas redirectUrl
             loginParams.redirectUrl = "\(bundleId)://auth"
 
-            initParams.chainConfig = chainConfig
             let walletServicesParams = WalletServicesParams(options: initParams, params: loginParams)
             
             let _sessionId = sessionManager.getSessionID() ?? ""
