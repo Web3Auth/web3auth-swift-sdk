@@ -42,18 +42,11 @@ class Web3AuthTests: XCTestCase {
     }
 
     func testDecodeStateFromCallbackURL() throws {
-        let callbackURL = "com.web3auth.sdkapp://auth/#eyJwcml2S2V5IjoiMGJhZGRmZmU2YjYzZDRlZjNiZWJmNjVkZWUzNjA0YThhZWY3MDJkNmJjOWNiM2NhYjcwODQ0YWYzOGU5ZjZlNCIsInNlc3Npb25JZCI6IjU0ODllYmRhNjkyMmU2NzUwY2MyYWZkOTc3MzJlM2ExZWE0NWE3MjU4MjdhODBiZjA5YzA0NGY4MWQzMjM0NWQiLCJlZDI1NTE5UHJpdktleSI6IjBiYWRkZmZlNmI2M2Q0ZWYzYmViZjY1ZGVlMzYwNGE4YWVmNzAyZDZiYzljYjNjYWI3MDg0NGFmMzhlOWY2ZTRiMTM1YmRiMGY5ODg4ZjQ1MTc5OTBiNzAyYmFiNGQ0YmYxNTNkOGUzMTRiZTQxYWM3ZDY5MmU2ZDAyODBkMjcxIiwidXNlckluZm8iOnsiZW1haWwiOiJkaHJ1dkB0b3IudXMiLCJuYW1lIjoiRGhydXYgSmFpc3dhbCIsInByb2ZpbGVJbWFnZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FMbTV3dTJlRUZyZWh4dzVUaFhlV3plTDNycEF0aTZUR3hOUEFYRlRGdmxSPXM5Ni1jIiwiYWdncmVnYXRlVmVyaWZpZXIiOiJ0a2V5LWdvb2dsZS1scmMiLCJ2ZXJpZmllciI6InRvcnVzIiwidmVyaWZpZXJJZCI6ImRocnV2QHRvci51cyIsInR5cGVPZkxvZ2luIjoiZ29vZ2xlIiwiZGFwcFNoYXJlIjoiIiwiaWRUb2tlbiI6ImV5SmhiR2NpT2lKRlV6STFOaUlzSW5SNWNDSTZJa3BYVkNJc0ltdHBaQ0k2SWxSWlQyZG5YeTAxUlU5RllteGhXUzFXVmxKWmNWWmhSRUZuY0hSdVprdFdORFV6TlUxYVVFTXdkekFpZlEuZXlKcFlYUWlPakUyTmpRNU5ETTBOalVzSW1GMVpDSTZJa0pLV1VseVNIVjZiSFZEYkVKTE1IWjJWRUpWU2pkclVYbHNWbDlFYWpOT1FTMVlNWEUwVVhaNGN6SkJlVE5FZVZOcllXTlBjRzlQWWpnemJFUlVTRXBTVmxrNE0ySkdiRmwwZERSd09IQlJVaTF2UTFsMGR5SXNJbTV2Ym1ObElqb2lNREpqWkRjeFpUWmlOVFJrTVRVeU5tTXdOMlkwTXpRMFl6WTNaV1V6TmpNMlpXVXpOVEEzTURrd01tSTVOR1V3TkdZellUTTNObVZrTnpSaE1tTXlNR1l6SWl3aWFYTnpJam9pYUhSMGNITTZMeTloY0drdWIzQmxibXh2WjJsdUxtTnZiU0lzSW5kaGJHeGxkSE1pT2x0N0luQjFZbXhwWTE5clpYa2lPaUl3TXpsbFpXWmxaR1ExTUdaa09HUXdOamRrTmpBME5EVTBNRFZtWW1KbVpXTXdOall5TkRBME4yWTNNV1l6T0dFek9UY3dNRFUyTlRnMlkyUm1OVFZoWVRRaUxDSjBlWEJsSWpvaWQyVmlNMkYxZEdoZllYQndYMnRsZVNJc0ltTjFjblpsSWpvaWMyVmpjREkxTm1zeEluMWRMQ0psYldGcGJDSTZJbVJvY25WMlFIUnZjaTUxY3lJc0ltNWhiV1VpT2lKRWFISjFkaUJLWVdsemQyRnNJaXdpY0hKdlptbHNaVWx0WVdkbElqb2lhSFIwY0hNNkx5OXNhRE11WjI5dloyeGxkWE5sY21OdmJuUmxiblF1WTI5dEwyRXZRVXh0TlhkMU1tVkZSbkpsYUhoM05WUm9XR1ZYZW1WTU0zSndRWFJwTmxSSGVFNVFRVmhHVkVaMmJGSTljemsyTFdNaUxDSjJaWEpwWm1sbGNpSTZJblJ2Y25Weklpd2lkbVZ5YVdacFpYSkpaQ0k2SW1Sb2NuVjJRSFJ2Y2k1MWN5SXNJbUZuWjNKbFoyRjBaVlpsY21sbWFXVnlJam9pZEd0bGVTMW5iMjluYkdVdGJISmpJaXdpWlhod0lqb3hOalkxTURJNU9EWTFmUS5tVGF1VGpPdjB0Vm90R1NzVUhFbmFVYTMxQnNZS1RhUHdueG9sR3gzdVRZZ1pmaEl2WWRFTVliNVBPMnRkanEyMUNlQkhTMDdYMmlxNVZaNTJ3TFY2dyIsIm9BdXRoSWRUb2tlbiI6IiJ9fQ"
+        let callbackURL = "com.web3auth.sdkapp://auth/#b64Params=eyJzZXNzaW9uSWQiOiI2NTRjMmFlZDRkOTA0ZmQ3Y2Q1MGVkYWUzOWMxNWUxMzgxMDcxNWJkNTUzZWEwM2Y1MmZiZWQ1Y2Q5ZDE3ZmQ5In0"
 
-        // let privKey = "0baddffe6b63d4ef3bebf65dee3604a8aef702d6bc9cb3cab70844af38e9f6e4"
-        // let name = "Dhruv Jaiswal"
-        // let email = "dhruv@tor.us"
-        // let typeOfLogin = "google"
+        let decodedState = try? Web3Auth.decodeStateFromCallbackURL(URL(string: callbackURL)!)
 
-        let decodedState = try Web3Auth.decodeStateFromCallbackURL(URL(string: callbackURL)!)
-        
-        //XCTAssertEqual(privKey, decodedState.privKey)
-        //XCTAssertEqual(name, decodedState.userInfo?.name)
-        //XCTAssertEqual(email, decodedState.userInfo?.email)
-        //XCTAssertEqual(typeOfLogin, decodedState.userInfo?.typeOfLogin)
+        let sessionId = "654c2aed4d904fd7cd50edae39c15e13810715bd553ea03f52fbed5cd9d17fd9"
+        XCTAssertEqual(sessionId, decodedState?.sessionId)
     }
 }
