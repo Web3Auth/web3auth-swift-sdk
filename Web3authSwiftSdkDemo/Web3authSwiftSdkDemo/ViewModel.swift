@@ -29,7 +29,8 @@ class ViewModel: ObservableObject {
     private var chainConfig: ChainConfig = ChainConfig(
         chainNamespace: ChainNamespace.eip155,
         chainId: "0x1",
-        rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d"
+        rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
+        ticker: "ETH"
     )
     private var loginConfig: W3ALoginConfig = W3ALoginConfig(
         verifier: "web3auth-auth0-email-passwordless-sapphire-devnet",
@@ -121,7 +122,8 @@ class ViewModel: ObservableObject {
                                         clientId: "774338308167-q463s7kpvja16l4l0kko3nb925ikds2p.apps.googleusercontent.com",
                                         verifierSubIdentifier: "w3a-google"
                                     )
-                        ]
+                        ],
+                        chainConfig: chainConfig
                     )
                     )
                      try await web3Auth?.login(
@@ -154,7 +156,7 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE), chainConfig: chainConfig)
+                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE))
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
@@ -168,7 +170,7 @@ class ViewModel: ObservableObject {
                 web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
                                                         network: network,
                                                         buildEnv: buildEnv,
-                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
+                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]), chainConfig: chainConfig))
                 try await self.web3Auth?.enableMFA()
             } catch {
                 errorMessage = error.localizedDescription
