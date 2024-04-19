@@ -155,7 +155,7 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE), chainConfig: self.chainConfig)
+                try await web3Auth?.launchWalletServices(W3ALoginParams(loginProvider: .GOOGLE))
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true

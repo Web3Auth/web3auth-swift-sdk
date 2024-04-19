@@ -14,7 +14,7 @@ public class Web3Auth: NSObject {
     // get from login so the user does not have to re-login
     public var state: Web3AuthState?
     var sessionManager: SessionManager
-    var webViewController: WebViewController = WebViewController()
+    var webViewController: WebViewController = DispatchQueue.main.sync{ WebViewController() }
     private var w3ALoginParams: W3ALoginParams?
     private static var signResponse: SignResponse?
     /**
