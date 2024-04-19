@@ -49,6 +49,6 @@ extension Data {
     }
 
     func addLeading0sForLength64() -> Data {
-        Data(hex: toHexString().padStart(toLength: 64, padString: "0"))
+        Data(hexString: hexString.padStart(toLength: 64, padString: "0")) ?? Data()
     }
 }

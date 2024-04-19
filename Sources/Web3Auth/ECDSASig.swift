@@ -6,16 +6,16 @@
 //
 import BigInt
 import Foundation
-import secp256k1
+import curveSecp256k1
 
-extension SECP256K1 {
-    func sign(privkey: String, messageData: String) throws -> Signature {
+class SECP256K1 {
+    static func sign(privkey: String, messageData: String) throws -> Signature {
         let encData = messageData.data(using: .utf8) ?? Data()
-        let sig = SECP256K1.signForRecovery(hash: encData.sha3(.keccak256), privateKey: privkey.hexa.data)
-        guard let unmrashalsig = SECP256K1.unmarshalSignature(signatureData: sig.rawSignature?.data ?? Data())
-        else { throw Web3AuthError.runtimeError("Invalid Signature") }
-        let r = unmrashalsig.r.bytes.uint8Reverse().toHexString()
-        let s = unmrashalsig.s.bytes.uint8Reverse().toHexString()
+        let hash = try keccak256(data: encData)
+        let sig = try curveSecp256k1.ECDSA.signRecoverable(key: SecretKey(hex: privkey), hash: hash.hexString)
+        let sigData = try sig.serialize()
+        let r = String(sigData.prefix(64))
+        let s = String(sigData.suffix(66).prefix(64))
         return .init(r: r, s: s)
     }
 }

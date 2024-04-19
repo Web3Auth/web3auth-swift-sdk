@@ -11,12 +11,12 @@
         }
       },
       {
-        "package": "CryptoSwift",
-        "repositoryURL": "https://github.com/krzyzanowskim/CryptoSwift.git",
+        "package": "curvelib.swift",
+        "repositoryURL": "https://github.com/tkey/curvelib.swift",
         "state": {
           "branch": null,
-          "revision": "db51c407d3be4a051484a141bf0bff36c43d3b1e",
-          "version": "1.8.0"
+          "revision": "9f88bd5e56d1df443a908f7a7e81ae4f4d9170ea",
+          "version": "1.0.1"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/GigaBitcoin/secp256k1.swift.git",
         "state": {
           "branch": null,
-          "revision": "44f72619e63915ac85b5439ca9f3a91da916c468",
-          "version": "0.13.0"
+          "revision": "347b84ed2aad2305a7233f2a48d76f41e52062a1",
+          "version": "0.16.0"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/Web3Auth/session-manager-swift.git",
         "state": {
           "branch": null,
-          "revision": "f4e6f24dfe0bac88eb9a7aeda1cd73caad69a9ce",
-          "version": "3.0.1"
+          "revision": "5d29a674f35efb90fd60d6baabb44dc7d20200ba",
+          "version": "4.0.1"
         }
       },
       {
