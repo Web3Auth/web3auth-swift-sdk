@@ -179,11 +179,15 @@ class ViewModel: ObservableObject {
     
     @MainActor func request() {
         Task {
-            var params = [Any]()
-            params.append("Hello, Web3Auth from Android!")
-            params.append("0x764dd67c0420b43a39ab337463d8995622f226a2")
-            params.append("Web3Auth")
-            do {
+            do{
+            let key = self.web3Auth!.getPrivkey()
+                        let pk = try KeyUtil.generatePublicKey(from: Data(hex: key) ?? Data())
+                        let pkAddress = KeyUtil.generateAddress(from: pk).asString()
+                        let checksumAddress = EthereumAddress(pkAddress).toChecksumAddress()
+                        var params = [Any]()
+                        params.append("Hello, Web3Auth from Android!")
+                        params.append(checksumAddress)
+                        params.append("Web3Auth")
                 try await self.web3Auth?.request(W3ALoginParams(loginProvider: .GOOGLE, mfaLevel: .NONE), method: "personal_sign", requestParams: params)
             } catch {
                 errorMessage = error.localizedDescription
