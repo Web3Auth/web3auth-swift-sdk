@@ -14,14 +14,13 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "20.0.0"),
-        .package(name: "web3.swift", url: "https://github.com/argentlabs/web3.swift", from: "1.6.0"),
-        .package(name: "CryptoSwift", url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.0"),
-        .package(name:"SessionManager",url: "https://github.com/Web3Auth/session-manager-swift.git",from: "3.0.1")
+        .package(name:"SessionManager",url: "https://github.com/Web3Auth/session-manager-swift.git",from: "4.0.2"),
+        .package(name: "curvelib.swift", url: "https://github.com/tkey/curvelib.swift", from: "1.0.1"),
     ],
     targets: [
         .target(
             name: "Web3Auth",
-            dependencies: ["KeychainSwift", "web3.swift", "CryptoSwift","SessionManager"]),
+            dependencies: ["KeychainSwift", .product(name: "curveSecp256k1", package: "curvelib.swift"), "SessionManager"]),
         .testTarget(
             name: "Web3AuthTests",
             dependencies: ["Web3Auth"])

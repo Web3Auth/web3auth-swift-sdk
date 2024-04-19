@@ -44,7 +44,7 @@ public class Web3Auth: NSObject {
 
     public func logout() async throws {
         guard let state = state else {throw Web3AuthError.noUserFound}
-        try await sessionManager.invalidateSession()
+        let _ = try await sessionManager.invalidateSession()
         if let verifer = state.userInfo?.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
@@ -275,18 +275,17 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func launchWalletServices(_ loginParams: W3ALoginParams, chainConfig: ChainConfig, path: String? = "wallet") async throws {
+    public func launchWalletServices(_ loginParams: W3ALoginParams, path: String? = "wallet") async throws {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
-                let redirectURL = URL(string: "\(bundleId)://auth")
+                let _ = URL(string: "\(bundleId)://auth")
             else { throw Web3AuthError.noBundleIdentifierFound }
             var loginParams = loginParams
             //assign loginParams redirectUrl from intiParamas redirectUrl
             loginParams.redirectUrl = "\(bundleId)://auth"
 
-            initParams.chainConfig = chainConfig
             let walletServicesParams = WalletServicesParams(options: initParams, params: loginParams)
             
             let _sessionId = sessionManager.getSessionID() ?? ""
@@ -313,7 +312,7 @@ public class Web3Auth: NSObject {
         if !(sessionId ?? "").isEmpty {
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
-                let redirectURL = URL(string: "\(bundleId)://auth")
+                let _ = URL(string: "\(bundleId)://auth")
             else { throw Web3AuthError.noBundleIdentifierFound }
             var loginParams = loginParams
             //assign loginParams redirectUrl from intiParamas redirectUrl
@@ -377,6 +376,7 @@ public class Web3Auth: NSObject {
     }
 
     static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> SessionResponse {
+        // Update here is needed
         guard
             let host = callbackURL.host,
             let fragment = callbackURL.fragment,
