@@ -78,7 +78,7 @@ class ViewModel: ObservableObject {
     func login(provider: Web3AuthProvider) {
         Task {
             do {
-                let _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
+                _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                                  extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "testtorus91@gmail.com", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
                                                                  mfaLevel: .DEFAULT,
                                                                  curve: .SECP256K1
@@ -94,7 +94,7 @@ class ViewModel: ObservableObject {
         Task {
             do {
                 web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
-                let _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
+                _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                                  mfaLevel: .DEFAULT,
                                                                  curve: .SECP256K1
                     ))
@@ -120,12 +120,12 @@ class ViewModel: ObservableObject {
                                 name: "Web3Auth-Aggregate-Verifier-Google-Example",
                                 clientId: "774338308167-q463s7kpvja16l4l0kko3nb925ikds2p.apps.googleusercontent.com",
                                 verifierSubIdentifier: "w3a-google"
-                            ),
+                            )
                     ],
                     chainConfig: chainConfig
                 )
                 )
-                let _ = try await web3Auth?.login(
+                _ = try await web3Auth?.login(
                     W3ALoginParams(
                         loginProvider: "random",
                         dappShare: nil,
@@ -170,7 +170,7 @@ class ViewModel: ObservableObject {
                                                         network: network,
                                                         buildEnv: buildEnv,
                                                         whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]), chainConfig: chainConfig))
-                let _ = try await self.web3Auth?.enableMFA()
+                _ = try await self.web3Auth?.enableMFA()
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
