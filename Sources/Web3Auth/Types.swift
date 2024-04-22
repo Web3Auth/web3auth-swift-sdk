@@ -402,8 +402,8 @@ public struct ExtraLoginOptions: Codable {
 }
 
 public struct MfaSettings: Codable {
-    public init(deviceShareFactor: MfaSetting?, backUpShareFactor: MfaSetting?, socialBackupFactor: MfaSetting?, passwordFactor: MfaSetting?, passkeysFactor: MfaSetting?,
-                                                            authenticatorFactor: MfaSetting?) {
+    public init(deviceShareFactor: MfaSetting? = nil, backUpShareFactor: MfaSetting? = nil, socialBackupFactor: MfaSetting? = nil, passwordFactor: MfaSetting? = nil, passkeysFactor: MfaSetting? = nil,
+                                                            authenticatorFactor: MfaSetting? = nil) {
         self.deviceShareFactor = deviceShareFactor
         self.backUpShareFactor = backUpShareFactor
         self.socialBackupFactor = socialBackupFactor
