@@ -16,7 +16,7 @@ let package = Package(
         .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "20.0.0"),
         .package(name:"SessionManager",url: "https://github.com/Web3Auth/session-manager-swift.git",from: "4.0.2"),
         .package(name: "curvelib.swift", url: "https://github.com/tkey/curvelib.swift", from: "1.0.1"),
-        .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
+        .package(url: "https://github.com/attaswift/BigInt.git", from: "5.0.0"),
     ],
     targets: [
         .target(
