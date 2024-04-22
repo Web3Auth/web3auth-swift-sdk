@@ -202,6 +202,8 @@ public class Web3Auth: NSObject {
             var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
             if(loginParams?.extraLoginOptions != nil) {
                 extraLoginOptions = loginParams?.extraLoginOptions
+            } else {
+                extraLoginOptions = w3ALoginParams?.extraLoginOptions
             }
             extraLoginOptions?.login_hint = state?.userInfo?.verifierId
             
