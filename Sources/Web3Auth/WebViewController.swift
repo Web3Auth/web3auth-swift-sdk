@@ -69,8 +69,13 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
         }
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if message.name == "JSBridge" {
-            dismiss(animated: true, completion: nil)
+        if message.name == "JSBridge", let messageBody = message.body as? String {
+            switch messageBody {
+            case "closeWalletServices":
+                dismiss(animated: true, completion: nil)
+            default:
+                return
+            }
         }
     }
 }

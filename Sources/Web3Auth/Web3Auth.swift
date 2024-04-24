@@ -200,11 +200,12 @@ public class Web3Auth: NSObject {
             else { throw Web3AuthError.noBundleIdentifierFound }
             
             var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
-            if(w3ALoginParams?.extraLoginOptions != nil) {
-                extraLoginOptions = w3ALoginParams?.extraLoginOptions
+            if(loginParams?.extraLoginOptions != nil) {
+                extraLoginOptions = loginParams?.extraLoginOptions
             } else {
-                extraLoginOptions?.login_hint = state?.userInfo?.verifierId
+                extraLoginOptions = w3ALoginParams?.extraLoginOptions
             }
+            extraLoginOptions?.login_hint = state?.userInfo?.verifierId
             
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
