@@ -174,7 +174,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, chainConfig: ChainConfig? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -195,7 +195,7 @@ public struct W3AInitParams: Codable {
         self.useCoreKitKey = useCoreKitKey
         self.mfaSettings = mfaSettings
         self.sessionTime = min(7 * 86400, sessionTime)
-        self.chainConfig = chainConfig
+        self.chainConfig = nil
     }
 
     public init(clientId: String, network: Network) {
