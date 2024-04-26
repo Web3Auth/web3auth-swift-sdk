@@ -252,7 +252,7 @@ public struct W3AInitParams: Codable {
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
         sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
-        chainConfig = try values.decode(ChainConfig.self, forKey: .chainConfig)
+        chainConfig = try values.decodeIfPresent(ChainConfig.self, forKey: .chainConfig)
     }
 }
 
@@ -331,7 +331,7 @@ public struct W3ALoginParams: Codable {
         appState = try values.decodeIfPresent(String.self, forKey: .appState)
         mfaLevel = try values.decodeIfPresent(MFALevel.self, forKey: .mfaLevel)
         curve = try values.decodeIfPresent(SUPPORTED_KEY_CURVES.self, forKey: .curve) ?? .SECP256K1
-        dappUrl = try values.decode(String.self, forKey: .dappUrl)
+        dappUrl = try values.decodeIfPresent(String.self, forKey: .dappUrl)
     }
 }
 
