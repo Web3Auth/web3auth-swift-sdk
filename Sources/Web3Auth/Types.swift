@@ -81,6 +81,8 @@ public enum TypeOfLogin: String, Codable {
     case email_password
     case passwordless
     case jwt
+    case sms_passwordless
+    case farcaster
 }
 
 public enum ChainNamespace: String, Codable {
