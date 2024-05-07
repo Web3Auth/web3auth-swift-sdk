@@ -65,6 +65,6 @@ extension Web3AuthUserInfo {
         idToken = dict["idToken"] as? String ?? ""
         oAuthIdToken = dict["oAuthIdToken"] as? String ?? ""
         oAuthAccessToken = dict["oAuthAccessToken"] as? String ?? ""
-        isMfaEnabled = dict["oAuthAccessToken"] as? Bool ?? false
+        isMfaEnabled = dict["isMfaEnabled"] as? Bool ?? false
     }
 }
