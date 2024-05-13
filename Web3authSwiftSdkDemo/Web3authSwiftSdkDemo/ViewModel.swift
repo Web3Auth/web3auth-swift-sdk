@@ -48,7 +48,7 @@ class ViewModel: ObservableObject {
                                         // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                         // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
                                         // loginConfig: ["loginConfig": loginConfig],
-                                        useCoreKitKey: useCoreKit, chainConfig: chainConfig))
+                                        useCoreKitKey: useCoreKit))
         await MainActor.run(body: {
             if self.web3Auth?.state != nil {
                 handleUserDetails()
@@ -79,7 +79,7 @@ class ViewModel: ObservableObject {
         Task {
             do {
                 _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
-                                                                 extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "testtorus91@gmail.com", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
+                                                                 extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "chai@tor.us", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
                                                                  mfaLevel: .DEFAULT,
                                                                  curve: .SECP256K1
                     ))
@@ -121,8 +121,7 @@ class ViewModel: ObservableObject {
                                 clientId: "774338308167-q463s7kpvja16l4l0kko3nb925ikds2p.apps.googleusercontent.com",
                                 verifierSubIdentifier: "w3a-google"
                             )
-                    ],
-                    chainConfig: chainConfig
+                    ]
                 )
                 )
                 _ = try await web3Auth?.login(
@@ -169,7 +168,7 @@ class ViewModel: ObservableObject {
                 web3Auth = await Web3Auth(W3AInitParams(clientId: clientID,
                                                         network: network,
                                                         buildEnv: buildEnv,
-                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]), chainConfig: chainConfig))
+                                                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
                 _ = try await self.web3Auth?.enableMFA()
             } catch {
                 errorMessage = error.localizedDescription
