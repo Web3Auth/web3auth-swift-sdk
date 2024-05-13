@@ -270,7 +270,7 @@ public func getSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
-    let walletServicesVersion = "v1"
+    let walletServicesVersion = "v2"
     guard let buildEnv = buildEnv else {
         return "https://wallet.web3auth.io"
     }
@@ -500,7 +500,7 @@ struct SdkUrlParams: Codable {
 
 struct WalletServicesParams: Codable {
     let options: W3AInitParams
-    let params: W3ALoginParams
+    let params: W3ALoginParams?
 
     enum CodingKeys: String, CodingKey {
         case options = "options"
