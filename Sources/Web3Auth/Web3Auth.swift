@@ -17,6 +17,15 @@ public class Web3Auth: NSObject {
     var webViewController: WebViewController = DispatchQueue.main.sync{ WebViewController() }
     private var w3ALoginParams: W3ALoginParams?
     private static var signResponse: SignResponse?
+    
+    let SIGNER_MAP: [Network: String] = [
+        .mainnet: "https://signer.web3auth.io",
+        .testnet: "https://signer.web3auth.io",
+        .cyan: "https://signer-polygon.web3auth.io",
+        .aqua: "https://signer-polygon.web3auth.io",
+        .sapphire_mainnet: "https://signer.web3auth.io",
+        .sapphire_devnet: "https://signer.web3auth.io"
+    ]
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -30,8 +39,13 @@ public class Web3Auth: NSObject {
      */
     public init(_ params: W3AInitParams) async {
         initParams = params
+        Router.baseURL = SIGNER_MAP[params.network] ?? ""
         sessionManager = .init()
             do {
+                let sessionId = self.sessionManager.getSessionID()
+                if(sessionId?.isEmpty) {
+                    fetchProjectConfig()
+                }
                 let loginDetailsDict = try await sessionManager.authorizeSession()
                 guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",
                 network: initParams.network) else { throw Web3AuthError.decodingError }
@@ -397,6 +411,27 @@ public class Web3Auth: NSObject {
     static func decodeSessionStringfromCallbackURL(_ callbackURL: URL) throws -> String? {
         let callbackFragment = callbackURL.fragment
         return callbackFragment?.components(separatedBy: "&")[0].components(separatedBy: "=")[1]
+    }
+    
+    public func fetchProjectConfig() async throws {
+        let api = Router.get([.init(name: "project_id", value: initParams.clientId), .init(name: "network", value: initParams.network.rawValue), .init(name: "whitelist", value: "true")])
+        let result = await Service.request(router: api)
+        switch result {
+        case let .success(data):
+            do {
+                let decoder = JSONDecoder()
+                let result = try decoder.decode(ProjectConfigResponse.self, from: data)
+                os_log("fetchProjectConfig API response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(String(describing: result))")
+                initParams.originData = initParams.originData?.mergeMaps(result.whitelist?.signed_urls)
+                if let whiteLabelData = result.whiteLabelData {
+                    initParams.whiteLabel = initParams.whiteLabel?.merge(with: whiteLabelData)
+                }
+            } catch {
+                throw error
+            }
+        case let .failure(error):
+            throw error
+        }
     }
 
     public func getPrivkey() -> String {

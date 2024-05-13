@@ -51,3 +51,34 @@ extension Array where Element == UInt8 {
         return revArr
     }
 }
+
+extension W3AWhiteLabelData {
+    func merge(with other: W3AWhiteLabelData) -> W3AWhiteLabelData {
+        return WhiteLabelData(
+            appName: other.appName ?? self.appName,
+            appUrl: other.appUrl ?? self.appUrl,
+            logoLight: other.logoLight ?? self.logoLight,
+            logoDark: other.logoDark ?? self.logoDark,
+            defaultLanguage: other.defaultLanguage ?? self.defaultLanguage,
+            mode: other.mode ?? self.mode,
+            useLogoLoader: other.useLogoLoader ?? self.useLogoLoader,
+            theme: other.theme ?? self.theme
+        )
+    }
+}
+
+extension Dictionary where Key == String, Value == String {
+    func mergeMaps(with other: [String: String]?) -> [String: String]? {
+        guard let other = other else {
+            return self
+        }
+
+        var mergedMap = self
+        other.forEach { (key, value) in
+            mergedMap[key] = value
+        }
+
+        return mergedMap
+    }
+}
+
