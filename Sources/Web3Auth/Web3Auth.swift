@@ -42,10 +42,6 @@ public class Web3Auth: NSObject {
         Router.baseURL = SIGNER_MAP[params.network] ?? ""
         sessionManager = .init()
             do {
-                let sessionId = self.sessionManager.getSessionID()
-                if(sessionId?.isEmpty) {
-                    fetchProjectConfig()
-                }
                 let loginDetailsDict = try await sessionManager.authorizeSession()
                 guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",
                 network: initParams.network) else { throw Web3AuthError.decodingError }
@@ -54,6 +50,14 @@ public class Web3Auth: NSObject {
                 os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
             }
         super.init()
+        do {
+            let sessionId = self.sessionManager.getSessionID()
+            if((sessionId?.isEmpty) != nil) {
+                try await fetchProjectConfig()
+            }
+        } catch let error {
+            os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
+        }
     }
 
     public func logout() async throws {
@@ -422,7 +426,7 @@ public class Web3Auth: NSObject {
                 let decoder = JSONDecoder()
                 let result = try decoder.decode(ProjectConfigResponse.self, from: data)
                 os_log("fetchProjectConfig API response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(String(describing: result))")
-                initParams.originData = initParams.originData?.mergeMaps(result.whitelist?.signed_urls)
+                initParams.originData = initParams.originData?.mergeMaps(with: result.whitelist?.signed_urls)
                 if let whiteLabelData = result.whiteLabelData {
                     initParams.whiteLabel = initParams.whiteLabel?.merge(with: whiteLabelData)
                 }

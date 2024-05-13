@@ -536,5 +536,5 @@ public struct ProjectConfigResponse: Codable {
 
 public struct WhitelistResponse: Codable {
     let urls: [String]
-    let signedUrls: [String: String]
+    let signed_urls: [String: String]
 }
