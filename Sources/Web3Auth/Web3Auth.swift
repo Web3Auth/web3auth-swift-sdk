@@ -52,7 +52,8 @@ public class Web3Auth: NSObject {
         super.init()
         do {
             let sessionId = self.sessionManager.getSessionID()
-            if((sessionId?.isEmpty) != nil) {
+            if (sessionId ?? "").isEmpty {
+                os_log("fetchProjectConfig API executes")
                 try await fetchProjectConfig()
             }
         } catch let error {
