@@ -23,4 +23,6 @@ public enum Web3AuthProvider: String, Codable {
     case WECHAT = "wechat"
     case EMAIL_PASSWORDLESS = "email_passwordless"
     case JWT = "jwt"
+    case SMS_PASSWORDLESS = "sms_passwordless"
+    case FARCASTER = "farcaster"
 }
