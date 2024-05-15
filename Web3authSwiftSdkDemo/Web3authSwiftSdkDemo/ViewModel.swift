@@ -44,7 +44,7 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv,
+        web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
                                         // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                         // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
                                         // loginConfig: ["loginConfig": loginConfig],
@@ -188,7 +188,9 @@ class ViewModel: ObservableObject {
                 params.append("Hello, Web3Auth from Android!")
                 params.append(checksumAddress)
                 params.append("Web3Auth")
-                try await self.web3Auth?.request(W3ALoginParams(loginProvider: .GOOGLE, mfaLevel: .NONE), method: "personal_sign", requestParams: params)
+                try await self.web3Auth?.request(chainConfig: ChainConfig(
+                    chainNamespace: ChainNamespace.eip155, chainId: "0x89", rpcTarget: "https://polygon-rpc.com"
+                ), method: "personal_sign", requestParams: params)
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
