@@ -288,7 +288,7 @@ public class Web3Auth: NSObject {
             else { throw Web3AuthError.noBundleIdentifierFound }
             
             initParams.chainConfig = chainConfig
-            let walletServicesParams = WalletServicesParams(options: initParams, params: nil)
+            let walletServicesParams = WalletServicesParams(options: initParams)
             
             let _sessionId = sessionManager.getSessionID() ?? ""
             let loginId = try await getLoginId(data: walletServicesParams)
@@ -296,7 +296,8 @@ public class Web3Auth: NSObject {
     
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
-                "sessionId": sessionId
+                "sessionId": sessionId,
+                "platform": "ios"
             ]
             
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: path)
@@ -309,22 +310,16 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func request(_ loginParams: W3ALoginParams, method: String, requestParams: [Any], path: String? = "wallet/request") async throws {
+    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request") async throws {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
                 let _ = URL(string: "\(bundleId)://auth")
             else { throw Web3AuthError.noBundleIdentifierFound }
-            var loginParams = loginParams
-            //assign loginParams redirectUrl from intiParamas redirectUrl
-            loginParams.redirectUrl = "\(bundleId)://auth"
-            if let loginConfig = initParams.loginConfig?.values.first,
-               let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
-                loginParams.dappShare = savedDappShare
-            }
+            initParams.chainConfig = chainConfig
             
-            let walletServicesParams = WalletServicesParams(options: initParams, params: loginParams)
+            let walletServicesParams = WalletServicesParams(options: initParams)
             
             let _sessionId = sessionManager.getSessionID() ?? ""
             let loginId = try await getLoginId(data: walletServicesParams)
@@ -333,6 +328,7 @@ public class Web3Auth: NSObject {
             var signMessageMap: [String: String] = [:]
             signMessageMap["loginId"] = loginId
             signMessageMap["sessionId"] = sessionId
+            signMessageMap["platform"] = "ios"
 
             var requestData: [String: Any] = [:]
             requestData["method"] = method
@@ -346,7 +342,7 @@ public class Web3Auth: NSObject {
 
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: signMessageMap, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: path)
             //open url in webview
-            await webViewController = WebViewController(redirectUrl: loginParams.redirectUrl)
+            await webViewController = WebViewController(redirectUrl: initParams.redirectUrl)
             await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
             await webViewController.webView.load(URLRequest(url: url))
         }

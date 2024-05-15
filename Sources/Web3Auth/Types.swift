@@ -500,11 +500,9 @@ struct SdkUrlParams: Codable {
 
 struct WalletServicesParams: Codable {
     let options: W3AInitParams
-    let params: W3ALoginParams?
 
     enum CodingKeys: String, CodingKey {
         case options = "options"
-        case params
     }
 }
 
