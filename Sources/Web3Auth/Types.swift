@@ -176,7 +176,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, originData: [String: String]? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -197,6 +197,7 @@ public struct W3AInitParams: Codable {
         self.useCoreKitKey = useCoreKitKey
         self.mfaSettings = mfaSettings
         self.sessionTime = min(7 * 86400, sessionTime)
+        self.originData = originData
     }
 
     public init(clientId: String, network: Network) {
@@ -213,6 +214,7 @@ public struct W3AInitParams: Codable {
         mfaSettings = nil
         sessionTime = 86400
         chainConfig = nil
+        originData = nil
     }
 
     let clientId: String
@@ -222,12 +224,13 @@ public struct W3AInitParams: Codable {
     var walletSdkUrl: URL?
     var redirectUrl: String?
     let loginConfig: [String: W3ALoginConfig]?
-    let whiteLabel: W3AWhiteLabelData?
+    var whiteLabel: W3AWhiteLabelData?
     let chainNamespace: ChainNamespace?
     let useCoreKitKey: Bool?
     let mfaSettings: MfaSettings?
     let sessionTime: Int
     var chainConfig: ChainConfig? = nil
+    var originData: [String: String]?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -253,6 +256,7 @@ public struct W3AInitParams: Codable {
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
         sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
+        originData = try values.decodeIfPresent([String: String].self, forKey: .originData)
     }
 }
 
@@ -518,4 +522,17 @@ struct SetUpMFAParams: Codable {
         case actionType
         case sessionId
     }
+}
+
+public struct ProjectConfigResponse: Codable {
+    let whiteLabelData: W3AWhiteLabelData?
+    let smsOtpEnabled: Bool
+    let walletConnectEnabled: Bool
+    let walletConnectProjectId: String?
+    let whitelist: WhitelistResponse?
+}
+
+public struct WhitelistResponse: Codable {
+    let urls: [String]
+    let signed_urls: [String: String]
 }
