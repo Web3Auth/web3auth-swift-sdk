@@ -68,13 +68,19 @@ extension W3AWhiteLabelData {
 }
 
 extension Dictionary where Key == String, Value == String {
-    func mergeMaps(with other: [String: String]?) -> [String: String]? {
-        guard let other = other else {
+    func mergeMaps(other: [String: String]?) -> [String: String]? {
+        if self.isEmpty && other == nil {
+            return nil
+        } else if self.isEmpty {
+            return other
+        } else if other == nil {
             return self
         }
 
-        var mergedMap = self
-        other.forEach { (key, value) in
+        var mergedMap = [String: String]()
+        mergedMap.merge(self) { (_, new) in new }
+
+        other?.forEach { (key, value) in
             mergedMap[key] = value
         }
 

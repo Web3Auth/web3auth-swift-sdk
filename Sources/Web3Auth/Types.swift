@@ -524,15 +524,25 @@ struct SetUpMFAParams: Codable {
     }
 }
 
-public struct ProjectConfigResponse: Codable {
+struct ProjectConfigResponse: Codable {
+    let smsOtpEnabled, walletConnectEnabled: Bool
+    let whitelist: Whitelist
     let whiteLabelData: W3AWhiteLabelData?
-    let smsOtpEnabled: Bool
-    let walletConnectEnabled: Bool
-    let walletConnectProjectId: String?
-    let whitelist: WhitelistResponse?
+
+    enum CodingKeys: String, CodingKey {
+        case smsOtpEnabled = "sms_otp_enabled"
+        case walletConnectEnabled = "wallet_connect_enabled"
+        case whitelist
+        case whiteLabelData
+    }
 }
 
-public struct WhitelistResponse: Codable {
+struct Whitelist: Codable {
     let urls: [String]
-    let signed_urls: [String: String]
+    let signedUrls: [String: String]
+
+    enum CodingKeys: String, CodingKey {
+        case urls
+        case signedUrls = "signed_urls"
+    }
 }

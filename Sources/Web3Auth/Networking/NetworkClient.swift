@@ -8,9 +8,9 @@ enum Router: NetworkManagerProtocol {
     var path: String {
         switch self {
         case .get:
-            return "api/configuration"
+            return "/api/configuration"
         case .set:
-            return "api/configuration"
+            return "/api/configuration"
         }
     }
 
