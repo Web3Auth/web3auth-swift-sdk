@@ -1,6 +1,6 @@
 import Foundation
 
-func plistValues(_ bundle: Bundle) -> (clientId: String, network: Network)? {
+func plistValues(_ bundle: Bundle) -> (clientId: String, network: Network, redirectUrl: String)? {
     guard
         let path = bundle.path(forResource: "Web3Auth", ofType: "plist"),
         let values = NSDictionary(contentsOfFile: path) as? [String: Any]
@@ -12,13 +12,14 @@ func plistValues(_ bundle: Bundle) -> (clientId: String, network: Network)? {
     guard
         let clientId = values["ClientId"] as? String,
         let networkValue = values["Network"] as? String,
+        let redirectUrl = values["RedirectUrl"] as? String,
         let network = Network(rawValue: networkValue)
     else {
         print("Web3Auth.plist file at \(path) is missing or having incorrect 'ClientId' and/or 'Network' entries!")
         print("File currently has the following entries: \(values)")
         return nil
     }
-    return (clientId: clientId, network: network)
+    return (clientId: clientId, network: network, redirectUrl)
 }
 
 func decodedBase64(_ base64URLSafe: String) -> Data? {

@@ -94,7 +94,11 @@ public class Web3Auth: NSObject {
      */
     public convenience init(_ bundle: Bundle = Bundle.main) async {
         let values = plistValues(bundle)!
-        await self.init(W3AInitParams(clientId: values.clientId, network: values.network))
+        await self.init(W3AInitParams(
+            clientId: values.clientId,
+            network: values.network,
+            redirectUrl: values.redirectUrl
+        ))
     }
 
     /**
