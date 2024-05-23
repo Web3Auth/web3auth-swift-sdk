@@ -55,14 +55,14 @@ extension Array where Element == UInt8 {
 extension W3AWhiteLabelData {
     func merge(with other: W3AWhiteLabelData) -> W3AWhiteLabelData {
         return W3AWhiteLabelData(
-            appName: other.appName ?? self.appName,
-            logoLight: other.logoLight ?? self.logoLight,
-            logoDark: other.logoDark ?? self.logoDark,
-            defaultLanguage: other.defaultLanguage ?? self.defaultLanguage,
-            mode: other.mode ?? self.mode,
-            theme: other.theme ?? self.theme,
-            appUrl: other.appUrl ?? self.appUrl,
-            useLogoLoader: other.useLogoLoader ?? self.useLogoLoader
+            appName: self.appName ?? other.appName,
+            logoLight: self.logoLight ?? other.logoLight,
+            logoDark: self.logoDark ?? other.logoDark,
+            defaultLanguage: self.defaultLanguage ?? other.defaultLanguage,
+            mode: self.mode ?? other.mode,
+            theme: self.theme ?? other.theme,
+            appUrl: self.appUrl ?? other.appUrl,
+            useLogoLoader: self.useLogoLoader ?? other.useLogoLoader
         )
     }
 }
