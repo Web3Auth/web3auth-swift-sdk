@@ -176,7 +176,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String? = nil, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, originData: [String: String]? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, originData: [String: String]? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -200,13 +200,13 @@ public struct W3AInitParams: Codable {
         self.originData = originData
     }
 
-    public init(clientId: String, network: Network) {
+    public init(clientId: String, network: Network, redirectUrl: String) {
         self.clientId = clientId
         self.network = network
         buildEnv = BuildEnv.production
         sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
         walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
-        redirectUrl = nil
+        self.redirectUrl = redirectUrl
         loginConfig = nil
         whiteLabel = nil
         chainNamespace = ChainNamespace.eip155
@@ -222,7 +222,7 @@ public struct W3AInitParams: Codable {
     let buildEnv: BuildEnv?
     var sdkUrl: URL?
     var walletSdkUrl: URL?
-    var redirectUrl: String?
+    var redirectUrl: String
     let loginConfig: [String: W3ALoginConfig]?
     var whiteLabel: W3AWhiteLabelData?
     let chainNamespace: ChainNamespace?
@@ -249,7 +249,7 @@ public struct W3AInitParams: Codable {
         } else {
             walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
         }
-        redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
+        redirectUrl = try values.decode(String.self, forKey: .redirectUrl)
         loginConfig = try values.decodeIfPresent([String: W3ALoginConfig].self, forKey: .loginConfig)
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
         chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip155
