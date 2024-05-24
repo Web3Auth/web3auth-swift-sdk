@@ -98,8 +98,8 @@ class ViewModel: ObservableObject {
                     clientId: clientID,
                     network: network,
                     buildEnv: buildEnv,
-                    whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]),
                     redirectUrl: redirectUrl,
+                    whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]),
                     useCoreKitKey: useCoreKit
                 ))
                 _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
