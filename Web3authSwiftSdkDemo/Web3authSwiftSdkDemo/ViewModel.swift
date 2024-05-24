@@ -20,7 +20,7 @@ class ViewModel: ObservableObject {
     @Published var userInfo: Web3AuthUserInfo?
     @Published var showError: Bool = false
     var errorMessage: String = ""
-    private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
+    private var clientID: String = "BFuUqebV5I8Pz5F7a5A2ihW7YVmbv_OHXnHYDv6OltAD5NGr6e-ViNvde3U4BHdn6HvwfkgobhVu4VwC-OSJkik"
     private var network: Network = .sapphire_devnet
     private var buildEnv: BuildEnv = .testing
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
@@ -93,7 +93,9 @@ class ViewModel: ObservableObject {
     func loginWithGoogle(provider: Web3AuthProvider) {
         Task {
             do {
-                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, useCoreKitKey: useCoreKit))
+                web3Auth = await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, 
+                                                whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]),
+                                                useCoreKitKey: useCoreKit))
                 _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
                                                                  mfaLevel: .DEFAULT,
                                                                  curve: .SECP256K1

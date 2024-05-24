@@ -533,7 +533,7 @@ struct ProjectConfigResponse: Codable {
         case smsOtpEnabled = "sms_otp_enabled"
         case walletConnectEnabled = "wallet_connect_enabled"
         case whitelist
-        case whiteLabelData
+        case whiteLabelData = "whitelabel"
     }
 }
 
