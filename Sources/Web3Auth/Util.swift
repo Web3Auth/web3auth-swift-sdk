@@ -82,7 +82,9 @@ extension Dictionary where Key == String, Value == String {
         mergedMap.merge(self) { (_, new) in new }
 
         other?.forEach { (key, value) in
-            mergedMap[key] = value
+            if !mergedMap.keys.contains(key) {            
+                mergedMap[key] = value
+            }
         }
 
         return mergedMap
