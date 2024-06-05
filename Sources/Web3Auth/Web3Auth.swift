@@ -425,7 +425,11 @@ public class Web3Auth: NSObject {
                 //os_log("fetchProjectConfig API response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(String(describing: result))")
                 initParams.originData = result.whitelist.signedUrls.mergeMaps(other: initParams.originData)
                 if let whiteLabelData = result.whiteLabelData {
-                    initParams.whiteLabel = initParams.whiteLabel?.merge(with: whiteLabelData)
+                    if initParams.whiteLabel == nil {
+                        initParams.whiteLabel = whiteLabelData
+                    } else {
+                        initParams.whiteLabel = initParams.whiteLabel?.merge(with: whiteLabelData)
+                    }
                 }
             } catch {
                 throw error
