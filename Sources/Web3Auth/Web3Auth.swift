@@ -41,19 +41,21 @@ public class Web3Auth: NSObject {
         initParams = params
         Router.baseURL = SIGNER_MAP[params.network] ?? ""
         sessionManager = .init()
-            do {
-                let loginDetailsDict = try await sessionManager.authorizeSession()
-                guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",
-                network: initParams.network) else { throw Web3AuthError.decodingError }
-                state = loginDetails
-            } catch let error {
-                os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
-            }
         super.init()
         do {
-            try await fetchProjectConfig()
+            let fetchConfigResult = try await fetchProjectConfig()
+            if(fetchConfigResult) {
+                do {
+                    let loginDetailsDict = try await sessionManager.authorizeSession()
+                    guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",
+                    network: initParams.network) else { throw Web3AuthError.decodingError }
+                    state = loginDetails
+                } catch let error {
+                    os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
+                }
+            }
         } catch let error {
-                os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
+            os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
         }
     }
 
@@ -414,7 +416,8 @@ public class Web3Auth: NSObject {
         return callbackFragment?.components(separatedBy: "&")[0].components(separatedBy: "=")[1]
     }
     
-    public func fetchProjectConfig() async throws {
+    public func fetchProjectConfig() async throws  -> Bool {
+        var response: Bool = false
         let api = Router.get([.init(name: "project_id", value: initParams.clientId), .init(name: "network", value: initParams.network.rawValue), .init(name: "whitelist", value: "true")])
         let result = await Service.request(router: api)
         switch result {
@@ -431,12 +434,14 @@ public class Web3Auth: NSObject {
                         initParams.whiteLabel = initParams.whiteLabel?.merge(with: whiteLabelData)
                     }
                 }
+                response = true
             } catch {
                 throw error
             }
         case let .failure(error):
             throw error
         }
+        return response
     }
 
     public func getPrivkey() -> String {
