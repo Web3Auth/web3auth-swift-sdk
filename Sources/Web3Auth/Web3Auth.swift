@@ -110,9 +110,9 @@ public class Web3Auth: NSObject {
      - returns: Web3Auth component.
      - important: Calling this method without a valid `Web3Auth.plist` will crash your application.
      */
-    public convenience init(_ bundle: Bundle = Bundle.main) async {
+    public convenience init(_ bundle: Bundle = Bundle.main) async throws {
         let values = plistValues(bundle)!
-        await self.init(W3AInitParams(
+        try await self.init(W3AInitParams(
             clientId: values.clientId,
             network: values.network,
             redirectUrl: values.redirectUrl
