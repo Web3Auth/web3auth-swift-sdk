@@ -37,7 +37,7 @@ public class Web3Auth: NSObject {
 
      - returns: Web3Auth component.
      */
-    public init(_ params: W3AInitParams) async {
+    public init(_ params: W3AInitParams) async throws {
         initParams = params
         Router.baseURL = SIGNER_MAP[params.network] ?? ""
         sessionManager = .init()
@@ -56,6 +56,7 @@ public class Web3Auth: NSObject {
             }
         } catch let error {
             os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
+            throw error
         }
     }
 
