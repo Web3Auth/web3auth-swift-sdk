@@ -26,6 +26,12 @@ public class Web3Auth: NSObject {
             .sapphire_mainnet: "https://signer.web3auth.io",
             .sapphire_devnet: "https://signer.web3auth.io"
     ]
+    
+    let PASSKEY_SVC_URL: [BuildEnv: String] = [
+        .testing: "https://api-develop-passwordless.web3auth.io",
+        .staging: "https://api-passwordless.web3auth.io",
+        .production: "https://api-passwordless.web3auth.io"
+    ]
     /**
      Web3Auth  component for authenticating with web-based flow.
 
@@ -484,6 +490,48 @@ public class Web3Auth: NSObject {
         }
         return signResponse
     }
+    
+    func registerPasskey(
+        authenticatorAttachment: AuthenticatorAttachment? = nil,
+        username: String? = nil,
+        rp: Rp
+    ) async throws -> Bool {
+        let registrationOptionsRes = try await getRegistrationOptions(authenticatorAttachment: authenticatorAttachment, username: username, rp: <#T##Rp#>)
+        let passkeyLoginManager = PasskeyLoginManager()
+        passkeyLoginManager.signInWithPasskey(registrationResponse: registrationOptionsRes)
+        
+        return true
+    }
+    
+    public func getRegistrationOptions(authenticatorAttachment: AuthenticatorAttachment? = nil,
+                                               username: String? = nil,
+                                               rp: Rp) async throws  -> RegistrationResponse {
+        Router.baseURL = PASSKEY_SVC_URL[initParams.buildEnv!] ?? ""
+        let requestBody = RegistrationOptionsRequest(
+                web3auth_client_id: initParams.clientId,
+                verifier_id: state?.userInfo?.verifierId ?? "",
+                verifier: state?.userInfo?.verifier ?? "",
+                rp: Rp(name: rp.name, id: rp.id),
+                username: username?.isEmpty ?? true ? state?.userInfo?.name ?? "" : username ?? "",
+                network: initParams.network.rawValue,
+                signatures: state?.signatures ?? []
+            )
+        let api = Router.getRegistrationOptions(T: requestBody)
+        let result = await Service.request(router: api)
+        switch result {
+        case let .success(data):
+            do {
+                let decoder = JSONDecoder()
+                let result = try decoder.decode(RegistrationResponse.self, from: data)
+                return result
+            } catch {
+                throw error
+            }
+        case let .failure(error):
+            throw error
+        }
+    }
+    
 }
 
 extension Web3Auth: ASWebAuthenticationPresentationContextProviding {

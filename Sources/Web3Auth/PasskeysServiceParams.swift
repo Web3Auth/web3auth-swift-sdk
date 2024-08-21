@@ -74,19 +74,41 @@ public struct CrudEndpoints: Codable {
     public let list: String
 }
 
-public struct RegistrationResponse {
+public struct RegistrationResponse: Decodable {
     public let success: Bool
     public let data: Data
+    
+    enum CodingKeys: String, CodingKey {
+        case success
+        case data
+    }
+        
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        success = try container.decode(Bool.self, forKey: .success)
+        data = try container.decode(Data.self, forKey: .data)
+    }
 }
 
 // Data object containing the registration options and tracking ID
-public struct Data {
+public struct Data: Decodable {
     public let options: Options
     public let trackingId: String
+    
+    enum CodingKeys: String, CodingKey {
+        case options
+        case trackingId
+    }
+        
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        options = try container.decode(Options.self, forKey: .options)
+        trackingId = try container.decode(String.self, forKey: .trackingId)
+    }
 }
 
 // Options object containing various registration parameters
-public struct Options {
+public struct Options: Decodable {
     public let challenge: String
     public let rp: Rp
     public let user: User
@@ -96,30 +118,103 @@ public struct Options {
     public let excludeCredentials: [String]
     public let authenticatorSelection: AuthenticatorSelection
     public let extensions: Extensions
+    
+    enum CodingKeys: String, CodingKey {
+        case challenge
+        case rp
+        case user
+        case pubKeyCredParams
+        case timeout
+        case attestation
+        case excludeCredentials
+        case authenticatorSelection
+        case extensions
+    }
+        
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        challenge = try container.decode(String.self, forKey: .challenge)
+        rp = try container.decode(Rp.self, forKey: .rp)
+        user = try container.decode(User.self, forKey: .user)
+        pubKeyCredParams = try container.decode([PubKeyCredParam].self, forKey: .pubKeyCredParams)
+        timeout = try container.decode(UInt.self, forKey: .timeout)
+        attestation = try container.decode(String.self, forKey: .attestation)
+        excludeCredentials = try container.decode([String].self, forKey: .excludeCredentials)
+        authenticatorSelection = try container.decode(AuthenticatorSelection.self, forKey: .authenticatorSelection)
+        extensions = try container.decode(Extensions.self, forKey: .extensions)
+    }
 }
 
 // User object containing user information
-public struct User {
+public struct User: Decodable {
     public let id: String
     public let name: String
     public let displayName: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case displayName
+    }
+        
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        displayName = try container.decode(String.self, forKey: .displayName)
+    }
+    
 }
 
 // PubKeyCredParam object representing public key credential parameters
-public struct PubKeyCredParam {
+public struct PubKeyCredParam: Decodable {
     public let alg: Int
     public let type: String
+    
+    enum CodingKeys: String, CodingKey {
+        case alg
+        case type
+    }
+        
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        alg = try container.decode(Int.self, forKey: .alg)
+        type = try container.decode(String.self, forKey: .type)
+    }
 }
 
-public struct  AuthenticatorSelection {
+public struct  AuthenticatorSelection: Decodable {
     public let userVerification: String
     public let residentKey: String
     public let requireResidentKey: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case userVerification
+        case residentKey
+        case requireResidentKey
+    }
+        
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        userVerification = try container.decode(String.self, forKey: .userVerification)
+        residentKey = try container.decode(String.self, forKey: .residentKey)
+        requireResidentKey = try container.decode(Bool.self, forKey: .requireResidentKey)
+    }
 }
 
 // Extensions object containing any additional extensions
-public struct Extensions{
+public struct Extensions: Decodable{
     public let credProps: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case credProps
+    }
+        
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        credProps = try container.decode(Bool.self, forKey: .credProps)
+    }
+    
 }
 
 public struct AuthParamsData {

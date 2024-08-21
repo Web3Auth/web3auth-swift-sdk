@@ -3,6 +3,10 @@ import Foundation
 enum Router: NetworkManagerProtocol {
     case get([URLQueryItem])
     case set(T: Encodable)
+    case getRegistrationOptions(T: Encodable)
+    case verifyRegistration(T: Encodable)
+    case getAuthenticationOptions(T: Encodable)
+    case verifyAuthentication(T: Encodable)
 
     var path: String {
         switch self {
@@ -10,6 +14,14 @@ enum Router: NetworkManagerProtocol {
             return "/api/configuration"
         case .set:
             return "/api/configuration"
+        case .getRegistrationOptions:
+            return "/api/v3/auth/passkey/fast/register/options"
+        case .verifyRegistration:
+            return "/api/v3/auth/passkey/fast/register/verify"
+        case .getAuthenticationOptions:
+            return "/api/v3/auth/passkey/fast/authenticate/options"
+        case .verifyAuthentication:
+            return "/api/v3/auth/passkey/fast/authenticate/verify"
         }
     }
 
@@ -21,12 +33,20 @@ enum Router: NetworkManagerProtocol {
             return .get(params)
         case let .set(params):
             return .post(T: params)
+        case let .getRegistrationOptions(params):
+            return .post(T: params)
+        case let .verifyRegistration(params):
+            return .post(T: params)
+        case let .getAuthenticationOptions(params):
+            return .post(T: params)
+        case let .verifyAuthentication(params):
+            return .post(T: params)
         }
     }
 
     var headers: [String: String] {
         switch self {
-        case .get, .set:
+        case .get, .set, .getRegistrationOptions, .verifyRegistration, .getAuthenticationOptions, .verifyAuthentication:
             return ["Content-Type": "application/json"]
         }
     }
