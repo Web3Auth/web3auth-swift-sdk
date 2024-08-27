@@ -50,6 +50,14 @@ struct UserDetailView: View {
                         Text("Sign Message")
                             .foregroundColor(.green)
                     }
+                    Button(
+                        action: {
+                            vm.registerPassKey()
+                        },
+                        label: {
+                            Text("Register PassKey").foregroundColor(.green)
+                        }
+                    )
                     Button {
                         let alertController = UIAlertController(title: "Sign Response", message: nil, preferredStyle: .alert)
                         

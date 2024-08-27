@@ -42,7 +42,7 @@ class PasskeyLoginManager: NSObject, ASAuthorizationControllerDelegate, ASAuthor
         return UIApplication.shared.windows.first { $0.isKeyWindow }!
     }
 
-    // Dummy function to demonstrate backend authentication
+    
     func authenticateWithBackend(username: String, password: String) {
         print("Authenticated with backend using username: \(username) and password: \(password)")
     }

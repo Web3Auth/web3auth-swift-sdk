@@ -1,12 +1,16 @@
 import AuthenticationServices
 import OSLog
 import SessionManager
+import FetchNodeDetails
+import TorusUtils
+import Foundation
 
 /**
  Authentication using Web3Auth.
  */
 
-public class Web3Auth: NSObject {
+public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+    
     private var initParams: W3AInitParams
     private var authSession: ASWebAuthenticationSession?
     // You can check the state variable before logging the user in, if the user
@@ -17,6 +21,8 @@ public class Web3Auth: NSObject {
     var webViewController: WebViewController = DispatchQueue.main.sync{ WebViewController() }
     private var w3ALoginParams: W3ALoginParams?
     private static var signResponse: SignResponse?
+    private var trackingId: String?
+    private var rpId: String?
     
     let SIGNER_MAP: [Network: String] = [
             .mainnet: "https://signer.web3auth.io",
@@ -31,6 +37,15 @@ public class Web3Auth: NSObject {
         .testing: "https://api-develop-passwordless.web3auth.io",
         .staging: "https://api-passwordless.web3auth.io",
         .production: "https://api-passwordless.web3auth.io"
+    ]
+    
+    let WEB3AUTH_NETWORK_MAP: [Network: TorusNetwork] = [
+        .mainnet: TorusNetwork.legacy(LegacyNetwork.MAINNET),
+        .testnet: TorusNetwork.legacy(LegacyNetwork.TESTNET),
+        .aqua: TorusNetwork.legacy(LegacyNetwork.AQUA),
+        .cyan: TorusNetwork.legacy(LegacyNetwork.CYAN),
+        .sapphire_devnet: TorusNetwork.sapphire(SapphireNetwork.SAPPHIRE_DEVNET),
+        .sapphire_mainnet: TorusNetwork.sapphire(SapphireNetwork.SAPPHIRE_MAINNET)
     ]
     /**
      Web3Auth  component for authenticating with web-based flow.
@@ -491,21 +506,20 @@ public class Web3Auth: NSObject {
         return signResponse
     }
     
-    func registerPasskey(
+    public func registerPasskey(
         authenticatorAttachment: AuthenticatorAttachment? = nil,
         username: String? = nil,
         rp: Rp
     ) async throws -> Bool {
-        let registrationOptionsRes = try await getRegistrationOptions(authenticatorAttachment: authenticatorAttachment, username: username, rp: <#T##Rp#>)
-        let passkeyLoginManager = PasskeyLoginManager()
-        passkeyLoginManager.signInWithPasskey(registrationResponse: registrationOptionsRes)
-        
+        let registrationOptionsRes = try await getRegistrationOptions(authenticatorAttachment: authenticatorAttachment, username: username, rp: rp)
+        signInWithPasskey(registrationResponse: registrationOptionsRes)
         return true
     }
     
     public func getRegistrationOptions(authenticatorAttachment: AuthenticatorAttachment? = nil,
                                                username: String? = nil,
                                                rp: Rp) async throws  -> RegistrationResponse {
+        self.rpId = rp.id
         Router.baseURL = PASSKEY_SVC_URL[initParams.buildEnv!] ?? ""
         let requestBody = RegistrationOptionsRequest(
                 web3auth_client_id: initParams.clientId,
@@ -523,11 +537,213 @@ public class Web3Auth: NSObject {
             do {
                 let decoder = JSONDecoder()
                 let result = try decoder.decode(RegistrationResponse.self, from: data)
+                self.trackingId = result.data.trackingId
                 return result
             } catch {
                 throw error
             }
         case let .failure(error):
+            throw error
+        }
+    }
+    
+    private func signInWithPasskey(registrationResponse: RegistrationResponse) {
+        if #available(iOS 15.0, *) {
+            let optionsData = registrationResponse.data.options
+            let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: "web3auth.io")
+            let platformKeyRequest = platformProvider.createCredentialRegistrationRequest(challenge: optionsData.challenge.data(using: .utf8)!,
+                                                                                          name: optionsData.user.name,  userID: optionsData.user.id.data(using: .utf8)!)
+            let authorizationController = ASAuthorizationController(authorizationRequests: [platformKeyRequest])
+            authorizationController.delegate = self
+            authorizationController.presentationContextProvider = self
+            authorizationController.performRequests()
+        }
+    }
+    
+    private func loginWithExistingPasskey(challenge: String) {
+        if #available(iOS 15.0, *) {
+            let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: "web3auth.io")
+            let platformKeyRequest = platformProvider.createCredentialAssertionRequest(challenge: challenge.data(using: .utf8)!)
+            let authorizationController = ASAuthorizationController(authorizationRequests: [platformKeyRequest])
+            authorizationController.delegate = self
+            authorizationController.presentationContextProvider = self
+            authorizationController.performRequests()
+        }
+    }
+
+    public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if #available(iOS 15.0, *) {
+            if let credential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialRegistration {
+                  //showAlert(with: "Authorized with Passkeys", message: "Create account with credential ID = \(credential.credentialID)")
+                
+                // Take steps to handle the registration.
+                //let passkeyVerifierId = getPasskeyVerifierId(credential.rawClientDataJSON)
+
+                //let passkeyPublicKey = getPasskeyPublicKey(verifier: state?.userInfo?.verifier ?? "", verifierId: passkeyVerifierId)
+                //let encryptedMetadata = getEncryptedMetadata(passkeyPubKey: passkeyPublicKey)
+                
+                //let verificationResult = verifyRegistration(registrationResponse: credential.rawClientDataJSON, signatures: (state?.signatures)!,
+                                                            //passkeyToken: (state?.idToken)!, data: encryptedMetadata)
+                
+                } else if let credential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialAssertion {
+                  //showAlert(with: "Authorized with Passkeys", message: "Sign in with credential ID = \(credential.credentialID)")
+                  let signature = credential.signature
+                  let clientDataJSON = credential.rawClientDataJSON
+                  
+                  // Take steps to verify the challenge by sending it to your server tio verify
+                } else {
+                  //showAlert(with: "Authorized", message: "e.g. with \"Sign in with Apple\"")
+                  // Handle other authentication cases, such as Sign in with Apple.
+                }
+        } else {
+            print("No support for iOS version less than 16")
+        }
+    }
+    
+    public func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print("Authorization failed: \(error.localizedDescription)")
+    }
+    
+    public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        return ASPresentationAnchor()
+    }
+    
+    func getPasskeyPublicKey(verifier: String, verifierId: String) async throws -> TorusPublicKey {
+        do {
+            let nodeDetailManager = NodeDetailManager(network: WEB3AUTH_NETWORK_MAP[Network(rawValue: initParams.network.rawValue) ?? Network.sapphire_mainnet]!)
+            let fnd = try await nodeDetailManager.getNodeDetails(verifier: verifier, verifierID: verifierId)
+            
+            let torusUtils = try! TorusUtils(params: TorusOptions(clientId: initParams.clientId, network: WEB3AUTH_NETWORK_MAP[Network(rawValue: initParams.network.rawValue) ?? Network.sapphire_mainnet]!, enableOneKey: true))
+            let data = try await torusUtils.getPublicAddress(endpoints: fnd.getTorusNodeEndpoints(), verifier: verifier, verifierId: verifierId)
+            return data
+        } catch {
+            print("Error fetching passkey public key: \(error)")
+            throw error
+        }
+    }
+    
+    /*func getEncryptedMetadata(passkeyPubKey: TorusPublicKey) throws -> String? {
+        let userInfo = try getUserInfo()
+
+        let metadata = MetadataInfo(
+            privKey: getPrivkey(),
+            userInfo: userInfo
+        )
+
+        // Convert metadata to JSON string
+        guard let jsonData = try? JSONEncoder().encode(metadata),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            return nil
+        }
+
+        return encryptData(
+            x: passkeyPubKey.finalKeyData?.X ?? "",
+            y: passkeyPubKey.finalKeyData?.Y ?? "",
+            data: jsonString
+        )
+    }
+    
+    private func encryptData(x: String, y: String, data: String) -> String {
+        let publicKey: String = (x + y)
+        let ecies = try await MetadataUtils.encrypt(publicKey: publicKey, msg: data)
+        let data = JSONEncoder().encode(ecies)
+        return String(data: data, encoding: .utf8)!
+    }
+    
+    private func decryptData(data: String, privKey: String) -> String {
+        let decrypted = try await MetadataUtils.decrypt(privateKey: privKey, opts: data)
+        let data = JSONEncoder().encode(decrypted)
+        return String(data: data, encoding: .utf8)!
+    }*/
+    
+    private func verifyRegistration(
+        registrationResponse: Foundation.Data,
+        signatures: [String], passkeyToken: String, data: String
+    ) async throws -> ChallengeData {
+        Router.baseURL = PASSKEY_SVC_URL[initParams.buildEnv!] ?? ""
+        let requestBody = VerifyRequest(
+            web3auth_client_id: initParams.clientId,
+            tracking_id: self.trackingId!,
+            verification_data: registrationResponse,
+            network: initParams.network.rawValue,
+            signatures: signatures,
+            metadata: data
+        )
+        let api = Router.verifyRegistration(T: requestBody)
+        let result = await Service.request(router: api)
+        switch result {
+        case let .success(data):
+            do {
+                let decoder = JSONDecoder()
+                let result = try decoder.decode(VerifyRegistrationResponse.self, from: data)
+                return result.data!
+            } catch {
+                throw error
+            }
+        case let .failure(error):
+            throw error
+        }
+    }
+    
+    private func getAuthenticationOptions(authenticatorId: String, rpId: String) async throws -> AuthOptions {
+        Router.baseURL = PASSKEY_SVC_URL[initParams.buildEnv!] ?? ""
+        let requestBody = AuthenticationOptionsRequest(
+                web3authClientId: initParams.clientId,
+                rpId: rpId,
+                authenticatorId: authenticatorId,
+                network: initParams.network.rawValue
+            )
+        let api = Router.getAuthenticationOptions(T: requestBody)
+        let result = await Service.request(router: api)
+        switch result {
+        case let .success(data):
+            do {
+                let decoder = JSONDecoder()
+                let result = try decoder.decode(AuthenticationOptionsResponse.self, from: data)
+                return result.data.options
+            } catch {
+                throw error
+            }
+        case let .failure(error):
+            throw error
+        }
+    }
+    
+    private func verifyAuthentication(publicKeyCredential: Data) async throws -> VerifyAuthenticationResponse {
+        Router.baseURL = PASSKEY_SVC_URL[initParams.buildEnv!] ?? ""
+        let requestBody = VerifyAuthenticationRequest(
+            web3authClientId: initParams.clientId,
+            trackingId: self.trackingId!,
+            verificationData: publicKeyCredential,
+            network: initParams.network.rawValue
+        )
+        let api = Router.verifyAuthentication(T: requestBody)
+        let result = await Service.request(router: api)
+        switch result {
+        case let .success(data):
+            do {
+                let decoder = JSONDecoder()
+                let result = try decoder.decode(VerifyAuthenticationResponse.self, from: data)
+                return result
+            } catch {
+                throw error
+            }
+        case let .failure(error):
+            throw error
+        }
+    }
+    
+    private func getPasskeyPostboxKey(passKeyLoginParams: PassKeyLoginParams) async throws-> String {
+        do {
+            let nodeDetailManager = NodeDetailManager(network: WEB3AUTH_NETWORK_MAP[Network(rawValue: initParams.network.rawValue) ?? Network.sapphire_mainnet]!)
+            let fnd = try await nodeDetailManager.getNodeDetails(verifier: passKeyLoginParams.verifier, verifierID: passKeyLoginParams.verifierId)
+            
+            let torusUtils = try! TorusUtils(params: TorusOptions(clientId: initParams.clientId, network: WEB3AUTH_NETWORK_MAP[Network(rawValue: initParams.network.rawValue) ?? Network.sapphire_mainnet]!, enableOneKey: true))
+            let data = try await torusUtils.retrieveShares(endpoints: fnd.torusNodeEndpoints, verifier: passKeyLoginParams.verifier,
+                                                           verifierParams: VerifierParams(verifier_id: passKeyLoginParams.verifierId), idToken: passKeyLoginParams.idToken)
+            return data.finalKeyData.privKey
+        } catch {
+            print("Error fetching passkey private key: \(error)")
             throw error
         }
     }

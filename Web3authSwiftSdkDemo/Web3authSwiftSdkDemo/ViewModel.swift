@@ -20,8 +20,8 @@ class ViewModel: ObservableObject {
     @Published var userInfo: Web3AuthUserInfo?
     @Published var showError: Bool = false
     var errorMessage: String = ""
-    private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
-    private var redirectUrl: String = "com.web3auth.sdkapp://auth"
+    private var clientID: String = "BFuUqebV5I8Pz5F7a5A2ihW7YVmbv_OHXnHYDv6OltAD5NGr6e-ViNvde3U4BHdn6HvwfkgobhVu4VwC-OSJkik"
+    private var redirectUrl: String = "com.web3auth.swiftapp://auth"
     private var network: Network = .sapphire_devnet
     private var buildEnv: BuildEnv = .testing
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
@@ -180,6 +180,20 @@ class ViewModel: ObservableObject {
                                                         redirectUrl: redirectUrl,
                                                         whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
                 _ = try await self.web3Auth?.enableMFA()
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+    }
+    
+    @MainActor func registerPassKey() {
+        Task {
+            do {
+                let concatenatedUserInfo = [userInfo?.name, userInfo?.email].compactMap { $0 }.joined(separator: "|")
+                try await web3Auth?.registerPasskey(authenticatorAttachment: .platform,
+                                                    username: concatenatedUserInfo,
+                                                    rp: Rp(name: "Web3Auth PnP iOS Example", id: "web3auth.io"))
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true

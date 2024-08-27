@@ -1,5 +1,5 @@
 {
-  "originHash" : "6e7645fc54d8e071c9f1fe7b3436a82236fb22fd9ff3ab674fc3bcddd1eaf497",
+  "originHash" : "0015fdcb301c7d4be37b8096727c8ac579cbaaeeb7f184a60daa5cafae157989",
   "pins" : [
     {
       "identity" : "bigint",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "9f88bd5e56d1df443a908f7a7e81ae4f4d9170ea",
         "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "fetch-node-details-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/torusresearch/fetch-node-details-swift.git",
+      "state" : {
+        "revision" : "4bd96c33ba8d02d9e27190c5c7cedf09cfdfd656",
+        "version" : "6.0.3"
       }
     },
     {
@@ -143,6 +152,15 @@
       "state" : {
         "revision" : "025bcb1165deab2e20d4eaba79967ce73013f496",
         "version" : "1.2.1"
+      }
+    },
+    {
+      "identity" : "torus-utils-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/torusresearch/torus-utils-swift",
+      "state" : {
+        "revision" : "303dc2cf41db7c10f769855edad0e717ced2d554",
+        "version" : "9.0.0"
       }
     },
     {

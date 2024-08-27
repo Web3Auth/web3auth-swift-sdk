@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "FetchNodeDetails",
+        "repositoryURL": "https://github.com/torusresearch/fetch-node-details-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "4bd96c33ba8d02d9e27190c5c7cedf09cfdfd656",
+          "version": "6.0.3"
+        }
+      },
+      {
         "package": "KeychainSwift",
         "repositoryURL": "https://github.com/evgenyneu/keychain-swift.git",
         "state": {
@@ -35,6 +44,15 @@
           "branch": null,
           "revision": "20cc7bff065d7fe53164d17e7714a3f17d4cea2a",
           "version": "4.0.2"
+        }
+      },
+      {
+        "package": "TorusUtils",
+        "repositoryURL": "https://github.com/torusresearch/torus-utils-swift",
+        "state": {
+          "branch": null,
+          "revision": "303dc2cf41db7c10f769855edad0e717ced2d554",
+          "version": "9.0.0"
         }
       }
     ]

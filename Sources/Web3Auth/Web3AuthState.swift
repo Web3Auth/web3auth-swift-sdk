@@ -19,9 +19,10 @@ public struct Web3AuthState: Codable {
     public var tssNonce: Int?
     public var nodeIndexes: [Int]?
     public var keyMode: String?
+    public var idToken: String?
 
     public init(privKey: String?, ed25519PrivKey: String?, sessionId: String?, userInfo: Web3AuthUserInfo?, error: String?,
-                coreKitKey: String?, coreKitEd25519PrivKey: String?, factorKey: String?, signatures: [String]?, tssShareIndex: Int?, tssPubKey: String?, tssShare: String?, tssNonce: Int?, nodeIndexes: [Int]?, keyMode: String?) {
+                coreKitKey: String?, coreKitEd25519PrivKey: String?, factorKey: String?, signatures: [String]?, tssShareIndex: Int?, tssPubKey: String?, tssShare: String?, tssNonce: Int?, nodeIndexes: [Int]?, keyMode: String?, idtoken: String?) {
         self.privKey = privKey
         self.ed25519PrivKey = ed25519PrivKey
         self.sessionId = sessionId
@@ -37,6 +38,7 @@ public struct Web3AuthState: Codable {
         self.tssNonce = tssNonce
         self.nodeIndexes = nodeIndexes
         self.keyMode = keyMode
+        self.idToken = idtoken
     }
 
     public init(from decoder: Decoder) throws {
@@ -56,6 +58,7 @@ public struct Web3AuthState: Codable {
         tssNonce = try container.decodeIfPresent(Int.self, forKey: .tssNonce)
         nodeIndexes = try container.decodeIfPresent([Int].self, forKey: .nodeIndexes)
         keyMode = try container.decodeIfPresent(String.self, forKey: .keyMode)
+        idToken = try container.decodeIfPresent(String.self, forKey: .idToken)
     }
 }
 
@@ -82,5 +85,6 @@ extension Web3AuthState {
         self.tssNonce = dict["tssShare"] as? Int
         self.nodeIndexes = dict["nodeIndexes"] as? [Int]
         self.keyMode = dict["keyMode"] as? String
+        self.idToken = dict["idToken"] as? String
     }
 }
