@@ -9,7 +9,16 @@ import Foundation
  Authentication using Web3Auth.
  */
 
-public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
+public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding, ASWebAuthenticationPresentationContextProviding {
+    public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        <#code#>
+    }
+    
+    
+    public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        <#code#>
+    }
+    
     
     private var initParams: W3AInitParams
     private var authSession: ASWebAuthenticationSession?
@@ -571,18 +580,18 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
         }
     }
 
-    public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+    public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) async throws {
         if #available(iOS 15.0, *) {
             if let credential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialRegistration {
-                  //showAlert(with: "Authorized with Passkeys", message: "Create account with credential ID = \(credential.credentialID)")
-                
+                print("Authorized with Passkey: \(credential.rawClientDataJSON)")
+                print("Authorized with Passkeys: Create account with credential ID = \(credential.credentialID)")
                 // Take steps to handle the registration.
-                //let passkeyVerifierId = getPasskeyVerifierId(credential.rawClientDataJSON)
+                /*let passkeyVerifierId = try await getPasskeyVerifierId(verificationResponse: credential.rawClientDataJSON)
 
-                //let passkeyPublicKey = getPasskeyPublicKey(verifier: state?.userInfo?.verifier ?? "", verifierId: passkeyVerifierId)
-                //let encryptedMetadata = getEncryptedMetadata(passkeyPubKey: passkeyPublicKey)
+                let passkeyPublicKey = getPasskeyPublicKey(verifier: state?.userInfo?.verifier ?? "", verifierId: passkeyVerifierId)
+                let encryptedMetadata = getEncryptedMetadata(passkeyPubKey: passkeyPublicKey)
                 
-                //let verificationResult = verifyRegistration(registrationResponse: credential.rawClientDataJSON, signatures: (state?.signatures)!,
+                let verificationResult = verifyRegistration(registrationResponse: credential.rawClientDataJSON, signatures: (state?.signatures)!,
                                                             //passkeyToken: (state?.idToken)!, data: encryptedMetadata)
                 
                 } else if let credential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialAssertion {
@@ -594,7 +603,7 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
                 } else {
                   //showAlert(with: "Authorized", message: "e.g. with \"Sign in with Apple\"")
                   // Handle other authentication cases, such as Sign in with Apple.
-                }
+                }*/
         } else {
             print("No support for iOS version less than 16")
         }
@@ -602,10 +611,6 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
     
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         print("Authorization failed: \(error.localizedDescription)")
-    }
-    
-    public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        return ASPresentationAnchor()
     }
     
     func getPasskeyPublicKey(verifier: String, verifierId: String) async throws -> TorusPublicKey {
@@ -733,6 +738,95 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
         }
     }
     
+    func getPasskeyVerifierId(verificationResponse: Data) async throws -> AuthParamsData {
+        return try parseAuthData(verificationResponse)
+    }
+                                                            
+    func b64url(_ data: Data) -> String {
+        return data.base64EncodedString()
+           .replacingOccurrences(of: "+", with: "-")
+           .replacingOccurrences(of: "/", with: "_")
+           .replacingOccurrences(of: "=", with: "")
+    }
+                                                        
+    func base64URLStringToData(_ base64UrlString: String) -> Data? {
+        var base64 = base64UrlString
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        while base64.count % 4 != 0 {
+            base64 += "="
+        }
+        return Data(base64Encoded: base64)
+    }
+    
+    /*func getPasskeyVerifierId(verificationResponse: [String: Any]) throws -> String? {
+        guard
+            let response = verificationResponse["response"] as? [String: Any],
+            let attestationObjectBase64 = response["attestationObject"] as? String,
+            let attestationData = base64URLStringToData(attestationObjectBase64),
+            let attestationStruct = try? JSONDecoder().decode(AttestationStruct.self, from: attestationData) // Assuming `AttestationStruct` corresponds to your structure
+                    else {
+                        return nil
+                    }
+                    
+            let authDataStruct = try parseAuthData(attestationStruct.authData)
+            let base64UrlString = b64url(authDataStruct.COSEPublicKey)
+                    
+                    
+            let hashedData = SHA256.hash(data: Data(base64UrlString.utf8)).withUnsafeBytes { Data($0) }
+                    
+            return b64url(hashedData)
+    }*/
+
+    
+    private func parseAuthData(_ paramData: Data) throws -> AuthParamsData {
+        var buffer = paramData
+        let rpIdHash = buffer.prefix(32)
+        buffer = buffer.dropFirst(32)
+        
+        let flagsBuf = buffer.prefix(1)
+        buffer = buffer.dropFirst(1)
+        let flagsInt = flagsBuf[flagsBuf.startIndex]
+        let flags = AuthParamsData.Flags(
+            up: (flagsInt & 0x01) != 0,
+            uv: (flagsInt & 0x04) != 0,
+            at: (flagsInt & 0x40) != 0,
+            ed: (flagsInt & 0x80) != 0,
+            flagsInt: flagsInt
+        )
+        
+        let counterBuf = buffer.prefix(4)
+        buffer = buffer.dropFirst(4)
+        let counter = counterBuf.withUnsafeBytes { $0.load(as: UInt32.self) }.bigEndian
+        
+        guard flags.at else {
+            throw NSError(domain: "AuthError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to parse auth data"])
+        }
+        
+        let aaguid = buffer.prefix(16)
+        buffer = buffer.dropFirst(16)
+        
+        let credIDLenBuf = buffer.prefix(2)
+        buffer = buffer.dropFirst(2)
+        let credIDLen = credIDLenBuf.withUnsafeBytes { $0.load(as: UInt16.self) }.bigEndian
+        
+        let credID = buffer.prefix(Int(credIDLen))
+        buffer = buffer.dropFirst(Int(credIDLen))
+        
+        let COSEPublicKey = buffer
+        
+        return AuthParamsData(
+            rpIdHash: rpIdHash,
+            flagsBuf: flagsBuf,
+            flags: flags,
+            counter: counter,
+            counterBuf: counterBuf,
+            aaguid: aaguid,
+            credID: credID,
+            COSEPublicKey: COSEPublicKey
+        )
+    }
+
     private func getPasskeyPostboxKey(passKeyLoginParams: PassKeyLoginParams) async throws-> String {
         do {
             let nodeDetailManager = NodeDetailManager(network: WEB3AUTH_NETWORK_MAP[Network(rawValue: initParams.network.rawValue) ?? Network.sapphire_mainnet]!)

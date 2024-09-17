@@ -222,7 +222,7 @@ public struct Extensions: Decodable{
     
 }
 
-public struct AuthParamsData {
+/*public struct AuthParamsData {
     public let rpIdHash: [UInt8]
     public let flagsBuf: [UInt8]
     public let flags: Flags
@@ -244,6 +244,25 @@ public struct Flags {
 public struct MetadataInfo: Encodable {
     public let privKey: String
     public let userInfo: Web3AuthUserInfo
+}*/
+
+public struct AuthParamsData {
+    let rpIdHash: Data
+    let flagsBuf: Data
+    let flags: Flags
+    let counter: UInt32
+    let counterBuf: Data
+    let aaguid: Data
+    let credID: Data
+    let COSEPublicKey: Data
+    
+    public struct Flags {
+        let up: Bool
+        let uv: Bool
+        let at: Bool
+        let ed: Bool
+        let flagsInt: UInt8
+    }
 }
 
 public struct VerifyRequest: Encodable {

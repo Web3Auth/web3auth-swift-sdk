@@ -5,7 +5,7 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>webcredentials:web3auth.io</string>
-		<string>applinks: web3auth.io</string>
+		<string>applinks:web3auth.io</string>
 	</array>
 </dict>
 </plist>
