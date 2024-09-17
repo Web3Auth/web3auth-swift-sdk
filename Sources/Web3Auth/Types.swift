@@ -261,7 +261,7 @@ public struct W3AInitParams: Codable {
 }
 
 public func getSdkUrl(buildEnv: BuildEnv?) -> String {
-    let openLoginVersion = "v8"
+    let openLoginVersion = "v9"
 
     switch buildEnv {
     case .staging:
@@ -274,7 +274,7 @@ public func getSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
-    let walletServicesVersion = "v2"
+    let walletServicesVersion = "v3"
     guard let buildEnv = buildEnv else {
         return "https://wallet.web3auth.io"
     }
