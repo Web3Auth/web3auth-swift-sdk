@@ -40,13 +40,13 @@ public class Web3Auth: NSObject {
     public init(_ params: W3AInitParams) async throws {
         initParams = params
         Router.baseURL = SIGNER_MAP[params.network] ?? ""
-        sessionManager = .init()
+        sessionManager = SessionManager(sessionTime: params.sessionTime, allowedOrigin: params.redirectUrl)
         super.init()
         do {
             let fetchConfigResult = try await fetchProjectConfig()
             if(fetchConfigResult) {
                 do {
-                    let loginDetailsDict = try await sessionManager.authorizeSession()
+                    let loginDetailsDict = try await sessionManager.authorizeSession(origin: params.redirectUrl)
                     guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",
                     network: initParams.network) else { throw Web3AuthError.decodingError }
                     state = loginDetails
@@ -74,7 +74,7 @@ public class Web3Auth: NSObject {
     }
     
     private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthState {
-        let loginDetailsDict = try await sessionManager.authorizeSession()
+        let loginDetailsDict = try await sessionManager.authorizeSession(origin: initParams.redirectUrl)
         guard
             let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",network: initParams.network)
         else {
