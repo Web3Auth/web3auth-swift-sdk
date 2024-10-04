@@ -11,12 +11,14 @@ import Foundation
 
 public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding, ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        <#code#>
+        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
+        return window ?? ASPresentationAnchor()
     }
     
     
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        <#code#>
+        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
+        return window ?? ASPresentationAnchor()
     }
     
     
@@ -587,25 +589,26 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
                 print("Authorized with Passkeys: Create account with credential ID = \(credential.credentialID)")
                 // Take steps to handle the registration.
                 /*let passkeyVerifierId = try await getPasskeyVerifierId(verificationResponse: credential.rawClientDataJSON)
-
-                let passkeyPublicKey = getPasskeyPublicKey(verifier: state?.userInfo?.verifier ?? "", verifierId: passkeyVerifierId)
-                let encryptedMetadata = getEncryptedMetadata(passkeyPubKey: passkeyPublicKey)
-                
-                let verificationResult = verifyRegistration(registrationResponse: credential.rawClientDataJSON, signatures: (state?.signatures)!,
-                                                            //passkeyToken: (state?.idToken)!, data: encryptedMetadata)
-                
-                } else if let credential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialAssertion {
-                  //showAlert(with: "Authorized with Passkeys", message: "Sign in with credential ID = \(credential.credentialID)")
-                  let signature = credential.signature
-                  let clientDataJSON = credential.rawClientDataJSON
-                  
-                  // Take steps to verify the challenge by sending it to your server tio verify
-                } else {
-                  //showAlert(with: "Authorized", message: "e.g. with \"Sign in with Apple\"")
-                  // Handle other authentication cases, such as Sign in with Apple.
-                }*/
-        } else {
-            print("No support for iOS version less than 16")
+                 
+                 let passkeyPublicKey = getPasskeyPublicKey(verifier: state?.userInfo?.verifier ?? "", verifierId: passkeyVerifierId)
+                 let encryptedMetadata = getEncryptedMetadata(passkeyPubKey: passkeyPublicKey)
+                 
+                 let verificationResult = verifyRegistration(registrationResponse: credential.rawClientDataJSON, signatures: (state?.signatures)!,
+                 //passkeyToken: (state?.idToken)!, data: encryptedMetadata)
+                 
+                 } else if let credential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialAssertion {
+                 //showAlert(with: "Authorized with Passkeys", message: "Sign in with credential ID = \(credential.credentialID)")
+                 let signature = credential.signature
+                 let clientDataJSON = credential.rawClientDataJSON
+                 
+                 // Take steps to verify the challenge by sending it to your server tio verify
+                 } else {
+                 //showAlert(with: "Authorized", message: "e.g. with \"Sign in with Apple\"")
+                 // Handle other authentication cases, such as Sign in with Apple.
+                 }*/
+            } else {
+                print("No support for iOS version less than 16")
+            }
         }
     }
     
@@ -842,11 +845,4 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
         }
     }
     
-}
-
-extension Web3Auth: ASWebAuthenticationPresentationContextProviding {
-    public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        let window = UIApplication.shared.windows.first { $0.isKeyWindow }
-        return window ?? ASPresentationAnchor()
-    }
 }
