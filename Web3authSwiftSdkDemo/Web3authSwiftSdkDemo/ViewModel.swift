@@ -23,7 +23,7 @@ class ViewModel: ObservableObject {
     private var clientID: String = "BFuUqebV5I8Pz5F7a5A2ihW7YVmbv_OHXnHYDv6OltAD5NGr6e-ViNvde3U4BHdn6HvwfkgobhVu4VwC-OSJkik"
     private var redirectUrl: String = "com.web3auth.swiftapp://auth"
     private var network: Network = .sapphire_devnet
-    private var buildEnv: BuildEnv = .testing
+    private var buildEnv: BuildEnv = .production
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
     //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false

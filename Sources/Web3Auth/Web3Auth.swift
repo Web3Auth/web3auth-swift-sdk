@@ -4,6 +4,7 @@ import SessionManager
 import FetchNodeDetails
 import TorusUtils
 import Foundation
+import SwiftCbor
 
 /**
  Authentication using Web3Auth.
@@ -587,11 +588,11 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
             if let credential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialRegistration {
                 print("Authorized with Passkey: \(credential.rawClientDataJSON)")
                 print("Authorized with Passkeys: Create account with credential ID = \(credential.credentialID)")
-                // Take steps to handle the registration.
-                /*let passkeyVerifierId = try await getPasskeyVerifierId(verificationResponse: credential.rawClientDataJSON)
+                 // Take steps to handle the registration.
+                 let passkeyVerifierId = try await getPasskeyVerifierId(verificationResponse: credential.rawClientDataJSON)
                  
-                 let passkeyPublicKey = getPasskeyPublicKey(verifier: state?.userInfo?.verifier ?? "", verifierId: passkeyVerifierId)
-                 let encryptedMetadata = getEncryptedMetadata(passkeyPubKey: passkeyPublicKey)
+                 let passkeyPublicKey = try await getPasskeyPublicKey(verifier: state?.userInfo?.verifier ?? "", verifierId: passkeyVerifierId)
+                 /*let encryptedMetadata = getEncryptedMetadata(passkeyPubKey: passkeyPublicKey)
                  
                  let verificationResult = verifyRegistration(registrationResponse: credential.rawClientDataJSON, signatures: (state?.signatures)!,
                  //passkeyToken: (state?.idToken)!, data: encryptedMetadata)
@@ -740,10 +741,38 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
             throw error
         }
     }
-    
-    func getPasskeyVerifierId(verificationResponse: Data) async throws -> AuthParamsData {
-        return try parseAuthData(verificationResponse)
-    }
+                                                             
+     func getPasskeyVerifierId(verificationResponse: Data) throws -> String {
+         
+         // Convert Data to a Dictionary
+         guard let verificationResponseDict = try? JSONSerialization.jsonObject(with: verificationResponse, options: []) as? [String: Any] else {
+             throw Web3AuthError.runtimeError("Invalid verificationResponse")
+         }
+         
+         // Extract the response
+         guard let response = verificationResponseDict["response"] as? [String: Any],
+               let attestationObjectBase64 = response["attestationObject"] as? String,
+               let attestationObjectData = Data(base64Encoded: attestationObjectBase64) else {
+             throw Web3AuthError.runtimeError("Invalid Input")
+         }
+         
+         // Decode CBOR data
+         let attestationStruct = try decodeCBORData(attestationObjectData)
+         
+         // Parse auth data
+         guard let authData = attestationStruct["authData"] as? Data else {
+             throw Web3AuthError.runtimeError("Invalid AuthData")
+         }
+         let authDataStruct = try parseAuthData(authData)
+         
+         // Get COSEPublicKey and encode it as base64url
+         let base64UrlString = b64url(authDataStruct.COSEPublicKey)
+         
+         // Compute verifierId using keccak256
+         let verifierId = try computeVerifierId(base64UrlString)
+         
+         return verifierId
+     }
                                                             
     func b64url(_ data: Data) -> String {
         return data.base64EncodedString()
@@ -761,25 +790,45 @@ public class Web3Auth: NSObject, ASAuthorizationControllerDelegate, ASAuthorizat
         }
         return Data(base64Encoded: base64)
     }
+
+    func decodeCBORData(_ data: Data) throws -> [String: Any] {
+        // Decode the data as a generic Decodable type
+        let decodedData = try CborDecoder().decode(AnyDecodable.self, from: data)
+
+        // Convert the decoded data to a dictionary of [String: Any] if possible
+        guard let decodedDict = decodedData.value as? [String: Any] else {
+            throw Web3AuthError.runtimeError("Invalid Data")
+        }
+
+        return decodedDict
+    }
     
-    /*func getPasskeyVerifierId(verificationResponse: [String: Any]) throws -> String? {
-        guard
-            let response = verificationResponse["response"] as? [String: Any],
-            let attestationObjectBase64 = response["attestationObject"] as? String,
-            let attestationData = base64URLStringToData(attestationObjectBase64),
-            let attestationStruct = try? JSONDecoder().decode(AttestationStruct.self, from: attestationData) // Assuming `AttestationStruct` corresponds to your structure
-                    else {
-                        return nil
-                    }
-                    
-            let authDataStruct = try parseAuthData(attestationStruct.authData)
-            let base64UrlString = b64url(authDataStruct.COSEPublicKey)
-                    
-                    
-            let hashedData = SHA256.hash(data: Data(base64UrlString.utf8)).withUnsafeBytes { Data($0) }
-                    
-            return b64url(hashedData)
-    }*/
+    struct AnyDecodable: Decodable {
+        let value: Any
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if let string = try? container.decode(String.self) {
+                value = string
+            } else if let int = try? container.decode(Int.self) {
+                value = int
+            } else if let double = try? container.decode(Double.self) {
+                value = double
+            } else if let bool = try? container.decode(Bool.self) {
+                value = bool
+            } else {
+                throw DecodingError.typeMismatch(Any.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Cannot decode AnyDecodable"))
+            }
+        }
+    }
+    
+    func computeVerifierId(_ base64UrlString: String) throws -> String {
+        guard let data = Data(base64Encoded: base64UrlString) else {
+            throw Web3AuthError.runtimeError("Invalid base64String")
+        }
+        let hash = try data.sha3(varient: .KECCAK256)
+        return b64url(hash)
+    }
 
     
     private func parseAuthData(_ paramData: Data) throws -> AuthParamsData {

@@ -19,11 +19,14 @@ let package = Package(
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
         .package(name:"TorusUtils", url: "https://github.com/torusresearch/torus-utils-swift", from: "9.0.0"),
         .package(name: "FetchNodeDetails", url: "https://github.com/torusresearch/fetch-node-details-swift.git", from: "6.0.0"),
+        .package(url: "https://github.com/nnabeyang/swift-cbor", from: "0.0.4"),
     ],
     targets: [
         .target(
             name: "Web3Auth",
-            dependencies: ["KeychainSwift", .product(name: "curveSecp256k1", package: "curvelib.swift"), "SessionManager", "BigInt", "TorusUtils", "FetchNodeDetails"]),
+            dependencies: ["KeychainSwift", .product(name: "curveSecp256k1", package: "curvelib.swift"), "SessionManager", "BigInt", "TorusUtils", "FetchNodeDetails",
+                           .product(name: "SwiftCbor", package: "swift-cbor")
+            ]),
         .testTarget(
             name: "Web3AuthTests",
             dependencies: ["Web3Auth"])

@@ -74,6 +74,15 @@
         }
       },
       {
+        "package": "swift-cbor",
+        "repositoryURL": "https://github.com/nnabeyang/swift-cbor",
+        "state": {
+          "branch": null,
+          "revision": "49838182e0189dc7eb27018d3d707a939b9c20d6",
+          "version": "0.0.4"
+        }
+      },
+      {
         "package": "swift-collections",
         "repositoryURL": "https://github.com/apple/swift-collections.git",
         "state": {
