@@ -310,7 +310,7 @@ public class Web3Auth: NSObject {
             else { throw Web3AuthError.noBundleIdentifierFound }
             
             initParams.chainConfig = chainConfig
-            let walletServicesParams = WalletServicesParams(options: initParams)
+            let walletServicesParams = WalletServicesParams(options: initParams, appState: nil)
             
             let _sessionId = sessionManager.getSessionID() ?? ""
             let loginId = try await getLoginId(data: walletServicesParams)
@@ -332,7 +332,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request") async throws {
+    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
@@ -341,7 +341,7 @@ public class Web3Auth: NSObject {
             else { throw Web3AuthError.noBundleIdentifierFound }
             initParams.chainConfig = chainConfig
             
-            let walletServicesParams = WalletServicesParams(options: initParams)
+            let walletServicesParams = WalletServicesParams(options: initParams, appState: appState)
             
             let _sessionId = sessionManager.getSessionID() ?? ""
             let loginId = try await getLoginId(data: walletServicesParams)

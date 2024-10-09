@@ -504,9 +504,11 @@ struct SdkUrlParams: Codable {
 
 struct WalletServicesParams: Codable {
     let options: W3AInitParams
+    let appState: String?
 
     enum CodingKeys: String, CodingKey {
         case options = "options"
+        case appState = "appState"
     }
 }
 
