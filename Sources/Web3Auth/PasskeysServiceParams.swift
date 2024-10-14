@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AuthenticationServices
 
 public struct PasskeysServiceParams: Codable {
     public let web3AuthClientId: String
@@ -498,20 +499,22 @@ public struct VerifyAuthenticationResponse: Codable {
 }
 
 public struct AuthData: Codable {
-    let challenge: String
+    let challenge_timestamp: String
     let transports: [String]
-    let publicKey: String
-    let idToken: String
+    let credential_public_key: String
+    let rpID: String
+    let id_token: String
     let metadata: String
-    let verifierId: String
+    let verifier_id: String
     
     enum CodingKeys: String, CodingKey {
-        case challenge
+        case challenge_timestamp
         case transports
-        case publicKey
-        case idToken
+        case credential_public_key
+        case rpID
+        case id_token
         case metadata
-        case verifierId
+        case verifier_id
     }
 }
 
@@ -549,5 +552,36 @@ public struct PassKeyLoginParams: Codable {
         case idToken
         case extraVerifierParams = "extraVerifierParams"
     }
+}
+
+@available(iOS 15.0, *)
+struct LoginData {
+    let authenticationResponse: ASAuthorizationPlatformPublicKeyCredentialAssertion
+    let data: AuthenticationData
+}
+
+struct AuthenticationData {
+    let challenge_timestamp: String
+    let transports: [String]
+    let credential_public_key: String
+    let rpId: String
+    let id_token: String
+    let metadata: String
+    let verifier_id: String
+}
+
+let passkeysVerifierMap: [Network: String] = [
+    .mainnet: "passkey-legacy-mainnet",
+    .testnet: "passkey-legacy-testnet",
+    .aqua: "passkey-legacy-aqua",
+    .cyan: "passkey-legacy-cyan",
+    .sapphire_devnet: "passkey-sapphire-devnet",
+    .sapphire_mainnet: "passkey-sapphire-mainnet",
+    .celeste: ""
+]
+
+struct MetadataInfo {
+    let privKey: String
+    let userInfo: Web3AuthUserInfo
 }
 
