@@ -20,12 +20,13 @@ Checkout the official [Web3Auth Documentation](https://web3auth.io/docs) and [SD
 
 ## ⏪ Requirements
 
-- iOS 13+
-- Xcode 11.4+ / 12.x
-- Swift 4.x / 5.x
+- iOS 14
+- Xcode 12.x+
+- Swift 5.x
+
 
 ## ⚡ Installation
-
+### SPM
 If you are using the Swift Package Manager, open the following menu item in Xcode:
 
 **File > Swift Packages > Add Package Dependency...**
@@ -36,77 +37,44 @@ In the Choose Package Repository prompt add this url:
 https://github.com/web3auth/web3auth-swift-sdk
 ```
 
+### Cocoapods
 If you are using cocoapods , open the pod file and add 
 
 ```
-pod 'Web3Auth', '5.0.0'
-```
-
-## Getting Started
-
-Authentication with In-App Web-based Flow (iOS 13+):
-
-1. Import **Web3Auth** into your project.
-
-```swift
-import Web3Auth
-```
-
-2. Present the In-App Web-based Login modal. The user should see a permission dialog.
-
-```
- Task{
-       await Web3Auth()
-    .login(OLInitParams(loginProvider: .GOOGLE)) {
-        switch $0 {
-        case .success(let result):
-            print("""
-                Signed in successfully!
-                    Private key: \(result.privKey)
-                    User info:
-                        Name: \(result.userInfo.name)
-                        Profile image: \(result.userInfo.profileImage ?? "N/A")
-                        Type of login: \(result.userInfo.typeOfLogin)
-                """)
-        case .failure(let error):
-            print("Error: \(error)")
-        }
-    }
-    }
-```
-
-3. You can check the state variable before logging the user in, if the user has an active session the state variable will already have all the values you get from login so the user does not have to re-login
-```
-Task{
-let web3auth = await Web3Auth()
-let state = web3auth.state
-}
-
+pod 'Web3Auth', '9.0.0'
 ```
 
 ## 🌟 Configuration
 
-In order to use Web3Auth you need to provide your Web3Auth **ClientId** and which **Network** to run it.
+Checkout [SDK Reference](https://web3auth.io/docs/sdk/pnp/ios/install#configure-redirection) to configure the iOS App.
 
-- Go to [Web3Auth Developer Dashboard](https://dashboard.web3auth.io), create or open an existing Web3Auth project and copy your Client ID, which is the **ClientId**.
+## Getting State
+```swift
+import Web3Auth
 
-- Set the clientID and network in the Web3Auth initializer
+let web3auth = try Web3Auth(W3AInitParams(
+  // Get your Web3Auth Client Id from dashboard.web3auth.io
+  clientId: "YOUR_WEB3AUTH_CLIENT_ID",
+  network: .sapphire_mainnet,
+  redirectUrl: "bundleId://auth"
+))
 
+// Login
+let result = try await web3Auth.login(W3ALoginParams(loginProvider: .GOOGLE))
+
+// Logout
+try await web3auth.logout()
 ```
-Task {
- await Web3Auth(W3AInitParams(clientId: "BJYIrHuzluClBK0vvTBUJ7kQylV_Dj3NA-X1q4Qvxs2Ay3DySkacOpoOb83lDTHJRVY83bFlYtt4p8pQR-oCYtw", network: .testnet)
-}
-```
-
-Please also whitelist `\(bundleId)://auth` in the developer dashboard. This step is mandatory for the redirect to work.
 
 ## 🩹 Examples
 
-Checkout the examples for your preferred blockchain and platform in our [examples](https://web3auth.io/docs/examples)
+Checkout the examples for your preferred blockchain and platform in our [examples](https://github.com/Web3Auth/web3auth-pnp-examples/tree/main/ios)
 
 ## 🌐 Demo
 
 Checkout the [Web3Auth Demo](https://demo-app.web3auth.io/) to see how Web3Auth can be used in an application.
+
+Have a look at our [Web3Auth PnP iOS Quick Start](https://github.com/Web3Auth/web3auth-pnp-examples/tree/main/ios/ios-quick-start) to help you quickly integrate a basic instance of Web3Auth Plug and Play in your iOS app.
 
 Further checkout the [demo folder](https://github.com/Web3Auth/web3auth-swift-sdk/tree/master/Web3authSwiftSdkDemo) within this repository, which contains a sample app.
 
