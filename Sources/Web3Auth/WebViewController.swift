@@ -15,13 +15,16 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
     var popupWebView: WKWebView?
     let activityIndicator = UIActivityIndicatorView(style: .large)
     var redirectUrl: String?
+    var onSignResponse: (SignResponse) -> Void
     
-    init(redirectUrl: String? = nil) {
+    init(redirectUrl: String? = nil, onSignResponse: @escaping (SignResponse) -> Void) {
         self.redirectUrl = redirectUrl
+        self.onSignResponse = onSignResponse
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
+        self.onSignResponse = { _ in }
         super.init(coder: aDecoder)
     }
     
@@ -61,7 +64,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
                     let callbackFragment = (b64ParamsItem?.value)!
                     let b64ParamString = Data.fromBase64URL(callbackFragment)
                     let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString!)
-                    Web3Auth.setSignResponse(signResponse)
+                    onSignResponse(signResponse!)
                     dismiss(animated: true, completion: nil)
                 }
             }

@@ -14,7 +14,7 @@ public class Web3Auth: NSObject {
     // get from login so the user does not have to re-login
     public var state: Web3AuthState?
     var sessionManager: SessionManager
-    var webViewController: WebViewController = DispatchQueue.main.sync{ WebViewController() }
+    var webViewController: WebViewController = DispatchQueue.main.sync{ WebViewController(onSignResponse: {_ in })}
     private var w3ALoginParams: W3ALoginParams?
     private static var signResponse: SignResponse?
     
@@ -332,7 +332,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws {
+    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
@@ -363,10 +363,25 @@ public class Web3Auth: NSObject {
             }
 
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: signMessageMap, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: path)
+            
             //open url in webview
-            await webViewController = WebViewController(redirectUrl: initParams.redirectUrl)
-            await UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true, completion: nil)
-            await webViewController.webView.load(URLRequest(url: url))
+            return await withCheckedContinuation { continuation in
+                Task {
+                    let webViewController = await MainActor.run {
+                        return WebViewController(redirectUrl: initParams.redirectUrl, onSignResponse: {_ in })
+                    }
+                    
+                    webViewController.onSignResponse = { signResponse in
+                        continuation.resume(returning: signResponse)
+                    }
+
+                    DispatchQueue.main.async {
+                        UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true) {
+                            webViewController.webView.load(URLRequest(url: url))
+                        }
+                    }
+                }
+            }
         }
         else {
             throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
@@ -472,17 +487,6 @@ public class Web3Auth: NSObject {
                 throw Web3AuthError.noUserFound
             }
         return state
-    }
-    
-    static func setSignResponse(_ response: SignResponse?) {
-        signResponse = response
-    }
-
-    public static func getSignResponse() throws -> SignResponse? {
-        if signResponse == nil {
-            throw Web3AuthError.noUserFound
-        }
-        return signResponse
     }
 }
 
