@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import WebKit
+@preconcurrency import WebKit
   
   
 class WebViewController: UIViewController, WKScriptMessageHandler {
@@ -34,6 +34,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
     
     func setupWebView() {
         let preferences = WKPreferences()
+        // TODO: deprecated, use WKWebpagePreferences.allowsContentJavascript instead
         preferences.javaScriptEnabled = true
         preferences.javaScriptCanOpenWindowsAutomatically = true
 
