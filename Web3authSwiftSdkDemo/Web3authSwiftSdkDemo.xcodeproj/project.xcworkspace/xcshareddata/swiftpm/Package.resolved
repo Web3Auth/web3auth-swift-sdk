@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/tkey/curvelib.swift",
         "state": {
           "branch": null,
-          "revision": "9f88bd5e56d1df443a908f7a7e81ae4f4d9170ea",
-          "version": "1.0.1"
+          "revision": "432bf1abe7ff505fc2ac9fcf697341ff5b2dc6d0",
+          "version": "2.0.0"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/Web3Auth/session-manager-swift.git",
         "state": {
           "branch": null,
-          "revision": "67d5f7db655d02778861057fb280ecf47c923b09",
-          "version": "5.0.0"
+          "revision": "d86cd2a7f6d8095531ed609c728d851820fe85be",
+          "version": "6.0.1"
         }
       },
       {
