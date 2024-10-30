@@ -51,9 +51,9 @@ public class Web3Auth: NSObject {
                     sessionManager.setSessionId(sessionId: sessionId!)
                     let loginDetailsDict = try await sessionManager.authorizeSession(origin: params.redirectUrl)
                     guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(),
-                            network: initParams.network) else { throw Web3AuthError.decodingError }
+                                                           network: initParams.network) else { throw Web3AuthError.decodingError }
                     state = loginDetails
-                    }
+                }
             }
         } catch let error {
             os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
@@ -64,6 +64,7 @@ public class Web3Auth: NSObject {
     public func logout() async throws {
         guard let state = state else { throw Web3AuthError.noUserFound }
         try await sessionManager.invalidateSession()
+        SessionManager.deleteSessionIdFromStorage()
         if let verifer = state.userInfo?.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
@@ -190,12 +191,11 @@ public class Web3Auth: NSObject {
                         }
                         return
                     }
-                           
+
                     let sessionId = sessionResponse.sessionId
-                    print(sessionId)
                     self.sessionManager.setSessionId(sessionId: sessionId)
                     SessionManager.saveSessionIdToStorage(sessionId)
-                            
+
                     Task {
                         do {
                             let loginDetails = try await self.getLoginDetails(callbackURL)
@@ -211,9 +211,9 @@ public class Web3Auth: NSObject {
                     }
                 }
 
-            authSession?.presentationContextProvider = self
+            self.authSession?.presentationContextProvider = self
 
-            if !(authSession?.start() ?? false) {
+            if !(self.authSession?.start() ?? false) {
                 continuation.resume(throwing: Web3AuthError.unknownError)
             }
         })
@@ -275,11 +275,11 @@ public class Web3Auth: NSObject {
                             }
                             return
                         }
-                        
+
                         let sessionId = sessionResponse.sessionId
                         self.sessionManager.setSessionId(sessionId: sessionId)
                         SessionManager.saveSessionIdToStorage(sessionId)
-                        
+
                         Task {
                             do {
                                 let loginDetails = try await self.getLoginDetails(callbackURL)
@@ -293,7 +293,6 @@ public class Web3Auth: NSObject {
                             }
                         }
                     }
-
                 authSession?.presentationContextProvider = self
 
                 if !(authSession?.start() ?? false) {
@@ -326,7 +325,7 @@ public class Web3Auth: NSObject {
 
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: path)
             // open url in webview
-            await UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.rootViewController?.present(webViewController, animated: true, completion: nil)
+            await UIApplication.shared.windows.filter { $0.isKeyWindow }.first?.rootViewController?.present(webViewController, animated: true, completion: nil)
             await webViewController.webView.load(URLRequest(url: url))
         } else {
             throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
@@ -368,11 +367,12 @@ public class Web3Auth: NSObject {
                 Task {
                     let webViewController = await MainActor.run {
                         WebViewController(redirectUrl: initParams.redirectUrl, onSignResponse: { signResponse in
-                            continuation.resume(returning: signResponse) })
+                            continuation.resume(returning: signResponse)
+                        })
                     }
 
                     DispatchQueue.main.async {
-                        UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.rootViewController?.present(webViewController, animated: true) {
+                        UIApplication.shared.windows.filter { $0.isKeyWindow }.first?.rootViewController?.present(webViewController, animated: true) {
                             webViewController.webView.load(URLRequest(url: url))
                         }
                     }
@@ -437,7 +437,7 @@ public class Web3Auth: NSObject {
                 let decoder = JSONDecoder()
                 let result = try decoder.decode(ProjectConfigResponse.self, from: data)
                 // os_log("fetchProjectConfig API response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(String(describing: result))")
-                initParams.originData = result.whitelist.signedUrls.merging(initParams.originData ?? [:]) { (_, new) in new }
+                initParams.originData = result.whitelist.signedUrls.merging(initParams.originData ?? [:]) { _, new in new }
                 if let whiteLabelData = result.whiteLabelData {
                     if initParams.whiteLabel == nil {
                         initParams.whiteLabel = whiteLabelData
