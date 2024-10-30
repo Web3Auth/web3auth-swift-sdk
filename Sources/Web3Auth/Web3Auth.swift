@@ -46,17 +46,14 @@ public class Web3Auth: NSObject {
         do {
             let fetchConfigResult = try await fetchProjectConfig()
             if fetchConfigResult {
-                do {
-                    var sessionId = SessionManager.getSessionIdFromStorage()
-                    if sessionId == nil {
-                        sessionId = try SessionManager.generateRandomSessionID()
-                        sessionManager.setSessionId(sessionId: sessionId!)
-                    } else {
-                        sessionManager.setSessionId(sessionId: sessionId!)
+                let sessionId = SessionManager.getSessionIdFromStorage()
+                if sessionId != nil {
+                    sessionManager.setSessionId(sessionId: sessionId!)
+                    let loginDetailsDict = try await sessionManager.authorizeSession(origin: params.redirectUrl)
+                    guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(),
+                            network: initParams.network) else { throw Web3AuthError.decodingError }
+                    state = loginDetails
                     }
-                } catch let error {
-                    os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
-                }
             }
         } catch let error {
             os_log("%s", log: getTorusLogger(log: Web3AuthLogger.core, type: .error), type: .error, error.localizedDescription)
@@ -74,6 +71,8 @@ public class Web3Auth: NSObject {
     }
 
     public func getLoginId<T: Encodable>(data: T) async throws -> String? {
+        let sessionId = try SessionManager.generateRandomSessionID()!
+        sessionManager.setSessionId(sessionId: sessionId)
         return try await sessionManager.createSession(data: data)
     }
 
@@ -191,15 +190,18 @@ public class Web3Auth: NSObject {
                         }
                         return
                     }
-
-                    self.sessionManager.setSessionId(sessionId: sessionResponse.sessionId)
+                           
+                    let sessionId = sessionResponse.sessionId
+                    print(sessionId)
+                    self.sessionManager.setSessionId(sessionId: sessionId)
+                    SessionManager.saveSessionIdToStorage(sessionId)
+                            
                     Task {
                         do {
                             let loginDetails = try await self.getLoginDetails(callbackURL)
                             if let safeUserInfo = loginDetails.userInfo {
                                 KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                             }
-                            self.sessionManager.setSessionId(sessionId: loginDetails.sessionId ?? "")
 
                             self.state = loginDetails
                             return continuation.resume(returning: loginDetails)
@@ -247,10 +249,7 @@ public class Web3Auth: NSObject {
             ]
 
             let setUpMFAParams = SetUpMFAParams(options: initParams, params: params, actionType: "enable_mfa", sessionId: sessionId)
-
-            let _sessionId = sessionManager.getSessionId()
             let loginId = try await getLoginId(data: setUpMFAParams)
-            sessionManager.setSessionId(sessionId: _sessionId)
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
@@ -276,15 +275,17 @@ public class Web3Auth: NSObject {
                             }
                             return
                         }
-
-                        self.sessionManager.setSessionId(sessionId: sessionResponse.sessionId)
+                        
+                        let sessionId = sessionResponse.sessionId
+                        self.sessionManager.setSessionId(sessionId: sessionId)
+                        SessionManager.saveSessionIdToStorage(sessionId)
+                        
                         Task {
                             do {
                                 let loginDetails = try await self.getLoginDetails(callbackURL)
                                 if let safeUserInfo = loginDetails.userInfo {
                                     KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                                 }
-                                self.sessionManager.setSessionId(sessionId: loginDetails.sessionId ?? "")
                                 self.state = loginDetails
                                 return continuation.resume(returning: true)
                             } catch {
@@ -305,7 +306,7 @@ public class Web3Auth: NSObject {
     }
 
     public func launchWalletServices(chainConfig: ChainConfig, path: String? = "wallet") async throws {
-        let sessionId = sessionManager.getSessionId()
+        let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
@@ -315,9 +316,7 @@ public class Web3Auth: NSObject {
             initParams.chainConfig = chainConfig
             let walletServicesParams = WalletServicesParams(options: initParams, appState: nil)
 
-            let _sessionId = sessionManager.getSessionId()
             let loginId = try await getLoginId(data: walletServicesParams)
-            sessionManager.setSessionId(sessionId: _sessionId)
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
@@ -335,7 +334,7 @@ public class Web3Auth: NSObject {
     }
 
     public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse {
-        let sessionId = sessionManager.getSessionId()
+        let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
             guard
                 let bundleId = Bundle.main.bundleIdentifier,
@@ -345,9 +344,7 @@ public class Web3Auth: NSObject {
 
             let walletServicesParams = WalletServicesParams(options: initParams, appState: appState)
 
-            let _sessionId = sessionManager.getSessionId()
             let loginId = try await getLoginId(data: walletServicesParams)
-            sessionManager.setSessionId(sessionId: _sessionId)
 
             var signMessageMap: [String: String] = [:]
             signMessageMap["loginId"] = loginId
