@@ -1,10 +1,3 @@
-//
-//  LoggedInView.swift
-//  Web3AuthPodSample
-//
-//  Created by Dhruv Jaiswal on 10/10/22.
-//
-
 import SwiftUI
 
 struct UserDetailView: View {
@@ -25,7 +18,7 @@ struct UserDetailView: View {
                     Text("ED25519 Key")
                 }
                 Section {
-                    Text("Name \( vm.userInfo?.name ?? "")")
+                    Text("Name \(vm.userInfo?.name ?? "")")
                     Text("Email \(vm.userInfo?.email ?? "")")
                 }
                 header: {

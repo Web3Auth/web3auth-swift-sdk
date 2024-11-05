@@ -22,71 +22,17 @@ func plistValues(_ bundle: Bundle) -> (clientId: String, network: Network, redir
     return (clientId: clientId, network: network, redirectUrl)
 }
 
-func decodedBase64(_ base64URLSafe: String) -> Data? {
-    var base64 = base64URLSafe
-        .replacingOccurrences(of: "-", with: "+")
-        .replacingOccurrences(of: "_", with: "/")
-    if base64.count % 4 != 0 {
-        base64.append(String(repeating: "=", count: 4 - base64.count % 4))
-    }
-    return Data(base64Encoded: base64)
-}
-
-func tupleToArray(_ tuple: Any) -> [UInt8] {
-    // var result = [UInt8]()
-    let tupleMirror = Mirror(reflecting: tuple)
-    let tupleElements = tupleMirror.children.map({ $0.value as! UInt8 })
-    return tupleElements
-}
-
-func array32toTuple(_ arr: [UInt8]) -> (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8) {
-    return (arr[0] as UInt8, arr[1] as UInt8, arr[2] as UInt8, arr[3] as UInt8, arr[4] as UInt8, arr[5] as UInt8, arr[6] as UInt8, arr[7] as UInt8, arr[8] as UInt8, arr[9] as UInt8, arr[10] as UInt8, arr[11] as UInt8, arr[12] as UInt8, arr[13] as UInt8, arr[14] as UInt8, arr[15] as UInt8, arr[16] as UInt8, arr[17] as UInt8, arr[18] as UInt8, arr[19] as UInt8, arr[20] as UInt8, arr[21] as UInt8, arr[22] as UInt8, arr[23] as UInt8, arr[24] as UInt8, arr[25] as UInt8, arr[26] as UInt8, arr[27] as UInt8, arr[28] as UInt8, arr[29] as UInt8, arr[30] as UInt8, arr[31] as UInt8, arr[32] as UInt8, arr[33] as UInt8, arr[34] as UInt8, arr[35] as UInt8, arr[36] as UInt8, arr[37] as UInt8, arr[38] as UInt8, arr[39] as UInt8, arr[40] as UInt8, arr[41] as UInt8, arr[42] as UInt8, arr[43] as UInt8, arr[44] as UInt8, arr[45] as UInt8, arr[46] as UInt8, arr[47] as UInt8, arr[48] as UInt8, arr[49] as UInt8, arr[50] as UInt8, arr[51] as UInt8, arr[52] as UInt8, arr[53] as UInt8, arr[54] as UInt8, arr[55] as UInt8, arr[56] as UInt8, arr[57] as UInt8, arr[58] as UInt8, arr[59] as UInt8, arr[60] as UInt8, arr[61] as UInt8, arr[62] as UInt8, arr[63] as UInt8)
-}
-
-extension Array where Element == UInt8 {
-    func uint8Reverse() -> Array {
-        var revArr = [Element]()
-        for arrayIndex in stride(from: self.count - 1, through: 0, by: -1) {
-            revArr.append(self[arrayIndex])
-        }
-        return revArr
-    }
-}
-
 extension W3AWhiteLabelData {
     func merge(with other: W3AWhiteLabelData) -> W3AWhiteLabelData {
         return W3AWhiteLabelData(
-            appName: self.appName ?? other.appName,
-            logoLight: self.logoLight ?? other.logoLight,
-            logoDark: self.logoDark ?? other.logoDark,
-            defaultLanguage: self.defaultLanguage ?? other.defaultLanguage,
-            mode: self.mode ?? other.mode,
-            theme: self.theme ?? other.theme,
-            appUrl: self.appUrl ?? other.appUrl,
-            useLogoLoader: self.useLogoLoader ?? other.useLogoLoader
+            appName: appName ?? other.appName,
+            logoLight: logoLight ?? other.logoLight,
+            logoDark: logoDark ?? other.logoDark,
+            defaultLanguage: defaultLanguage ?? other.defaultLanguage,
+            mode: mode ?? other.mode,
+            theme: theme ?? other.theme,
+            appUrl: appUrl ?? other.appUrl,
+            useLogoLoader: useLogoLoader ?? other.useLogoLoader
         )
-    }
-}
-
-extension Dictionary where Key == String, Value == String {
-    func mergeMaps(other: [String: String]?) -> [String: String]? {
-        if self.isEmpty && other == nil {
-            return nil
-        } else if self.isEmpty {
-            return other
-        } else if other == nil {
-            return self
-        }
-
-        var mergedMap = [String: String]()
-        mergedMap.merge(self) { (_, new) in new }
-
-        other?.forEach { (key, value) in
-            if !mergedMap.keys.contains(key) {            
-                mergedMap[key] = value
-            }
-        }
-
-        return mergedMap
     }
 }
