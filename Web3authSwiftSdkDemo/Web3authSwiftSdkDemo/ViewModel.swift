@@ -190,7 +190,7 @@ class ViewModel: ObservableObject {
                 let pk = try KeyUtil.generatePublicKey(from: Data(hexString: key) ?? Data())
                 let pkAddress = KeyUtil.generateAddress(from: pk).asString()
                 let checksumAddress = EthereumAddress(pkAddress).toChecksumAddress()
-                var params = [Any]()
+                var params = [String]()
                 params.append("Hello, Web3Auth from Android!")
                 params.append(checksumAddress)
                 params.append("Web3Auth")

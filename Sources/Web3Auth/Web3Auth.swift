@@ -14,7 +14,8 @@ public class Web3Auth: NSObject {
     // get from login so the user does not have to re-login
     public var state: Web3AuthState?
     var sessionManager: SessionManager
-    var webViewController: WebViewController = DispatchQueue.main.sync{ WebViewController(onSignResponse: {_ in })}
+    var webViewController: WebViewController = DispatchQueue.main.sync{ WebViewController(onSignResponse: {_ in }, onSessionResponse: { _ in })}
+    var loginViewController: LoginWebViewController = DispatchQueue.main.sync {LoginWebViewController(redirectUrl: nil, onSessionResponse: { _ in })}
     private var w3ALoginParams: W3ALoginParams?
     private static var signResponse: SignResponse?
     
@@ -73,7 +74,7 @@ public class Web3Auth: NSObject {
         return try await sessionManager.createSession(data: data)
     }
     
-    private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthState {
+    private func getLoginDetails() async throws -> Web3AuthState {
         let loginDetailsDict = try await sessionManager.authorizeSession(origin: initParams.redirectUrl)
         guard
             let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionID() ?? "",network: initParams.network)
@@ -169,7 +170,7 @@ public class Web3Auth: NSObject {
 
         let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
         
-        return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
+        /*return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
 
             authSession = ASWebAuthenticationSession(
                 url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
@@ -191,7 +192,7 @@ public class Web3Auth: NSObject {
                     self.sessionManager.setSessionID(sessionResponse.sessionId)
                     Task {
                         do {
-                            let loginDetails = try await self.getLoginDetails(callbackURL)
+                            let loginDetails = try await self.getLoginDetails()
                             if let safeUserInfo = loginDetails.userInfo {
                                 KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                             }
@@ -210,7 +211,72 @@ public class Web3Auth: NSObject {
             if !(authSession?.start() ?? false) {
                 continuation.resume(throwing: Web3AuthError.unknownError)
             }
-        })
+        })*/
+        
+        return await withCheckedContinuation { continuation in
+            Task {
+                let webViewController = await MainActor.run {
+                    return WebViewController(redirectUrl: initParams.redirectUrl, methodType: 0, onSignResponse: {_ in }, onSessionResponse: {_ in })
+                }
+                
+                webViewController.onSessionResponse = { onSessionResponse in
+                    self.sessionManager.setSessionID(onSessionResponse.sessionId)
+                    Task {
+                        do {
+                            let loginDetails = try await self.getLoginDetails()
+                            if let safeUserInfo = loginDetails.userInfo {
+                                KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
+                            }
+                            self.sessionManager.setSessionID(loginDetails.sessionId ?? "")
+                            self.state = loginDetails
+                            continuation.resume(returning: loginDetails)
+                        } catch {
+                            //continuation.resume(throwing: Web3AuthError.unknownError)
+                        }
+                    }
+                }
+
+                DispatchQueue.main.async {
+                    UIApplication.shared.keyWindow?.rootViewController?.present(webViewController, animated: true) {
+                        webViewController.webView.load(URLRequest(url: url))
+                    }
+                }
+            }
+        }
+        /*return await withCheckedContinuation { continuation in
+            Task {
+                let redirectUrl = initParams.redirectUrl
+                print("Redirect URL: \(redirectUrl ?? "nil")")
+                let loginWebViewController = await MainActor.run {
+                    return LoginWebViewController(redirectUrl: initParams.redirectUrl, onSessionResponse: {_ in })
+                }
+                
+                loginWebViewController.setRedirectUrl(redirectUrl: redirectUrl)
+                
+                loginWebViewController.onSessionResponse = { onSessionResponse in
+                    self.sessionManager.setSessionID(onSessionResponse.sessionId)
+                    Task {
+                        do {
+                            let loginDetails = try await self.getLoginDetails()
+                            if let safeUserInfo = loginDetails.userInfo {
+                                KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
+                            }
+                            self.sessionManager.setSessionID(loginDetails.sessionId ?? "")
+                            self.state = loginDetails
+                            continuation.resume(returning: loginDetails)
+                        } catch {
+                            //continuation.resume(throwing: Web3AuthError.unknownError)
+                        }
+                    }
+                }
+
+                DispatchQueue.main.async {
+                    UIApplication.shared.keyWindow?.rootViewController?.present(self.loginViewController, animated: true) {
+                        self.loginViewController.webView.load(URLRequest(url: url))
+                    }
+                }
+            }
+        }*/
     }
     
     public func enableMFA(_ loginParams: W3ALoginParams? = nil) async throws -> Bool{
@@ -276,7 +342,7 @@ public class Web3Auth: NSObject {
                         self.sessionManager.setSessionID(sessionResponse.sessionId)
                         Task {
                             do {
-                                let loginDetails = try await self.getLoginDetails(callbackURL)
+                                let loginDetails = try await self.getLoginDetails()
                                 if let safeUserInfo = loginDetails.userInfo {
                                     KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                                 }
@@ -332,7 +398,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse {
+    public func request(chainConfig: ChainConfig, method: String, requestParams: [String], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse {
         let sessionId = self.sessionManager.getSessionID()
         if !(sessionId ?? "").isEmpty {
             guard
@@ -356,6 +422,7 @@ public class Web3Auth: NSObject {
             requestData["method"] = method
             requestData["params"] = try? JSONSerialization.jsonObject(with: JSONSerialization.data(withJSONObject: requestParams), options: []) as? [Any]
 
+
             if let requestDataJson = try? JSONSerialization.data(withJSONObject: requestData, options: []),
                let requestDataJsonString = String(data: requestDataJson, encoding: .utf8) {
                 // Add the requestData JSON string to signMessageMap as a property
@@ -368,7 +435,7 @@ public class Web3Auth: NSObject {
             return await withCheckedContinuation { continuation in
                 Task {
                     let webViewController = await MainActor.run {
-                        return WebViewController(redirectUrl: initParams.redirectUrl, onSignResponse: {_ in })
+                        return WebViewController(redirectUrl: initParams.redirectUrl, methodType: 1, onSignResponse: {_ in }, onSessionResponse: {_ in })
                     }
                     
                     webViewController.onSignResponse = { signResponse in

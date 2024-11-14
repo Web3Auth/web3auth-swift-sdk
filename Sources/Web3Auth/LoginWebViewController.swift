@@ -1,35 +1,22 @@
-//
-//  ViewController.swift
-//  
-//
-//  Created by Gaurav Goel on 12/01/24.
-//
-
 import UIKit
 import WebKit
   
   
-class WebViewController: UIViewController, WKScriptMessageHandler {
+class LoginWebViewController: UIViewController, WKScriptMessageHandler {
     
     var webView : WKWebView!
     var popupWebView: WKWebView?
     let activityIndicator = UIActivityIndicatorView(style: .large)
     var redirectUrl: String?
-    var onSignResponse: (SignResponse) -> Void
     var onSessionResponse: (SessionResponse) -> Void
-    var methodType: Int
     
-    init(redirectUrl: String? = nil, methodType: Int = 0,onSignResponse: @escaping (SignResponse) -> Void, onSessionResponse: @escaping (SessionResponse) -> Void) {
+    init(redirectUrl: String?, onSessionResponse: @escaping (SessionResponse) -> Void) {
         self.redirectUrl = redirectUrl
-        self.methodType = methodType
-        self.onSignResponse = onSignResponse
         self.onSessionResponse = onSessionResponse
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
-        self.methodType = 0
-        self.onSignResponse = { _ in }
         self.onSessionResponse = { _ in }
         super.init(coder: aDecoder)
     }
@@ -39,6 +26,10 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
         setupWebView()
         activityIndicator.startAnimating()
         activityIndicator.stopAnimating()
+    }
+    
+    func setRedirectUrl(redirectUrl: String?) {
+        self.redirectUrl = redirectUrl
     }
     
     func setupWebView() {
@@ -60,7 +51,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            if let redirectUrl = redirectUrl, !redirectUrl.isEmpty {
+            if let redirectUrl = redirectUrl, !"com.web3auth.sdkapp://auth".isEmpty {
                 if let url = navigationAction.request.url, url.absoluteString.contains(redirectUrl) {
                     let host = url.host ?? ""
                     let fragment = url.fragment ?? ""
@@ -69,13 +60,8 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
                     let b64ParamsItem = queryItems?.first(where: { $0.name == "b64Params" })
                     let callbackFragment = (b64ParamsItem?.value)!
                     let b64ParamString = Data.fromBase64URL(callbackFragment)
-                    if(methodType == 0) {
-                        let sessionResponse = try? JSONDecoder().decode(SessionResponse.self, from: b64ParamString!)
-                        onSessionResponse(sessionResponse!)
-                    } else {
-                        let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString!)
-                        onSignResponse(signResponse!)
-                    }
+                    let sessionResponse = try? JSONDecoder().decode(SessionResponse.self, from: b64ParamString!)
+                    onSessionResponse(sessionResponse!)
                     dismiss(animated: true, completion: nil)
                 }
             }
@@ -95,7 +81,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
 }
   
   
-extension WebViewController : WKNavigationDelegate {
+extension LoginWebViewController : WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         activityIndicator.startAnimating()
     }
@@ -105,7 +91,7 @@ extension WebViewController : WKNavigationDelegate {
     }
 }
 
-extension WebViewController: WKUIDelegate {
+extension LoginWebViewController: WKUIDelegate {
 func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
     popupWebView = WKWebView(frame: view.bounds, configuration: configuration)
     popupWebView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
