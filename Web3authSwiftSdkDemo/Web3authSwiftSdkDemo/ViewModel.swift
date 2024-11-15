@@ -38,7 +38,7 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = try await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
+        web3Auth = try await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, redirectUrl: redirectUrl,
                                         // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                         // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
                                         // loginConfig: ["loginConfig": loginConfig],
