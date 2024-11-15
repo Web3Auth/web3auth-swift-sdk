@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/tkey/curvelib.swift",
         "state": {
           "branch": null,
-          "revision": "9f88bd5e56d1df443a908f7a7e81ae4f4d9170ea",
-          "version": "1.0.1"
+          "revision": "432bf1abe7ff505fc2ac9fcf697341ff5b2dc6d0",
+          "version": "2.0.0"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/torusresearch/fetch-node-details-swift.git",
         "state": {
           "branch": null,
-          "revision": "4bd96c33ba8d02d9e27190c5c7cedf09cfdfd656",
-          "version": "6.0.3"
+          "revision": "52fb5efaa94e0fe3775913ab00964bcb51601c2a",
+          "version": "8.0.0"
         }
       },
       {
@@ -42,8 +42,17 @@
         "repositoryURL": "https://github.com/Web3Auth/session-manager-swift.git",
         "state": {
           "branch": null,
-          "revision": "20cc7bff065d7fe53164d17e7714a3f17d4cea2a",
-          "version": "4.0.2"
+          "revision": "d86cd2a7f6d8095531ed609c728d851820fe85be",
+          "version": "6.0.1"
+        }
+      },
+      {
+        "package": "swift-cbor",
+        "repositoryURL": "https://github.com/nnabeyang/swift-cbor",
+        "state": {
+          "branch": null,
+          "revision": "49838182e0189dc7eb27018d3d707a939b9c20d6",
+          "version": "0.0.4"
         }
       },
       {
@@ -51,8 +60,8 @@
         "repositoryURL": "https://github.com/torusresearch/torus-utils-swift",
         "state": {
           "branch": null,
-          "revision": "303dc2cf41db7c10f769855edad0e717ced2d554",
-          "version": "9.0.0"
+          "revision": "baa822fc67bdb208ed1a2dc5b3c10485cfca15df",
+          "version": "10.0.0"
         }
       }
     ]

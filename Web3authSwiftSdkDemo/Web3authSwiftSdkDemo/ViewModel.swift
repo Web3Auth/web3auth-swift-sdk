@@ -1,13 +1,6 @@
-//
-//  ViewModel.swift
-//  Web3authSwiftSdkDemo
-//
-//  Created by Dhruv Jaiswal on 18/10/22.
-//
-
 import Foundation
-import web3
 import Web3Auth
+import web3
 
 class ViewModel: ObservableObject {
     var web3Auth: Web3Auth?
@@ -70,10 +63,6 @@ class ViewModel: ObservableObject {
             errorMessage = error.localizedDescription
             showError = true
         }
-    }
-    
-    func getSignResponse() -> SignResponse? {
-        return try? Web3Auth.getSignResponse()
     }
     
     func login(provider: Web3AuthProvider) {
@@ -212,9 +201,14 @@ class ViewModel: ObservableObject {
                 params.append("Hello, Web3Auth from Android!")
                 params.append(checksumAddress)
                 params.append("Web3Auth")
-                try await self.web3Auth?.request(chainConfig: ChainConfig(
-                    chainNamespace: ChainNamespace.eip155, chainId: "0x89", rpcTarget: "https://polygon-rpc.com"
-                ), method: "personal_sign", requestParams: params)
+                let signResponse = try await self.web3Auth?.request(chainConfig: ChainConfig(
+                                    chainNamespace: ChainNamespace.eip155, chainId: "0x89", rpcTarget: "https://polygon-rpc.com"
+                                ), method: "personal_sign", requestParams: params)
+                                if let response = signResponse {
+                                    print("Sign response received: \(response)")
+                                } else {
+                                    print("No sign response received.")
+                                }
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
