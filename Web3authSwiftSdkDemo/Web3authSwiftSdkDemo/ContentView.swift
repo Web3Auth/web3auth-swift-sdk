@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  Web3AuthPodSample
-//
-//  Created by Dhruv Jaiswal on 03/10/22.
-//
-
 import SwiftUI
 import Web3Auth
 

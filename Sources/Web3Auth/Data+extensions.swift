@@ -1,14 +1,6 @@
-//
-//  File.swift
-//  
-//
-//  Created by Michael Lee on 8/3/2022.
-//
-
 import Foundation
 
-extension Data {
-
+internal extension Data {
     static func fromBase64URL(_ str: String) -> Data? {
         var base64 = str
         base64 = base64.replacingOccurrences(of: "-", with: "+")
@@ -23,7 +15,7 @@ extension Data {
     }
 
     func toBase64URL() -> String {
-        var result = self.base64EncodedString()
+        var result = base64EncodedString()
         result = result.replacingOccurrences(of: "+", with: "-")
         result = result.replacingOccurrences(of: "/", with: "_")
         result = result.replacingOccurrences(of: "=", with: "")
@@ -31,7 +23,7 @@ extension Data {
     }
 }
 
-extension Data {
+internal extension Data {
     init?(hexString: String) {
         let length = hexString.count / 2
         var data = Data(capacity: length)
@@ -46,9 +38,5 @@ extension Data {
             }
         }
         self = data
-    }
-
-    func addLeading0sForLength64() -> Data {
-        Data(hexString: hexString.padStart(toLength: 64, padString: "0")) ?? Data()
     }
 }

@@ -1,10 +1,3 @@
-//
-//  LoggedInView.swift
-//  Web3AuthPodSample
-//
-//  Created by Dhruv Jaiswal on 10/10/22.
-//
-
 import SwiftUI
 
 struct UserDetailView: View {
@@ -25,7 +18,7 @@ struct UserDetailView: View {
                     Text("ED25519 Key")
                 }
                 Section {
-                    Text("Name \( vm.userInfo?.name ?? "")")
+                    Text("Name \(vm.userInfo?.name ?? "")")
                     Text("Email \(vm.userInfo?.email ?? "")")
                 }
                 header: {
@@ -48,25 +41,6 @@ struct UserDetailView: View {
                         vm.request()
                     } label: {
                         Text("Sign Message")
-                            .foregroundColor(.green)
-                    }
-                    Button {
-                        let alertController = UIAlertController(title: "Sign Response", message: nil, preferredStyle: .alert)
-                        
-                        var message = ""
-                        if let error = vm.getSignResponse()?.error {
-                            message += "Error: \(error)\n"
-                        }
-                        if let result = vm.getSignResponse()?.result {
-                            message += "Result: \(result)\n"
-                        }
-                        alertController.message = message
-                        
-                        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-                        alertController.addAction(okAction)
-                        UIApplication.shared.windows.first?.rootViewController?.present(alertController, animated: true, completion: nil)
-                    } label: {
-                        Text("Get Sign Response")
                             .foregroundColor(.green)
                     }
                     Button {

@@ -1,9 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Dhruv Jaiswal on 12/10/22.
-//
 import OSLog
 
 public let subsystem = Bundle.main.bundleIdentifier ?? "com.torus.Web3Auth"

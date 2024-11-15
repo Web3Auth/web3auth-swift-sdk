@@ -1,12 +1,6 @@
-//
-//  File.swift
-//
-//
-//  Created by Dhruv Jaiswal on 25/08/22.
-//
 import BigInt
-import Foundation
 import curveSecp256k1
+import Foundation
 
 class SECP256K1 {
     static func sign(privkey: String, messageData: String) throws -> Signature {

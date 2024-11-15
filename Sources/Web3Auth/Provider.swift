@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Michael Lee on 15/12/2021.
-//
-
 import Foundation
 
 public enum Web3AuthProvider: String, Codable {

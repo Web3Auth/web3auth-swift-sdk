@@ -26,7 +26,7 @@ extension Web3AuthError: LocalizedError {
             return "App cancelled"
         case .unknownError:
             return "Unknown error"
-        case .runtimeError(let msg):
+        case let .runtimeError(msg):
             return "Runtime error \(msg)"
         case .decodingError:
             return "Decoding Error"

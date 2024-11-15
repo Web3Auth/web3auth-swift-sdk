@@ -1,3 +1,5 @@
+//TODO: Split up this file.
+
 import Foundation
 
 public struct Signature: Codable {
@@ -46,7 +48,7 @@ public struct SignResponse: Codable {
     public let success: Bool
     public let result: String?
     public let error: String?
-    
+
     public init(success: Bool, result: String?, error: String?) {
         self.success = success
         self.result = result
@@ -181,15 +183,15 @@ public struct W3AInitParams: Codable {
         self.network = network
         self.buildEnv = buildEnv
         if sdkUrl != nil {
-                    self.sdkUrl = sdkUrl
-                } else {
-                    self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))
-                }
+            self.sdkUrl = sdkUrl
+        } else {
+            self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))
+        }
         if walletSdkUrl != nil {
-                    self.walletSdkUrl = walletSdkUrl
-                } else {
-                    self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
-                }
+            self.walletSdkUrl = walletSdkUrl
+        } else {
+            self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
+        }
         self.redirectUrl = redirectUrl
         self.loginConfig = loginConfig
         self.whiteLabel = whiteLabel
@@ -205,7 +207,7 @@ public struct W3AInitParams: Codable {
         self.network = network
         buildEnv = BuildEnv.production
         sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
-        walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
+        walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
         self.redirectUrl = redirectUrl
         loginConfig = nil
         whiteLabel = nil
@@ -261,7 +263,7 @@ public struct W3AInitParams: Codable {
 }
 
 public func getSdkUrl(buildEnv: BuildEnv?) -> String {
-    let openLoginVersion = "v8"
+    let openLoginVersion = "v9"
 
     switch buildEnv {
     case .staging:
@@ -274,7 +276,7 @@ public func getSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
-    let walletServicesVersion = "v2"
+    let walletServicesVersion = "v3"
     guard let buildEnv = buildEnv else {
         return "https://wallet.web3auth.io"
     }
@@ -290,7 +292,6 @@ public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public struct W3ALoginParams: Codable {
-
     public init(loginProvider: Web3AuthProvider, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
@@ -342,7 +343,7 @@ public struct W3ALoginParams: Codable {
 public struct ExtraLoginOptions: Codable {
     public init(display: String? = nil, prompt: String? = nil, max_age: String? = nil, ui_locales: String? = nil,
                 id_token_hint: String? = nil, id_token: String? = nil, login_hint: String? = nil, acr_values: String? = nil, scope: String? = nil,
-                audience: String? = nil, connection: String? = nil, domain: String? = nil, client_id: String? = nil, redirect_uri: String? = nil, leeway: Int? = 0, verifierIdField: String? = nil, isVerifierIdCaseSensitive: Bool? = false, additionalParams: [String : String]? = nil) {
+                audience: String? = nil, connection: String? = nil, domain: String? = nil, client_id: String? = nil, redirect_uri: String? = nil, leeway: Int? = 0, verifierIdField: String? = nil, isVerifierIdCaseSensitive: Bool? = false, additionalParams: [String: String]? = nil) {
         self.display = display
         self.prompt = prompt
         self.max_age = max_age
@@ -380,7 +381,7 @@ public struct ExtraLoginOptions: Codable {
     let leeway: Int?
     let verifierIdField: String?
     let isVerifierIdCaseSensitive: Bool?
-    let additionalParams: [String : String]?
+    let additionalParams: [String: String]?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -401,13 +402,13 @@ public struct ExtraLoginOptions: Codable {
         leeway = try values.decodeIfPresent(Int.self, forKey: .leeway)
         verifierIdField = try values.decodeIfPresent(String.self, forKey: .verifierIdField)
         isVerifierIdCaseSensitive = try values.decodeIfPresent(Bool.self, forKey: .isVerifierIdCaseSensitive)
-        additionalParams = try values.decodeIfPresent([String : String].self, forKey: .additionalParams)
+        additionalParams = try values.decodeIfPresent([String: String].self, forKey: .additionalParams)
     }
 }
 
 public struct MfaSettings: Codable {
     public init(deviceShareFactor: MfaSetting? = nil, backUpShareFactor: MfaSetting? = nil, socialBackupFactor: MfaSetting? = nil, passwordFactor: MfaSetting? = nil, passkeysFactor: MfaSetting? = nil,
-                                                            authenticatorFactor: MfaSetting? = nil) {
+                authenticatorFactor: MfaSetting? = nil) {
         self.deviceShareFactor = deviceShareFactor
         self.backUpShareFactor = backUpShareFactor
         self.socialBackupFactor = socialBackupFactor
@@ -496,7 +497,7 @@ struct SdkUrlParams: Codable {
     let actionType: String
 
     enum CodingKeys: String, CodingKey {
-        case options = "options"
+        case options
         case params
         case actionType
     }
@@ -504,9 +505,11 @@ struct SdkUrlParams: Codable {
 
 struct WalletServicesParams: Codable {
     let options: W3AInitParams
+    let appState: String?
 
     enum CodingKeys: String, CodingKey {
-        case options = "options"
+        case options
+        case appState
     }
 }
 
@@ -517,7 +520,7 @@ struct SetUpMFAParams: Codable {
     let sessionId: String
 
     enum CodingKeys: String, CodingKey {
-        case options = "options"
+        case options
         case params
         case actionType
         case sessionId
