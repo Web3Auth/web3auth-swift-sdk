@@ -269,7 +269,7 @@ public struct AuthParamsData {
 public struct VerifyRequest: Encodable {
     public let web3auth_client_id: String
     public let tracking_id: String
-    public let verification_data: Data
+    public let verification_data: RegistrationResponseJson
     public let network: String
     public let signatures: [String]
     public let metadata: String
@@ -329,10 +329,10 @@ public struct ChallengeData: Decodable {
     }
 }
 
-public struct RegistrationResponseJson: Decodable {
+public struct RegistrationResponseJson: Codable {
     public let rawId: String
-    public let authenticatorAttachment: String
-    public let type: String
+    public let authenticatorAttachment: String = "platform"
+    public let type: String = "public-key"
     public let id: String
     public let response: Response
     public let clientExtensionResults: ClientExtensionResults
@@ -345,25 +345,14 @@ public struct RegistrationResponseJson: Decodable {
         case response
         case clientExtensionResults
     }
-        
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        rawId = try container.decode(String.self, forKey: .rawId)
-        authenticatorAttachment = try container.decode(String.self, forKey: .authenticatorAttachment)
-        type = try container.decode(String.self, forKey: .type)
-        id = try container.decode(String.self, forKey: .id)
-        response = try container.decode(Response.self, forKey: .response)
-        clientExtensionResults = try container.decode(ClientExtensionResults.self, forKey: .clientExtensionResults)
-    }
-    
 }
 
-public struct Response: Decodable {
+public struct Response: Codable {
     public let clientDataJSON: String
     public let attestationObject: String
     public let transports: [String]
     public let authenticatorData: String
-    public let publicKeyAlgorithm: UInt
+    public let publicKeyAlgorithm: Int
     public let publicKey: String
     
     enum CodingKeys: String, CodingKey {
@@ -374,43 +363,22 @@ public struct Response: Decodable {
         case publicKeyAlgorithm
         case publicKey
     }
-        
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        clientDataJSON = try container.decode(String.self, forKey: .clientDataJSON)
-        attestationObject = try container.decode(String.self, forKey: .attestationObject)
-        transports = try container.decode([String].self, forKey: .transports)
-        authenticatorData = try container.decode(String.self, forKey: .authenticatorData)
-        publicKeyAlgorithm = try container.decode(UInt.self, forKey: .publicKeyAlgorithm)
-        publicKey = try container.decode(String.self, forKey: .publicKey)
-    }
-    
 }
 
-public struct ClientExtensionResults: Decodable {
+public struct ClientExtensionResults: Codable {
     public let credProps: CredProps
     
     enum CodingKeys: String, CodingKey {
         case credProps
     }
-        
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        credProps = try container.decode(CredProps.self, forKey: .credProps)
-    }
-    
+
 }
 
-public struct CredProps: Decodable {
+public struct CredProps: Codable {
     public let rk: Bool
     
     enum CodingKeys: String, CodingKey {
         case rk
-    }
-        
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        rk = try container.decode(Bool.self, forKey: .rk)
     }
 }
 
@@ -580,7 +548,7 @@ let passkeysVerifierMap: [Network: String] = [
     .celeste: ""
 ]
 
-struct MetadataInfo {
+struct MetadataInfo: Codable {
     let privKey: String
     let userInfo: Web3AuthUserInfo
 }

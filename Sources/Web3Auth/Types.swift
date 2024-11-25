@@ -24,20 +24,6 @@ struct SessionLogoutDataModel: Codable {
     }
 }
 
-public struct ECIES: Codable {
-    public init(iv: String, ephemPublicKey: String, ciphertext: String, mac: String) {
-        self.iv = iv
-        self.ephemPublicKey = ephemPublicKey
-        self.ciphertext = ciphertext
-        self.mac = mac
-    }
-
-    var iv: String
-    var ephemPublicKey: String
-    var ciphertext: String
-    var mac: String
-}
-
 public struct SessionResponse: Codable {
     let sessionId: String
 }
