@@ -1,10 +1,3 @@
-//
-//  LoginView.swift
-//  Web3authSwiftSdkDemo
-//
-//  Created by Dhruv Jaiswal on 18/10/22.
-//
-
 import SwiftUI
 
 struct LoginView: View {

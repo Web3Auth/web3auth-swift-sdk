@@ -60,7 +60,7 @@ public struct Web3AuthState: Codable {
 }
 
 extension Web3AuthState {
-    init?(dict: [String: Any], sessionID: String,network:Network) {
+    init?(dict: [String: Any], sessionID: String, network: Network) {
         guard let privKey = dict["privKey"] as? String,
               let ed25519PrivKey = dict["ed25519PrivKey"] as? String,
               let userInfoDict = dict["userInfo"] as? [String: Any],
@@ -69,18 +69,18 @@ extension Web3AuthState {
         let error = dict["error"] as? String
         self.privKey = privKey
         self.ed25519PrivKey = ed25519PrivKey
-        self.sessionId = sessionID
+        sessionId = sessionID
         self.userInfo = userInfo
         self.error = error
-        self.coreKitKey = dict["coreKitKey"] as? String ?? ""
-        self.coreKitEd25519PrivKey = dict["coreKitEd25519PrivKey"] as? String ?? ""
-        self.factorKey = dict["factorKey"] as? String
-        self.signatures = dict["signatures"] as? [String]
-        self.tssShareIndex = dict["tssShareIndex"] as? Int
-        self.tssPubKey = dict["tssPubKey"] as? String
-        self.tssShare = dict["tssShare"] as? String
-        self.tssNonce = dict["tssShare"] as? Int
-        self.nodeIndexes = dict["nodeIndexes"] as? [Int]
-        self.keyMode = dict["keyMode"] as? String
+        coreKitKey = dict["coreKitKey"] as? String ?? ""
+        coreKitEd25519PrivKey = dict["coreKitEd25519PrivKey"] as? String ?? ""
+        factorKey = dict["factorKey"] as? String
+        signatures = dict["signatures"] as? [String]
+        tssShareIndex = dict["tssShareIndex"] as? Int
+        tssPubKey = dict["tssPubKey"] as? String
+        tssShare = dict["tssShare"] as? String
+        tssNonce = dict["tssShare"] as? Int
+        nodeIndexes = dict["nodeIndexes"] as? [Int]
+        keyMode = dict["keyMode"] as? String
     }
 }

@@ -1,15 +1,6 @@
-//
-//  File.swift
-//
-//
-//  Created by Dhruv Jaiswal on 18/07/22.
-//
-
 import SessionManager
 
-
 extension KeychainManager {
-    
     func saveDappShare(userInfo: Web3AuthUserInfo) {
         guard let verifer = userInfo.verifier, let veriferID = userInfo.verifierId, let dappShare = userInfo.dappShare else { return }
         let key = verifer + " | " + veriferID
