@@ -28,13 +28,13 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
 
     func setupWebView() {
         let preferences = WKPreferences()
-        preferences.javaScriptEnabled = true
         preferences.javaScriptCanOpenWindowsAutomatically = true
 
         let configuration = WKWebViewConfiguration()
         configuration.preferences = preferences
         configuration.userContentController.add(self, name: "JSBridge")
         configuration.applicationNameForUserAgent = "Version/8.0.2 Safari/600.2.5"
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = true
 
         webView = WKWebView(frame: view.bounds, configuration: configuration)
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
