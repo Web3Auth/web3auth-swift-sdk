@@ -174,10 +174,12 @@ public class Web3Auth: NSObject {
         let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
 
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
-
-            authSession = ASWebAuthenticationSession(
-                url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
-
+            
+            DispatchQueue.main.async { // Ensure the UI-related setup is on the main thread.
+                self.authSession = ASWebAuthenticationSession(
+                    url: url, callbackURLScheme: redirectURL.scheme
+                ) { callbackURL, authError in
+                    
                     guard
                         authError == nil,
                         let callbackURL = callbackURL,
@@ -191,30 +193,31 @@ public class Web3Auth: NSObject {
                         }
                         return
                     }
-
+                    
                     let sessionId = sessionResponse.sessionId
                     self.sessionManager.setSessionId(sessionId: sessionId)
                     SessionManager.saveSessionIdToStorage(sessionId)
-
+                    
                     Task {
                         do {
                             let loginDetails = try await self.getLoginDetails(callbackURL)
                             if let safeUserInfo = loginDetails.userInfo {
                                 KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                             }
-
+                            
                             self.state = loginDetails
-                            return continuation.resume(returning: loginDetails)
+                            continuation.resume(returning: loginDetails)
                         } catch {
                             continuation.resume(throwing: Web3AuthError.unknownError)
                         }
                     }
                 }
-
-            self.authSession?.presentationContextProvider = self
-
-            if !(self.authSession?.start() ?? false) {
-                continuation.resume(throwing: Web3AuthError.unknownError)
+                
+                self.authSession?.presentationContextProvider = self
+                
+                if !(self.authSession?.start() ?? false) {
+                    continuation.resume(throwing: Web3AuthError.unknownError)
+                }
             }
         })
     }
@@ -258,10 +261,11 @@ public class Web3Auth: NSObject {
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
 
             return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Bool, Error>) in
-
-                authSession = ASWebAuthenticationSession(
-                    url: url, callbackURLScheme: redirectURL.scheme) { callbackURL, authError in
-
+                
+                DispatchQueue.main.async { // Ensure UI-related calls are made on the main thread
+                    self.authSession = ASWebAuthenticationSession(
+                        url: url, callbackURLScheme: redirectURL.scheme
+                    ) { callbackURL, authError in
                         guard
                             authError == nil,
                             let callbackURL = callbackURL,
@@ -275,11 +279,11 @@ public class Web3Auth: NSObject {
                             }
                             return
                         }
-
+                        
                         let sessionId = sessionResponse.sessionId
                         self.sessionManager.setSessionId(sessionId: sessionId)
                         SessionManager.saveSessionIdToStorage(sessionId)
-
+                        
                         Task {
                             do {
                                 let loginDetails = try await self.getLoginDetails(callbackURL)
@@ -287,16 +291,17 @@ public class Web3Auth: NSObject {
                                     KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                                 }
                                 self.state = loginDetails
-                                return continuation.resume(returning: true)
+                                continuation.resume(returning: true)
                             } catch {
                                 continuation.resume(throwing: Web3AuthError.unknownError)
                             }
                         }
                     }
-                authSession?.presentationContextProvider = self
-
-                if !(authSession?.start() ?? false) {
-                    continuation.resume(throwing: Web3AuthError.unknownError)
+                    self.authSession?.presentationContextProvider = self
+                    
+                    if !(self.authSession?.start() ?? false) {
+                        continuation.resume(throwing: Web3AuthError.unknownError)
+                    }
                 }
             })
         } else {
@@ -311,22 +316,34 @@ public class Web3Auth: NSObject {
                 let bundleId = Bundle.main.bundleIdentifier,
                 let _ = URL(string: "\(bundleId)://auth")
             else { throw Web3AuthError.noBundleIdentifierFound }
-
+            
             initParams.chainConfig = chainConfig
             let walletServicesParams = WalletServicesParams(options: initParams, appState: nil)
-
+            
             let loginId = try await getLoginId(data: walletServicesParams)
-
+            
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
                 "sessionId": sessionId,
                 "platform": "ios",
             ]
-
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: path)
-            // open url in webview
-            await UIApplication.shared.windows.filter { $0.isKeyWindow }.first?.rootViewController?.present(webViewController, animated: true, completion: nil)
-            await webViewController.webView.load(URLRequest(url: url))
+            
+            let url = try Web3Auth.generateAuthSessionURL(
+                initParams: initParams,
+                jsonObject: jsonObject,
+                sdkUrl: initParams.walletSdkUrl?.absoluteString,
+                path: path
+            )
+            
+            // Ensure UI-related operations occur on the main thread
+            await MainActor.run {
+                guard let rootViewController = UIApplication.shared.windows.filter({ $0.isKeyWindow }).first?.rootViewController else {
+                    return
+                }
+                rootViewController.present(webViewController, animated: true) {
+                    self.webViewController.webView.load(URLRequest(url: url))
+                }
+            }
         } else {
             throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
         }
