@@ -150,7 +150,7 @@ public class Web3Auth: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
-    @MainActor public func login(_ loginParams: W3ALoginParams) async throws -> Web3AuthState {
+    public func login(_ loginParams: W3ALoginParams) async throws -> Web3AuthState {
         guard
             let bundleId = Bundle.main.bundleIdentifier,
             let redirectURL = URL(string: "\(bundleId)://auth")
