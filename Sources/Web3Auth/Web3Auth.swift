@@ -154,12 +154,15 @@ public class Web3Auth: NSObject {
      */
     public func login(_ loginParams: W3ALoginParams) async throws -> Web3AuthState {
         guard
-            let bundleId = Bundle.main.bundleIdentifier,
-            let redirectURL = URL(string: "\(bundleId)://auth")
+                let bundleId = Bundle.main.bundleIdentifier
         else { throw Web3AuthError.noBundleIdentifierFound }
+        
         w3ALoginParams = loginParams
         // assign loginParams redirectUrl from intiParamas redirectUrl
-        w3ALoginParams?.redirectUrl = "\(bundleId)://auth"
+        
+        if w3ALoginParams!.redirectUrl == nil {
+            w3ALoginParams!.redirectUrl = "\(bundleId)://auth"
+        }
         if let loginConfig = initParams.loginConfig?.values.first,
            let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
             w3ALoginParams?.dappShare = savedDappShare
@@ -177,9 +180,9 @@ public class Web3Auth: NSObject {
 
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
 
-            DispatchQueue.main.async { // Ensure the UI-related setup is on the main thread.
+            DispatchQueue.main.async { [self] in // Ensure the UI-related setup is on the main thread.
                 self.authSession = ASWebAuthenticationSession(
-                    url: url, callbackURLScheme: redirectURL.scheme
+                    url: url, callbackURLScheme: URL(string: w3ALoginParams!.redirectUrl!)!.scheme
                 ) { callbackURL, authError in
 
                     guard
@@ -231,8 +234,7 @@ public class Web3Auth: NSObject {
         let sessionId = sessionManager.getSessionId()
         if !sessionId.isEmpty {
             guard
-                let bundleId = Bundle.main.bundleIdentifier,
-                let redirectURL = URL(string: "\(bundleId)://auth")
+                let bundleId = Bundle.main.bundleIdentifier
             else { throw Web3AuthError.noBundleIdentifierFound }
 
             var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
@@ -246,10 +248,16 @@ public class Web3Auth: NSObject {
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
 
+            w3ALoginParams = loginParams
+            
+            if w3ALoginParams!.redirectUrl == nil {
+                w3ALoginParams!.redirectUrl = "\(bundleId)://auth"
+            }
+            
             let params: [String: String?] = [
                 "loginProvider": state?.userInfo?.typeOfLogin,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
-                "redirectUrl": redirectURL.absoluteString,
+                "redirectUrl": URL(string: w3ALoginParams!.redirectUrl!)!.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
             ]
 
@@ -266,7 +274,7 @@ public class Web3Auth: NSObject {
 
                 DispatchQueue.main.async { // Ensure UI-related calls are made on the main thread
                     self.authSession = ASWebAuthenticationSession(
-                        url: url, callbackURLScheme: redirectURL.scheme
+                        url: url, callbackURLScheme:  URL(string: self.w3ALoginParams!.redirectUrl!)!.scheme
                     ) { callbackURL, authError in
                         guard
                             authError == nil,
@@ -314,11 +322,6 @@ public class Web3Auth: NSObject {
     public func launchWalletServices(chainConfig: ChainConfig, path: String? = "wallet") async throws {
         let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
-            guard
-                let bundleId = Bundle.main.bundleIdentifier,
-                let _ = URL(string: "\(bundleId)://auth")
-            else { throw Web3AuthError.noBundleIdentifierFound }
-
             initParams.chainConfig = chainConfig
             let walletServicesParams = WalletServicesParams(options: initParams, appState: nil)
 
@@ -354,10 +357,6 @@ public class Web3Auth: NSObject {
     public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse {
         let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
-            guard
-                let bundleId = Bundle.main.bundleIdentifier,
-                let _ = URL(string: "\(bundleId)://auth")
-            else { throw Web3AuthError.noBundleIdentifierFound }
             initParams.chainConfig = chainConfig
 
             let walletServicesParams = WalletServicesParams(options: initParams, appState: appState)
