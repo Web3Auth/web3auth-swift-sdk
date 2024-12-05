@@ -162,7 +162,7 @@ public class Web3Auth: NSObject {
         // assign loginParams redirectUrl from intiParamas redirectUrl
         
         if w3ALoginParams!.redirectUrl == nil {
-            w3ALoginParams!.redirectUrl = "\(bundleId)://auth"
+            w3ALoginParams!.redirectUrl = initParams.redirectUrl
         }
         if let loginConfig = initParams.loginConfig?.values.first,
            let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
@@ -255,7 +255,7 @@ public class Web3Auth: NSObject {
             }
             
             if w3ALoginParams!.redirectUrl == nil {
-                w3ALoginParams!.redirectUrl = "\(bundleId)://auth"
+                w3ALoginParams!.redirectUrl = initParams.redirectUrl
             }
             
             let params: [String: String?] = [
