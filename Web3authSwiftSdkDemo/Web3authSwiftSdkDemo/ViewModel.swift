@@ -14,7 +14,7 @@ class ViewModel: ObservableObject {
     @Published var showError: Bool = false
     var errorMessage: String = ""
     private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
-    private var redirectUrl: String = "com.web3auth.sdkapp://auth"
+    private var redirectUrl: String = "com.web3auth.sdkapp://not"
     private var network: Network = .sapphire_devnet
     private var buildEnv: BuildEnv = .production
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
@@ -38,7 +38,7 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = try await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
+        web3Auth = try await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://not",
                                             // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                             // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
                                             // loginConfig: ["loginConfig": loginConfig],
@@ -87,11 +87,12 @@ class ViewModel: ObservableObject {
                     clientId: clientID,
                     network: network,
                     buildEnv: buildEnv,
-                    redirectUrl: redirectUrl,
+                    redirectUrl: redirectUrl, // we should probably use this throughout instead of being part of other classes
                     whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]),
                     useCoreKitKey: useCoreKit
                 ))
                 _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
+                                                             redirectUrl: redirectUrl,
                                                              mfaLevel: .DEFAULT,
                                                              curve: .SECP256K1
                     ))
@@ -163,11 +164,13 @@ class ViewModel: ObservableObject {
     @MainActor func enableMFA() {
         Task {
             do {
+                /*
                 web3Auth = try await Web3Auth(W3AInitParams(clientId: clientID,
                                                             network: network,
                                                             buildEnv: buildEnv,
                                                             redirectUrl: redirectUrl,
                                                             whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
+                 */
                 _ = try await self.web3Auth?.enableMFA()
             } catch {
                 errorMessage = error.localizedDescription

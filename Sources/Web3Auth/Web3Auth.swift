@@ -153,11 +153,12 @@ public class Web3Auth: NSObject {
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
     public func login(_ loginParams: W3ALoginParams) async throws -> Web3AuthState {
+        // Think we should avoid this and throw error instead
         guard
                 let bundleId = Bundle.main.bundleIdentifier
         else { throw Web3AuthError.noBundleIdentifierFound }
         
-        w3ALoginParams = loginParams
+        self.w3ALoginParams = loginParams
         // assign loginParams redirectUrl from intiParamas redirectUrl
         
         if w3ALoginParams!.redirectUrl == nil {
@@ -228,6 +229,7 @@ public class Web3Auth: NSObject {
     }
 
     public func enableMFA(_ loginParams: W3ALoginParams? = nil) async throws -> Bool {
+        // Note that this function can be called without login on restored session, so loginParams should not be optional.
         if state?.userInfo?.isMfaEnabled == true {
             throw Web3AuthError.mfaAlreadyEnabled
         }
@@ -248,7 +250,9 @@ public class Web3Auth: NSObject {
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
 
-            w3ALoginParams = loginParams
+            if loginParams != nil {
+                w3ALoginParams = loginParams
+            }
             
             if w3ALoginParams!.redirectUrl == nil {
                 w3ALoginParams!.redirectUrl = "\(bundleId)://auth"
