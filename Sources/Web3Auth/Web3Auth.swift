@@ -153,11 +153,6 @@ public class Web3Auth: NSObject {
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
     public func login(_ loginParams: W3ALoginParams) async throws -> Web3AuthState {
-        // Think we should avoid this and throw error instead
-        guard
-                let bundleId = Bundle.main.bundleIdentifier
-        else { throw Web3AuthError.noBundleIdentifierFound }
-        
         self.w3ALoginParams = loginParams
         // assign loginParams redirectUrl from intiParamas redirectUrl
         
@@ -235,10 +230,6 @@ public class Web3Auth: NSObject {
         }
         let sessionId = sessionManager.getSessionId()
         if !sessionId.isEmpty {
-            guard
-                let bundleId = Bundle.main.bundleIdentifier
-            else { throw Web3AuthError.noBundleIdentifierFound }
-
             var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
             if loginParams?.extraLoginOptions != nil {
                 extraLoginOptions = loginParams?.extraLoginOptions
