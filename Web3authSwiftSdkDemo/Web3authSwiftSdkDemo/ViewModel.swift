@@ -87,11 +87,12 @@ class ViewModel: ObservableObject {
                     clientId: clientID,
                     network: network,
                     buildEnv: buildEnv,
-                    redirectUrl: redirectUrl,
+                    redirectUrl: redirectUrl, // we should probably use this throughout instead of being part of other classes
                     whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]),
                     useCoreKitKey: useCoreKit
                 ))
                 _ = try await web3Auth?.login(W3ALoginParams(loginProvider: provider,
+                                                             redirectUrl: redirectUrl,
                                                              mfaLevel: .DEFAULT,
                                                              curve: .SECP256K1
                     ))
@@ -163,11 +164,13 @@ class ViewModel: ObservableObject {
     @MainActor func enableMFA() {
         Task {
             do {
+                /*
                 web3Auth = try await Web3Auth(W3AInitParams(clientId: clientID,
                                                             network: network,
                                                             buildEnv: buildEnv,
                                                             redirectUrl: redirectUrl,
                                                             whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
+                 */
                 _ = try await self.web3Auth?.enableMFA()
             } catch {
                 errorMessage = error.localizedDescription
