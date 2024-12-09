@@ -153,16 +153,14 @@ public class Web3Auth: NSObject {
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
     public func login(_ loginParams: W3ALoginParams) async throws -> Web3AuthState {
-        // Think we should avoid this and throw error instead
-        guard
-                let bundleId = Bundle.main.bundleIdentifier
-        else { throw Web3AuthError.noBundleIdentifierFound }
-        
         self.w3ALoginParams = loginParams
         // assign loginParams redirectUrl from intiParamas redirectUrl
         
         if w3ALoginParams!.redirectUrl == nil {
             w3ALoginParams!.redirectUrl = initParams.redirectUrl
+        }
+        if w3ALoginParams?.redirectUrl == nil {
+            throw Web3AuthError.invalidOrMissingRedirectURI
         }
         if let loginConfig = initParams.loginConfig?.values.first,
            let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
@@ -235,10 +233,13 @@ public class Web3Auth: NSObject {
         }
         let sessionId = sessionManager.getSessionId()
         if !sessionId.isEmpty {
-            guard
-                let bundleId = Bundle.main.bundleIdentifier
-            else { throw Web3AuthError.noBundleIdentifierFound }
-
+            self.w3ALoginParams = loginParams
+            if w3ALoginParams!.redirectUrl == nil {
+                w3ALoginParams!.redirectUrl = initParams.redirectUrl
+            }
+            if w3ALoginParams?.redirectUrl == nil {
+                throw Web3AuthError.invalidOrMissingRedirectURI
+            }
             var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
             if loginParams?.extraLoginOptions != nil {
                 extraLoginOptions = loginParams?.extraLoginOptions
