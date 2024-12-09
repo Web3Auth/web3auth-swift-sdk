@@ -233,12 +233,14 @@ public class Web3Auth: NSObject {
         }
         let sessionId = sessionManager.getSessionId()
         if !sessionId.isEmpty {
-            self.w3ALoginParams = loginParams
-            if w3ALoginParams!.redirectUrl == nil {
-                w3ALoginParams!.redirectUrl = initParams.redirectUrl
-            }
-            if w3ALoginParams?.redirectUrl == nil {
-                throw Web3AuthError.invalidOrMissingRedirectURI
+            if loginParams != nil {
+                self.w3ALoginParams = loginParams
+                if w3ALoginParams?.redirectUrl == nil {
+                    w3ALoginParams?.redirectUrl = initParams.redirectUrl
+                }
+                if w3ALoginParams?.redirectUrl == nil {
+                    throw Web3AuthError.invalidOrMissingRedirectURI
+                }
             }
             var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
             if loginParams?.extraLoginOptions != nil {
@@ -250,19 +252,11 @@ public class Web3Auth: NSObject {
 
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
-
-            if loginParams != nil {
-                w3ALoginParams = loginParams
-            }
-            
-            if w3ALoginParams!.redirectUrl == nil {
-                w3ALoginParams!.redirectUrl = initParams.redirectUrl
-            }
             
             let params: [String: String?] = [
                 "loginProvider": state?.userInfo?.typeOfLogin,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
-                "redirectUrl": URL(string: w3ALoginParams!.redirectUrl!)!.absoluteString,
+                "redirectUrl": URL(string: initParams.redirectUrl)!.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
             ]
 
@@ -279,7 +273,7 @@ public class Web3Auth: NSObject {
 
                 DispatchQueue.main.async { // Ensure UI-related calls are made on the main thread
                     self.authSession = ASWebAuthenticationSession(
-                        url: url, callbackURLScheme:  URL(string: self.w3ALoginParams!.redirectUrl!)!.scheme
+                        url: url, callbackURLScheme:  URL(string: self.initParams.redirectUrl)?.scheme
                     ) { callbackURL, authError in
                         guard
                             authError == nil,
