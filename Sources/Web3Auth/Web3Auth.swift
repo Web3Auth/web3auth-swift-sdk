@@ -159,6 +159,9 @@ public class Web3Auth: NSObject {
         if w3ALoginParams!.redirectUrl == nil {
             w3ALoginParams!.redirectUrl = initParams.redirectUrl
         }
+        if w3ALoginParams?.redirectUrl == nil {
+            throw Web3AuthError.invalidOrMissingRedirectURI
+        }
         if let loginConfig = initParams.loginConfig?.values.first,
            let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
             w3ALoginParams?.dappShare = savedDappShare
@@ -230,6 +233,13 @@ public class Web3Auth: NSObject {
         }
         let sessionId = sessionManager.getSessionId()
         if !sessionId.isEmpty {
+            self.w3ALoginParams = loginParams
+            if w3ALoginParams!.redirectUrl == nil {
+                w3ALoginParams!.redirectUrl = initParams.redirectUrl
+            }
+            if w3ALoginParams?.redirectUrl == nil {
+                throw Web3AuthError.invalidOrMissingRedirectURI
+            }
             var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
             if loginParams?.extraLoginOptions != nil {
                 extraLoginOptions = loginParams?.extraLoginOptions
