@@ -253,10 +253,16 @@ public class Web3Auth: NSObject {
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
             
+            let redirectUrl = if self.w3ALoginParams != nil {
+                self.w3ALoginParams?.redirectUrl
+            } else {
+                initParams.redirectUrl
+            }
+            
             let params: [String: String?] = [
                 "loginProvider": state?.userInfo?.typeOfLogin,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
-                "redirectUrl": URL(string: initParams.redirectUrl)!.absoluteString,
+                "redirectUrl": URL(string: redirectUrl!)?.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
             ]
 
