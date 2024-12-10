@@ -279,7 +279,7 @@ public class Web3Auth: NSObject {
 
                 DispatchQueue.main.async { // Ensure UI-related calls are made on the main thread
                     self.authSession = ASWebAuthenticationSession(
-                        url: url, callbackURLScheme:  URL(string: self.initParams.redirectUrl)?.scheme
+                        url: url, callbackURLScheme:  URL(string: redirectUrl!)?.scheme
                     ) { callbackURL, authError in
                         guard
                             authError == nil,
