@@ -198,7 +198,7 @@ public struct W3AInitParams: Codable {
         self.chainNamespace = chainNamespace
         self.useCoreKitKey = useCoreKitKey
         self.mfaSettings = mfaSettings
-        self.sessionTime = min(7 * 86400, sessionTime)
+        self.sessionTime = min(30 * 86400, sessionTime)
         self.originData = originData
     }
 
