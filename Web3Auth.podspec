@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name          = "Web3Auth"
-  spec.version       = "11.0.1"
+  spec.version       = "11.0.2"
   spec.platform      = :ios, "14.0"
   spec.summary       = "Torus Web3Auth SDK for iOS applications"
   spec.homepage      = "https://github.com/web3auth/web3auth-swift-sdk"
@@ -12,7 +12,7 @@ Pod::Spec.new do |spec|
   spec.source_files  = "Sources/Web3Auth/**/*.{swift}"
   spec.dependency 'KeychainSwift', '~> 20.0.0'
   spec.dependency 'curvelib.swift', '~> 2.0.0'
-  spec.dependency 'TorusSessionManager', '~> 6.0.1'
+  spec.dependency 'TorusSessionManager', '~> 6.0.2'
   spec.dependency 'BigInt', '~> 5.2.0'
   spec.exclude_files = [ 'docs/**' ]
 end
