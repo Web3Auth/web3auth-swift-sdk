@@ -8,6 +8,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
     var redirectUrl: String?
     var onSignResponse: (SignResponse) -> Void
     var onCancel: (() -> Void)?
+    private var isDismissedBySignResponse = false
 
     init(redirectUrl: String? = nil, onSignResponse: @escaping (SignResponse) -> Void, onCancel: (() -> Void)? = nil) {
         self.redirectUrl = redirectUrl
@@ -48,7 +49,9 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        onCancel?()
+        if !isDismissedBySignResponse {
+            onCancel?()
+        }
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -63,6 +66,7 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
                 let b64ParamString = Data.fromBase64URL(callbackFragment)
                 let signResponse = try? JSONDecoder().decode(SignResponse.self, from: b64ParamString!)
                 onSignResponse(signResponse!)
+                isDismissedBySignResponse = true
                 dismiss(animated: true, completion: nil)
             }
         }

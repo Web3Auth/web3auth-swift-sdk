@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name          = "Web3Auth"
-  spec.version       = "11.0.4"
+  spec.version       = "11.0.5"
   spec.platform      = :ios, "14.0"
   spec.summary       = "Torus Web3Auth SDK for iOS applications"
   spec.homepage      = "https://github.com/web3auth/web3auth-swift-sdk"
