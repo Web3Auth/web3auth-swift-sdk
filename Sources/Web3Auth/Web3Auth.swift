@@ -359,7 +359,7 @@ public class Web3Auth: NSObject {
         }
     }
 
-    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse {
+    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
         let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
             initParams.chainConfig = chainConfig
@@ -372,6 +372,7 @@ public class Web3Auth: NSObject {
             signMessageMap["loginId"] = loginId
             signMessageMap["sessionId"] = sessionId
             signMessageMap["platform"] = "ios"
+            signMessageMap["appState"] = appState
 
             var requestData: [String: Any] = [:]
             requestData["method"] = method
@@ -391,9 +392,11 @@ public class Web3Auth: NSObject {
                     let webViewController = await MainActor.run {
                         WebViewController(redirectUrl: initParams.redirectUrl, onSignResponse: { signResponse in
                             continuation.resume(returning: signResponse)
+                        }, onCancel: {
+                            continuation.resume(returning: nil)
                         })
                     }
-
+                    
                     DispatchQueue.main.async {
                         UIApplication.shared.windows.filter { $0.isKeyWindow }.first?.rootViewController?.present(webViewController, animated: true) {
                             webViewController.webView.load(URLRequest(url: url))

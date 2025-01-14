@@ -7,10 +7,12 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
     let activityIndicator = UIActivityIndicatorView(style: .large)
     var redirectUrl: String?
     var onSignResponse: (SignResponse) -> Void
+    var onCancel: (() -> Void)?
 
-    init(redirectUrl: String? = nil, onSignResponse: @escaping (SignResponse) -> Void) {
+    init(redirectUrl: String? = nil, onSignResponse: @escaping (SignResponse) -> Void, onCancel: (() -> Void)? = nil) {
         self.redirectUrl = redirectUrl
         self.onSignResponse = onSignResponse
+        self.onCancel = onCancel
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -42,6 +44,11 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
         webView.navigationDelegate = self
 
         view.addSubview(webView)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        onCancel?()
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
