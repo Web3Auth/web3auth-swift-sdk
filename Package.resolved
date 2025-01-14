@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/Web3Auth/session-manager-swift.git",
         "state": {
           "branch": null,
-          "revision": "d86cd2a7f6d8095531ed609c728d851820fe85be",
-          "version": "6.0.1"
+          "revision": "de18a6b3d98f67b3c77f84ebab73f7a51807a503",
+          "version": "6.1.0"
         }
       }
     ]
