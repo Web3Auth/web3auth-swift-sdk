@@ -13,6 +13,7 @@ public enum Web3AuthError: Error {
     case encodingError
     case noUserFound
     case mfaAlreadyEnabled
+    case mfaNotEnabled
     case invalidOrMissingRedirectURI
 }
 
@@ -37,6 +38,8 @@ extension Web3AuthError: LocalizedError {
             return "No user found, please login again!"
         case .mfaAlreadyEnabled:
             return "MFA already enabled."
+        case .mfaNotEnabled:
+            return "MFA is not enabled. Please enable MFA first."
         case .invalidOrMissingRedirectURI:
             return "Invalid or missing redirect URI."
         }

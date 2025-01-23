@@ -178,6 +178,17 @@ class ViewModel: ObservableObject {
             }
         }
     }
+    
+    @MainActor func manageMFA() {
+        Task {
+            do {
+                _ = try await self.web3Auth?.manageMFA()
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+    }
 
     @MainActor func request() {
         Task {
