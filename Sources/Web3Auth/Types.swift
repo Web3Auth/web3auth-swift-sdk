@@ -178,7 +178,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, originData: [String: String]? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -200,6 +200,7 @@ public struct W3AInitParams: Codable {
         self.mfaSettings = mfaSettings
         self.sessionTime = min(30 * 86400, sessionTime)
         self.originData = originData
+        self.dashboardUrl = URL(string: getDashBoardUrl(buildEnv: self.buildEnv))
     }
 
     public init(clientId: String, network: Network, redirectUrl: String) {
@@ -217,6 +218,7 @@ public struct W3AInitParams: Codable {
         sessionTime = 86400
         chainConfig = nil
         originData = nil
+        dashboardUrl = nil
     }
 
     let clientId: String
@@ -233,6 +235,7 @@ public struct W3AInitParams: Codable {
     let sessionTime: Int
     var chainConfig: ChainConfig? = nil
     var originData: [String: String]?
+    var dashboardUrl: URL?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -259,6 +262,7 @@ public struct W3AInitParams: Codable {
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
         sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
         originData = try values.decodeIfPresent([String: String].self, forKey: .originData)
+        dashboardUrl = try values.decodeIfPresent(String.self, forKey: .dashboardUrl).flatMap { URL(string: $0) }
     }
 }
 
@@ -288,6 +292,22 @@ public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
         return "https://develop-wallet.web3auth.io"
     default:
         return "https://wallet.web3auth.io/\(walletServicesVersion)"
+    }
+}
+
+public func getDashBoardUrl(buildEnv: BuildEnv?) -> String {
+    let walletAccountConstant = "wallet/account"
+    guard let buildEnv = buildEnv else {
+        return "https://account.web3auth.io/\(walletAccountConstant)"
+    }
+
+    switch buildEnv {
+    case .staging:
+        return "https://staging-account.web3auth.io/\(walletAccountConstant)"
+    case .testing:
+        return "https://develop-account.web3auth.io/\(walletAccountConstant)"
+    default:
+        return "https://account.web3auth.io/\(walletAccountConstant)"
     }
 }
 

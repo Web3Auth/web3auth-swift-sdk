@@ -73,8 +73,7 @@ public class Web3Auth: NSObject {
         self.state = nil
     }
 
-    public func getLoginId<T: Encodable>(data: T) async throws -> String? {
-        let sessionId = try SessionManager.generateRandomSessionID()!
+    public func getLoginId<T: Encodable>(sessionId: String, data: T) async throws -> String? {
         sessionManager.setSessionId(sessionId: sessionId)
         return try await sessionManager.createSession(data: data)
     }
@@ -168,8 +167,8 @@ public class Web3Auth: NSObject {
         }
 
         let sdkUrlParams = SdkUrlParams(options: initParams, params: w3ALoginParams!, actionType: "login")
-
-        let loginId = try await getLoginId(data: sdkUrlParams)
+        let sessionId = try SessionManager.generateRandomSessionID()!
+        let loginId = try await getLoginId(sessionId: sessionId, data: sdkUrlParams)
 
         let jsonObject: [String: String?] = [
             "loginId": loginId,
@@ -267,7 +266,8 @@ public class Web3Auth: NSObject {
             ]
 
             let setUpMFAParams = SetUpMFAParams(options: initParams, params: params, actionType: "enable_mfa", sessionId: sessionId)
-            let loginId = try await getLoginId(data: setUpMFAParams)
+            let sessionId = try SessionManager.generateRandomSessionID()!
+            let loginId = try await getLoginId(sessionId: sessionId, data: setUpMFAParams)
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
@@ -333,12 +333,7 @@ public class Web3Auth: NSObject {
         if !sessionId.isEmpty {
             if loginParams != nil {
                 self.w3ALoginParams = loginParams
-                if w3ALoginParams?.redirectUrl == nil {
-                    w3ALoginParams?.redirectUrl = initParams.redirectUrl
-                }
-                if w3ALoginParams?.redirectUrl == nil {
-                    throw Web3AuthError.invalidOrMissingRedirectURI
-                }
+                w3ALoginParams?.redirectUrl = initParams.dashboardUrl?.absoluteString
             }
             var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
             if loginParams?.extraLoginOptions != nil {
@@ -357,15 +352,26 @@ public class Web3Auth: NSObject {
                 initParams.redirectUrl
             }
             
+            let sessionId = try SessionManager.generateRandomSessionID()!
+            let loginIdObject: [String: String?] = [
+                "loginId": sessionId,
+            ]
+            
+            let jsonEncoder = JSONEncoder()
+            let data = try? jsonEncoder.encode(loginIdObject)
+            
             let params: [String: String?] = [
                 "loginProvider": state?.userInfo?.typeOfLogin,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
-                "redirectUrl": URL(string: redirectUrl!)?.absoluteString,
+                "redirectUrl": initParams.dashboardUrl?.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
+                "appState": data!.toBase64URL()
             ]
+            
+            initParams.redirectUrl = initParams.dashboardUrl!.absoluteString
 
             let setUpMFAParams = SetUpMFAParams(options: initParams, params: params, actionType: "manage_mfa", sessionId: sessionId)
-            let loginId = try await getLoginId(data: setUpMFAParams)
+            let loginId = try await getLoginId(sessionId: sessionId, data: setUpMFAParams)
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
@@ -427,8 +433,8 @@ public class Web3Auth: NSObject {
         if !sessionId.isEmpty {
             initParams.chainConfig = chainConfig
             let walletServicesParams = WalletServicesParams(options: initParams, appState: nil)
-
-            let loginId = try await getLoginId(data: walletServicesParams)
+            let sessionId = try SessionManager.generateRandomSessionID()!
+            let loginId = try await getLoginId(sessionId: sessionId ,data: walletServicesParams)
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
@@ -463,11 +469,11 @@ public class Web3Auth: NSObject {
             initParams.chainConfig = chainConfig
 
             let walletServicesParams = WalletServicesParams(options: initParams, appState: appState)
-
-            let loginId = try await getLoginId(data: walletServicesParams)
+            let loginId = try SessionManager.generateRandomSessionID()!
+            let _loginId = try await getLoginId(sessionId: loginId, data: walletServicesParams)
 
             var signMessageMap: [String: String] = [:]
-            signMessageMap["loginId"] = loginId
+            signMessageMap["loginId"] = _loginId
             signMessageMap["sessionId"] = sessionId
             signMessageMap["platform"] = "ios"
             signMessageMap["appState"] = appState
