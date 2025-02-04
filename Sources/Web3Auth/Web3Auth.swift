@@ -370,7 +370,7 @@ public class Web3Auth: NSObject {
             
             initParams.redirectUrl = initParams.dashboardUrl!.absoluteString
 
-            let setUpMFAParams = SetUpMFAParams(options: initParams, params: params, actionType: "manage_mfa", sessionId: sessionId)
+            let setUpMFAParams = SetUpMFAParams(options: initParams, params: params, actionType: "manage_mfa", sessionId: sessionManager.getSessionId())
             let loginId = try await getLoginId(sessionId: sessionId, data: setUpMFAParams)
 
             let jsonObject: [String: String?] = [
