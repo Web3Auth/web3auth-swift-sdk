@@ -365,7 +365,9 @@ public class Web3Auth: NSObject {
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
                 "redirectUrl": initParams.dashboardUrl?.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
-                "appState": data!.toBase64URL()
+                "appState": data!.toBase64URL(),
+                "platform" : "iOS",
+                "dappUrl" : initParams.redirectUrl
             ]
             
             initParams.redirectUrl = initParams.dashboardUrl!.absoluteString
