@@ -80,7 +80,7 @@ public enum TypeOfLogin: String, Codable {
     case twitter
     case weibo
     case line
-    case email_password
+    case email_passwordless
     case passwordless
     case jwt
     case sms_passwordless
