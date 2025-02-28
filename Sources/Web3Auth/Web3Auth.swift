@@ -366,7 +366,6 @@ public class Web3Auth: NSObject {
                 "redirectUrl": initParams.dashboardUrl?.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
                 "appState": data!.toBase64URL(),
-                "platform" : "iOS",
                 "dappUrl" : initParams.redirectUrl
             ]
             
@@ -377,6 +376,7 @@ public class Web3Auth: NSObject {
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
+                "platform" : "iOS",
             ]
 
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
