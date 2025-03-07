@@ -355,6 +355,7 @@ public class Web3Auth: NSObject {
             let sessionId = try SessionManager.generateRandomSessionID()!
             let loginIdObject: [String: String?] = [
                 "loginId": sessionId,
+                "platform" : "iOS",
             ]
             
             let jsonEncoder = JSONEncoder()
@@ -376,7 +377,6 @@ public class Web3Auth: NSObject {
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
-                "platform" : "iOS",
             ]
 
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
