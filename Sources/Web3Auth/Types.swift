@@ -200,7 +200,11 @@ public struct W3AInitParams: Codable {
         self.mfaSettings = mfaSettings
         self.sessionTime = min(30 * 86400, sessionTime)
         self.originData = originData
-        self.dashboardUrl = URL(string: getDashBoardUrl(buildEnv: self.buildEnv))
+        if dashboardUrl != nil {
+            self.dashboardUrl = dashboardUrl
+        } else {
+            self.dashboardUrl = URL(string: getDashBoardUrl(buildEnv: self.buildEnv))
+        }
     }
 
     public init(clientId: String, network: Network, redirectUrl: String) {
@@ -218,7 +222,7 @@ public struct W3AInitParams: Codable {
         sessionTime = 30 * 86400
         chainConfig = nil
         originData = nil
-        dashboardUrl = nil
+        dashboardUrl = URL(string: getDashBoardUrl(buildEnv: buildEnv))
     }
 
     let clientId: String
