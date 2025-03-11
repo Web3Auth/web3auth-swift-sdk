@@ -381,17 +381,12 @@ public class Web3Auth: NSObject {
 
             let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
 
-            return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Bool, Error>) in
-
+            return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
                 DispatchQueue.main.async { // Ensure UI-related calls are made on the main thread
                     self.authSession = ASWebAuthenticationSession(
-                        url: url, callbackURLScheme:  URL(string: redirectUrl!)?.scheme
-                    ) { callbackURL, authError in
-                        guard
-                            authError == nil,
-                            let callbackURL = callbackURL,
-                            let sessionResponse = try? Web3Auth.decodeStateFromCallbackURL(callbackURL)
-                        else {
+                        url: url, callbackURLScheme: URL(string: redirectUrl!)?.scheme
+                    ) { _, authError in
+                        guard authError == nil else {
                             let authError = authError ?? Web3AuthError.unknownError
                             if case ASWebAuthenticationSessionError.canceledLogin = authError {
                                 continuation.resume(throwing: Web3AuthError.userCancelled)
@@ -401,30 +396,17 @@ public class Web3Auth: NSObject {
                             return
                         }
 
-                        let sessionId = sessionResponse.sessionId
-                        self.sessionManager.setSessionId(sessionId: sessionId)
-                        SessionManager.saveSessionIdToStorage(sessionId)
-
-                        Task {
-                            do {
-                                let loginDetails = try await self.getLoginDetails(callbackURL)
-                                if let safeUserInfo = loginDetails.userInfo {
-                                    KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
-                                }
-                                self.state = loginDetails
-                                continuation.resume(returning: true)
-                            } catch {
-                                continuation.resume(throwing: Web3AuthError.unknownError)
-                            }
-                        }
+                        // Successfully received callback, no further processing needed
+                        continuation.resume(returning: true)
                     }
+
                     self.authSession?.presentationContextProvider = self
 
                     if !(self.authSession?.start() ?? false) {
                         continuation.resume(throwing: Web3AuthError.unknownError)
                     }
                 }
-            })
+            }
         } else {
             throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
         }
@@ -538,7 +520,6 @@ public class Web3Auth: NSObject {
     }
 
     static func decodeStateFromCallbackURL(_ callbackURL: URL) throws -> SessionResponse {
-        // Update here is needed
         guard
             let host = callbackURL.host,
             let fragment = callbackURL.fragment,
@@ -546,13 +527,19 @@ public class Web3Auth: NSObject {
             let queryItems = component.queryItems,
             let b64ParamsItem = queryItems.first(where: { $0.name == "b64Params" }),
             let callbackFragment = b64ParamsItem.value,
-            let callbackData = Data.fromBase64URL(callbackFragment),
-            let callbackState = try? JSONDecoder().decode(SessionResponse.self, from: callbackData)
+            let callbackData = Data.fromBase64URL(callbackFragment)
         else {
             throw Web3AuthError.decodingError
         }
+
+        // Decode JSON into SessionResponse
+        guard let callbackState = try? JSONDecoder().decode(SessionResponse.self, from: callbackData) else {
+            throw Web3AuthError.decodingError
+        }
+
         return callbackState
     }
+
 
     static func decodeSessionStringfromCallbackURL(_ callbackURL: URL) throws -> String? {
         let callbackFragment = callbackURL.fragment
