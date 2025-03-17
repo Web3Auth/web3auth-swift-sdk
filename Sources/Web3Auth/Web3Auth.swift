@@ -361,13 +361,15 @@ public class Web3Auth: NSObject {
             let jsonEncoder = JSONEncoder()
             let data = try? jsonEncoder.encode(loginIdObject)
             
+            let dappUrl = initParams.redirectUrl
+            
             let params: [String: String?] = [
                 "loginProvider": state?.userInfo?.typeOfLogin,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
                 "redirectUrl": initParams.dashboardUrl?.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
                 "appState": data!.toBase64URL(),
-                "dappUrl" : initParams.redirectUrl
+                "dappUrl" : dappUrl
             ]
             
             initParams.redirectUrl = initParams.dashboardUrl!.absoluteString
@@ -384,7 +386,7 @@ public class Web3Auth: NSObject {
             return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
                 DispatchQueue.main.async { // Ensure UI-related calls are made on the main thread
                     self.authSession = ASWebAuthenticationSession(
-                        url: url, callbackURLScheme: URL(string: redirectUrl!)?.scheme
+                        url: url, callbackURLScheme: URL(string: dappUrl)?.scheme
                     ) { _, authError in
                         guard authError == nil else {
                             let authError = authError ?? Web3AuthError.unknownError
