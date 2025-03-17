@@ -413,8 +413,8 @@ public class Web3Auth: NSObject {
     }
 
     public func launchWalletServices(chainConfig: ChainConfig, path: String? = "wallet") async throws {
-        let sessionId = SessionManager.getSessionIdFromStorage()!
-        if !sessionId.isEmpty {
+        let savedSessionId = SessionManager.getSessionIdFromStorage()!
+        if !savedSessionId.isEmpty {
             initParams.chainConfig = chainConfig
             let walletServicesParams = WalletServicesParams(options: initParams, appState: nil)
             let sessionId = try SessionManager.generateRandomSessionID()!
@@ -422,7 +422,7 @@ public class Web3Auth: NSObject {
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
-                "sessionId": sessionId,
+                "sessionId": savedSessionId,
                 "platform": "ios",
             ]
 

@@ -23,7 +23,7 @@ class ViewModel: ObservableObject {
     private var chainConfig: ChainConfig = ChainConfig(
         chainNamespace: ChainNamespace.eip155,
         chainId: "0x1",
-        rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
+        rpcTarget: "https://mainnet.infura.io/v3/79921cf5a1f149f7af0a0fef80cf3363",
         ticker: "ETH"
     )
     private var loginConfig: W3ALoginConfig = W3ALoginConfig(

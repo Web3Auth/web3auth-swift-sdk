@@ -203,7 +203,7 @@ public struct W3AInitParams: Codable {
         if dashboardUrl != nil {
             self.dashboardUrl = dashboardUrl
         } else {
-            self.dashboardUrl = URL(string: getDashBoardUrl(buildEnv: self.buildEnv))
+            self.dashboardUrl = URL(string: getDashboardUrl(buildEnv: self.buildEnv))
         }
     }
 
@@ -222,7 +222,7 @@ public struct W3AInitParams: Codable {
         sessionTime = 30 * 86400
         chainConfig = nil
         originData = nil
-        dashboardUrl = URL(string: getDashBoardUrl(buildEnv: buildEnv))
+        dashboardUrl = URL(string: getDashboardUrl(buildEnv: buildEnv))
     }
 
     let clientId: String
@@ -299,19 +299,16 @@ public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
     }
 }
 
-public func getDashBoardUrl(buildEnv: BuildEnv?) -> String {
+public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
+    let authDashboardVersion = "v9"
     let walletAccountConstant = "wallet/account"
-    guard let buildEnv = buildEnv else {
-        return "https://account.web3auth.io/\(walletAccountConstant)"
-    }
-
     switch buildEnv {
     case .staging:
-        return "https://staging-account.web3auth.io/\(walletAccountConstant)"
+        return "https://staging-account.web3auth.io/\(authDashboardVersion)/\(walletAccountConstant)"
     case .testing:
         return "https://develop-account.web3auth.io/\(walletAccountConstant)"
     default:
-        return "https://account.web3auth.io/\(walletAccountConstant)"
+        return "https://account.web3auth.io/\(authDashboardVersion)/\(walletAccountConstant)"
     }
 }
 
