@@ -325,7 +325,6 @@ public class Web3Auth: NSObject {
     }
     
     public func manageMFA(_ loginParams: W3ALoginParams? = nil) async throws -> Bool {
-        // Note that this function can be called without login on restored session, so loginParams should not be optional.
         if state?.userInfo?.isMfaEnabled == false {
             throw Web3AuthError.mfaNotEnabled
         }
@@ -345,12 +344,6 @@ public class Web3Auth: NSObject {
 
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
-            
-            let redirectUrl = if self.w3ALoginParams != nil {
-                self.w3ALoginParams?.redirectUrl
-            } else {
-                initParams.redirectUrl
-            }
             
             let sessionId = try SessionManager.generateRandomSessionID()!
             let loginIdObject: [String: String?] = [
