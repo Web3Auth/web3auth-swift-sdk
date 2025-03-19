@@ -16,14 +16,14 @@ class ViewModel: ObservableObject {
     private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
     private var redirectUrl: String = "com.web3auth.sdkapp://auth"
     private var network: Network = .sapphire_devnet
-    private var buildEnv: BuildEnv = .production
+    private var buildEnv: BuildEnv = .testing
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
     //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false
     private var chainConfig: ChainConfig = ChainConfig(
         chainNamespace: ChainNamespace.eip155,
         chainId: "0x1",
-        rpcTarget: "https://mainnet.infura.io/v3/1d7f0c9a5c9a4b6e8b3a2b0a2b7b3f0d",
+        rpcTarget: "https://mainnet.infura.io/v3/79921cf5a1f149f7af0a0fef80cf3363",
         ticker: "ETH"
     )
     private var loginConfig: W3ALoginConfig = W3ALoginConfig(
@@ -172,6 +172,17 @@ class ViewModel: ObservableObject {
                                                             whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
                  */
                 _ = try await self.web3Auth?.enableMFA()
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+    }
+    
+    @MainActor func manageMFA() {
+        Task {
+            do {
+                _ = try await self.web3Auth?.manageMFA()
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true

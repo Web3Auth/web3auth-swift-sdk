@@ -44,6 +44,12 @@ struct UserDetailView: View {
                             .foregroundColor(.green)
                     }
                     Button {
+                        vm.manageMFA()
+                    } label: {
+                        Text("Manage MFA")
+                            .foregroundColor(.green)
+                    }
+                    Button {
                         vm.logout()
                     } label: {
                         Text("Logout")

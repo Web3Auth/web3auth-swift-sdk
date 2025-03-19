@@ -178,7 +178,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 86400, originData: [String: String]? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -200,6 +200,11 @@ public struct W3AInitParams: Codable {
         self.mfaSettings = mfaSettings
         self.sessionTime = min(30 * 86400, sessionTime)
         self.originData = originData
+        if dashboardUrl != nil {
+            self.dashboardUrl = dashboardUrl
+        } else {
+            self.dashboardUrl = URL(string: getDashboardUrl(buildEnv: self.buildEnv))
+        }
     }
 
     public init(clientId: String, network: Network, redirectUrl: String) {
@@ -214,9 +219,10 @@ public struct W3AInitParams: Codable {
         chainNamespace = ChainNamespace.eip155
         useCoreKitKey = false
         mfaSettings = nil
-        sessionTime = 86400
+        sessionTime = 30 * 86400
         chainConfig = nil
         originData = nil
+        dashboardUrl = URL(string: getDashboardUrl(buildEnv: buildEnv))
     }
 
     let clientId: String
@@ -233,6 +239,7 @@ public struct W3AInitParams: Codable {
     let sessionTime: Int
     var chainConfig: ChainConfig? = nil
     var originData: [String: String]?
+    var dashboardUrl: URL?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -257,8 +264,9 @@ public struct W3AInitParams: Codable {
         chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip155
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
-        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
+        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 30 * 86400
         originData = try values.decodeIfPresent([String: String].self, forKey: .originData)
+        dashboardUrl = try values.decodeIfPresent(String.self, forKey: .dashboardUrl).flatMap { URL(string: $0) }
     }
 }
 
@@ -276,7 +284,7 @@ public func getSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
-    let walletServicesVersion = "v3"
+    let walletServicesVersion = "v4"
     guard let buildEnv = buildEnv else {
         return "https://wallet.web3auth.io"
     }
@@ -288,6 +296,19 @@ public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
         return "https://develop-wallet.web3auth.io"
     default:
         return "https://wallet.web3auth.io/\(walletServicesVersion)"
+    }
+}
+
+public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
+    let authDashboardVersion = "v9"
+    let walletAccountConstant = "wallet/account"
+    switch buildEnv {
+    case .staging:
+        return "https://staging-account.web3auth.io/\(authDashboardVersion)/\(walletAccountConstant)"
+    case .testing:
+        return "https://develop-account.web3auth.io/\(walletAccountConstant)"
+    default:
+        return "https://account.web3auth.io/\(authDashboardVersion)/\(walletAccountConstant)"
     }
 }
 
