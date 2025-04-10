@@ -1,6 +1,6 @@
 import Foundation
 
-public enum Web3AuthProvider: String, Codable {
+public enum AUTH_CONNECTION: String, Codable {
     case GOOGLE = "google"
     case FACEBOOK = "facebook"
     case REDDIT = "reddit"

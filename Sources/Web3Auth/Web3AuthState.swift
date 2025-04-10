@@ -16,12 +16,13 @@ public struct Web3AuthState: Codable {
     public var tssShareIndex: Int?
     public var tssPubKey: String?
     public var tssShare: String?
+    public var tssTag: String?
     public var tssNonce: Int?
     public var nodeIndexes: [Int]?
     public var keyMode: String?
 
     public init(privKey: String?, ed25519PrivKey: String?, sessionId: String?, userInfo: Web3AuthUserInfo?, error: String?,
-                coreKitKey: String?, coreKitEd25519PrivKey: String?, factorKey: String?, signatures: [String]?, tssShareIndex: Int?, tssPubKey: String?, tssShare: String?, tssNonce: Int?, nodeIndexes: [Int]?, keyMode: String?) {
+                coreKitKey: String?, coreKitEd25519PrivKey: String?, factorKey: String?, signatures: [String]?, tssShareIndex: Int?, tssPubKey: String?, tssShare: String?, tssTag: String? ,tssNonce: Int?, nodeIndexes: [Int]?, keyMode: String?) {
         self.privKey = privKey
         self.ed25519PrivKey = ed25519PrivKey
         self.sessionId = sessionId
@@ -34,6 +35,7 @@ public struct Web3AuthState: Codable {
         self.tssShareIndex = tssShareIndex
         self.tssPubKey = tssPubKey
         self.tssShare = tssShare
+        self.tssTag = tssTag
         self.tssNonce = tssNonce
         self.nodeIndexes = nodeIndexes
         self.keyMode = keyMode
@@ -53,6 +55,7 @@ public struct Web3AuthState: Codable {
         tssShareIndex = try container.decodeIfPresent(Int.self, forKey: .tssShareIndex)
         tssPubKey = try container.decodeIfPresent(String.self, forKey: .tssPubKey)
         tssShare = try container.decodeIfPresent(String.self, forKey: .tssShare)
+        tssTag = try container.decodeIfPresent(String.self, forKey: .tssTag)
         tssNonce = try container.decodeIfPresent(Int.self, forKey: .tssNonce)
         nodeIndexes = try container.decodeIfPresent([Int].self, forKey: .nodeIndexes)
         keyMode = try container.decodeIfPresent(String.self, forKey: .keyMode)
@@ -79,6 +82,7 @@ extension Web3AuthState {
         tssShareIndex = dict["tssShareIndex"] as? Int
         tssPubKey = dict["tssPubKey"] as? String
         tssShare = dict["tssShare"] as? String
+        tssTag = dict["tssTag"] as? String
         tssNonce = dict["tssShare"] as? Int
         nodeIndexes = dict["nodeIndexes"] as? [Int]
         keyMode = dict["keyMode"] as? String

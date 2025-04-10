@@ -2,13 +2,13 @@ import SessionManager
 
 extension KeychainManager {
     func saveDappShare(userInfo: Web3AuthUserInfo) {
-        guard let verifer = userInfo.verifier, let veriferID = userInfo.verifierId, let dappShare = userInfo.dappShare else { return }
+        guard let verifer = userInfo.authConnectionId, let veriferID = userInfo.userId, let dappShare = userInfo.dappShare else { return }
         let key = verifer + " | " + veriferID
         KeychainManager.shared.save(key: .custom(dappShare), val: key)
     }
 
-    func getDappShare(verifier: String) -> String? {
-        return searchDappShare(query: verifier)
+    func getDappShare(authConnectionId: String) -> String? {
+        return searchDappShare(query: authConnectionId)
     }
 
     private func searchDappShare(query: String) -> String? {

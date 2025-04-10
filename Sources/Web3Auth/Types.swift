@@ -126,11 +126,10 @@ public struct W3AWhiteLabelData: Codable {
     }
 }
 
-public struct W3ALoginConfig: Codable {
-    public init(verifier: String, typeOfLogin: TypeOfLogin, name: String? = nil, description: String? = nil, clientId: String,
-                verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
+public struct AuthConnectionConfig: Codable {
+    public init(authConnectionId: String, typeOfLogin: TypeOfLogin, name: String? = nil, description: String? = nil, clientId: String, verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
                 showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
-        self.verifier = verifier
+        self.authConnectionId = authConnectionId
         self.typeOfLogin = typeOfLogin
         self.name = name
         self.description = description
@@ -145,7 +144,7 @@ public struct W3ALoginConfig: Codable {
         self.showOnMobile = showOnMobile
     }
 
-    let verifier: String
+    let authConnectionId: String
     let typeOfLogin: TypeOfLogin
     let name: String?
     let description: String?
@@ -161,7 +160,7 @@ public struct W3ALoginConfig: Codable {
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        verifier = try values.decode(String.self, forKey: .verifier)
+        authConnectionId = try values.decode(String.self, forKey: .authConnectionId)
         typeOfLogin = try values.decode(TypeOfLogin.self, forKey: .typeOfLogin)
         name = try values.decodeIfPresent(String.self, forKey: .name)
         description = try values.decodeIfPresent(String.self, forKey: .description)
@@ -178,7 +177,7 @@ public struct W3ALoginConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, loginConfig: [String: W3ALoginConfig]? = nil, whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
+    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, authConnectionConfig: [AuthConnectionConfig] = [], whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
         self.clientId = clientId
         self.network = network
         self.buildEnv = buildEnv
@@ -193,7 +192,7 @@ public struct W3AInitParams: Codable {
             self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
         }
         self.redirectUrl = redirectUrl
-        self.loginConfig = loginConfig
+        self.authConnectionConfig = authConnectionConfig
         self.whiteLabel = whiteLabel
         self.chainNamespace = chainNamespace
         self.useCoreKitKey = useCoreKitKey
@@ -214,7 +213,7 @@ public struct W3AInitParams: Codable {
         sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
         walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
         self.redirectUrl = redirectUrl
-        loginConfig = nil
+        authConnectionConfig = []
         whiteLabel = nil
         chainNamespace = ChainNamespace.eip155
         useCoreKitKey = false
@@ -231,7 +230,7 @@ public struct W3AInitParams: Codable {
     var sdkUrl: URL?
     var walletSdkUrl: URL?
     var redirectUrl: String
-    let loginConfig: [String: W3ALoginConfig]?
+    var authConnectionConfig: [AuthConnectionConfig]?
     var whiteLabel: W3AWhiteLabelData?
     let chainNamespace: ChainNamespace?
     let useCoreKitKey: Bool?
@@ -259,7 +258,7 @@ public struct W3AInitParams: Codable {
             walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
         }
         redirectUrl = try values.decode(String.self, forKey: .redirectUrl)
-        loginConfig = try values.decodeIfPresent([String: W3ALoginConfig].self, forKey: .loginConfig)
+        authConnectionConfig = try values.decodeIfPresent([AuthConnectionConfig].self, forKey: .authConnectionConfig)
         whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
         chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip155
         useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
@@ -313,10 +312,10 @@ public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public struct W3ALoginParams: Codable {
-    public init(loginProvider: Web3AuthProvider, dappShare: String? = nil,
+    public init(authConnection: AUTH_CONNECTION, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
-        self.loginProvider = loginProvider.rawValue
+        self.authConnection = authConnection.rawValue
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
@@ -326,10 +325,10 @@ public struct W3ALoginParams: Codable {
         self.dappUrl = dappUrl
     }
 
-    public init(loginProvider: String, dappShare: String? = nil,
+    public init(authConnection: String, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
-        self.loginProvider = loginProvider
+        self.authConnection = authConnection
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
@@ -339,7 +338,7 @@ public struct W3ALoginParams: Codable {
         self.dappUrl = dappUrl
     }
 
-    let loginProvider: String
+    let authConnection: String
     var dappShare: String?
     let extraLoginOptions: ExtraLoginOptions?
     var redirectUrl: String?
@@ -350,7 +349,7 @@ public struct W3ALoginParams: Codable {
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        loginProvider = try values.decode(String.self, forKey: .loginProvider)
+        authConnection = try values.decode(String.self, forKey: .authConnection)
         dappShare = try values.decodeIfPresent(String.self, forKey: .dappShare)
         extraLoginOptions = try values.decodeIfPresent(ExtraLoginOptions.self, forKey: .extraLoginOptions)
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)

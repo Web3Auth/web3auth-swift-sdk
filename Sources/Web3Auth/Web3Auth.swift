@@ -52,7 +52,10 @@ public class Web3Auth: NSObject {
                     // Restore from valid session
                     let loginDetailsDict = try await sessionManager.authorizeSession(origin: params.redirectUrl)
                     guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(),
-                                                           network: initParams.network) else { throw Web3AuthError.decodingError }
+                                                           network: initParams.network)
+                    else {
+                        throw Web3AuthError.decodingError
+                    }
                     state = loginDetails
                 } catch SessionManagerError.dataNotFound {
                     // Clear invalid session
@@ -67,7 +70,7 @@ public class Web3Auth: NSObject {
         guard let state = state else { throw Web3AuthError.noUserFound }
         try await sessionManager.invalidateSession()
         SessionManager.deleteSessionIdFromStorage()
-        if let verifer = state.userInfo?.verifier, let dappShare = KeychainManager.shared.getDappShare(verifier: verifer) {
+        if let authConnectionId = state.userInfo?.authConnectionId, let dappShare = KeychainManager.shared.getDappShare(authConnectionId: authConnectionId) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
         self.state = nil
@@ -161,8 +164,8 @@ public class Web3Auth: NSObject {
         if w3ALoginParams?.redirectUrl == nil {
             throw Web3AuthError.invalidOrMissingRedirectURI
         }
-        if let loginConfig = initParams.loginConfig?.values.first,
-           let savedDappShare = KeychainManager.shared.getDappShare(verifier: loginConfig.verifier) {
+        if let authConnectionConfig = initParams.authConnectionConfig?.first,
+           let savedDappShare = KeychainManager.shared.getDappShare(authConnectionId: authConnectionConfig.authConnectionId) {
             w3ALoginParams?.dappShare = savedDappShare
         }
 
@@ -247,7 +250,7 @@ public class Web3Auth: NSObject {
             } else {
                 extraLoginOptions = w3ALoginParams?.extraLoginOptions
             }
-            extraLoginOptions?.login_hint = state?.userInfo?.verifierId
+            extraLoginOptions?.login_hint = state?.userInfo?.userId
 
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
@@ -343,7 +346,7 @@ public class Web3Auth: NSObject {
         }
 
         var extraLoginOptions: ExtraLoginOptions? = modifiedLoginParams?.extraLoginOptions ?? loginParams?.extraLoginOptions ?? ExtraLoginOptions()
-        extraLoginOptions?.login_hint = state?.userInfo?.verifierId
+        extraLoginOptions?.login_hint = state?.userInfo?.userId
 
         let jsonData = try? JSONEncoder().encode(extraLoginOptions)
         let _extraLoginOptions = jsonData.flatMap { String(data: $0, encoding: .utf8) }
