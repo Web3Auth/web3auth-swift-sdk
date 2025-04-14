@@ -6,7 +6,6 @@ import Foundation
 public struct Web3AuthUserInfo: Codable {
     public let name: String?
     public let profileImage: String?
-    public let typeOfLogin: String?
     public let groupedAuthConnectionId: String?
     public let authConnectionId: String?
     public let userId: String?
@@ -19,12 +18,11 @@ public struct Web3AuthUserInfo: Codable {
     public let authConnection: String?
     public let appState: String?
 
-    public init(name: String?, profileImage: String?, typeOfLogin: String?, groupedAuthConnectionId: String?,
+    public init(name: String?, profileImage: String?, groupedAuthConnectionId: String?,
                 authConnectionId: String?, userId: String?, email: String?, dappShare: String?, idToken: String?, oAuthIdToken: String?, oAuthAccessToken: String?,
                 isMfaEnabled: Bool?, authConnection: String?, appState: String?) {
         self.name = name
         self.profileImage = profileImage
-        self.typeOfLogin = typeOfLogin
         self.groupedAuthConnectionId = groupedAuthConnectionId
         self.authConnectionId = authConnectionId
         self.userId = userId
@@ -42,7 +40,6 @@ public struct Web3AuthUserInfo: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         name = try container.decodeIfPresent(String.self, forKey: .name)
         profileImage = try container.decodeIfPresent(String.self, forKey: .profileImage)
-        typeOfLogin = try container.decodeIfPresent(String.self, forKey: .typeOfLogin)
         groupedAuthConnectionId = try container.decodeIfPresent(String.self, forKey:.groupedAuthConnectionId)
         authConnectionId = try container.decodeIfPresent(String.self, forKey: .authConnectionId)
         userId = try container.decodeIfPresent(String.self, forKey: .userId)

@@ -262,7 +262,7 @@ public class Web3Auth: NSObject {
             }
             
             let params: [String: String?] = [
-                "loginProvider": state?.userInfo?.typeOfLogin,
+                "authConnection": state?.userInfo?.authConnection,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
                 "redirectUrl": URL(string: redirectUrl!)?.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
@@ -363,7 +363,7 @@ public class Web3Auth: NSObject {
         let dappUrl = modifiedInitParams.redirectUrl
         
         let params: [String: String?] = [
-            "loginProvider": state?.userInfo?.typeOfLogin,
+            "authConnection": state?.userInfo?.authConnection,
             "mfaLevel": MFALevel.MANDATORY.rawValue,
             "redirectUrl": modifiedInitParams.dashboardUrl?.absoluteString,
             "extraLoginOptions": _extraLoginOptions,
