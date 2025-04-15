@@ -272,15 +272,15 @@ public struct W3AInitParams: Codable {
 }
 
 public func getSdkUrl(buildEnv: BuildEnv?) -> String {
-    let openLoginVersion = "v9"
+    let authServiceVersion = "v10"
 
     switch buildEnv {
     case .staging:
-        return "https://staging-auth.web3auth.io/\(openLoginVersion)"
+        return "https://staging-auth.web3auth.io/\(authServiceVersion)"
     case .testing:
         return "https://develop-auth.web3auth.io"
     default:
-        return "https://auth.web3auth.io/\(openLoginVersion)"
+        return "https://auth.web3auth.io/\(authServiceVersion)"
     }
 }
 
