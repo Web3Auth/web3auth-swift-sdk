@@ -219,7 +219,8 @@ public struct W3AInitParams: Codable {
         useCoreKitKey = false
         mfaSettings = nil
         sessionTime = 30 * 86400
-        chainConfig = nil
+        chains = nil
+        chainId = nil
         originData = nil
         dashboardUrl = URL(string: getDashboardUrl(buildEnv: buildEnv))
     }
@@ -236,7 +237,8 @@ public struct W3AInitParams: Codable {
     let useCoreKitKey: Bool?
     let mfaSettings: MfaSettings?
     let sessionTime: Int
-    var chainConfig: ChainConfig? = nil
+    var chains: [ChainConfig]? = nil
+    var chainId: String? = nil
     var originData: [String: String]?
     var dashboardUrl: URL?
 

@@ -20,12 +20,14 @@ class ViewModel: ObservableObject {
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
     //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false
-    private var chainConfig: ChainConfig = ChainConfig(
-        chainNamespace: ChainNamespace.eip155,
-        chainId: "0x1",
-        rpcTarget: "https://mainnet.infura.io/v3/79921cf5a1f149f7af0a0fef80cf3363",
-        ticker: "ETH"
-    )
+    private var chainConfig: [ChainConfig] = [
+        ChainConfig(
+            chainNamespace: .eip155,
+            chainId: "0x1",
+            rpcTarget: "https://mainnet.infura.io/v3/79921cf5a1f149f7af0a0fef80cf3363",
+            ticker: "ETH"
+        )
+    ]
     private var authConnectionConfig: [AuthConnectionConfig] = [
         AuthConnectionConfig(
             authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
@@ -167,7 +169,7 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.launchWalletServices(chainConfig: chainConfig)
+                try await web3Auth?.launchWalletServices(chains: chainConfig, chainId: "0x1")
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
@@ -215,9 +217,9 @@ class ViewModel: ObservableObject {
                 params.append("Hello, Web3Auth from Android!")
                 params.append(checksumAddress)
                 params.append("Web3Auth")
-                let signResponse = try await self.web3Auth?.request(chainConfig: ChainConfig(
+                let signResponse = try await self.web3Auth?.request(chains: [ChainConfig(
                     chainNamespace: ChainNamespace.eip155, chainId: "0x89", rpcTarget: "https://polygon-rpc.com"
-                ), method: "personal_sign", requestParams: params)
+                )], chainId: "0x89", method: "personal_sign", requestParams: params)
                 if let response = signResponse {
                     print("Sign response received: \(response)")
                 } else {
@@ -266,7 +268,7 @@ extension ViewModel {
             User info:
                 Name: \(result.userInfo?.name ?? "")
                 Profile image: \(result.userInfo?.profileImage ?? "N/A")
-                Type of login: \(result.userInfo?.typeOfLogin ?? "")
+                AuthConnection: \(result.userInfo?.authConnection ?? "")
         """)
     }
 }
