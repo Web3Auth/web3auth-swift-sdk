@@ -1,6 +1,6 @@
 import Foundation
 
-public enum AUTH_CONNECTION: String, Codable {
+public enum AuthConnection: String, Codable {
     case GOOGLE = "google"
     case FACEBOOK = "facebook"
     case REDDIT = "reddit"

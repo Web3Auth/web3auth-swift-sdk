@@ -177,19 +177,19 @@ public struct AuthConnectionConfig: Codable {
 }
 
 public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, buildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, authConnectionConfig: [AuthConnectionConfig] = [], whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
+    public init(clientId: String, network: Network, authBuildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, authConnectionConfig: [AuthConnectionConfig] = [], whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
         self.clientId = clientId
         self.network = network
-        self.buildEnv = buildEnv
+        self.authBuildEnv = authBuildEnv
         if sdkUrl != nil {
             self.sdkUrl = sdkUrl
         } else {
-            self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.buildEnv))
+            self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.authBuildEnv))
         }
         if walletSdkUrl != nil {
             self.walletSdkUrl = walletSdkUrl
         } else {
-            self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.buildEnv))
+            self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.authBuildEnv))
         }
         self.redirectUrl = redirectUrl
         self.authConnectionConfig = authConnectionConfig
@@ -202,16 +202,16 @@ public struct W3AInitParams: Codable {
         if dashboardUrl != nil {
             self.dashboardUrl = dashboardUrl
         } else {
-            self.dashboardUrl = URL(string: getDashboardUrl(buildEnv: self.buildEnv))
+            self.dashboardUrl = URL(string: getDashboardUrl(buildEnv: self.authBuildEnv))
         }
     }
 
     public init(clientId: String, network: Network, redirectUrl: String) {
         self.clientId = clientId
         self.network = network
-        buildEnv = BuildEnv.production
-        sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
-        walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
+        authBuildEnv = BuildEnv.production
+        sdkUrl = URL(string: getSdkUrl(buildEnv: authBuildEnv))
+        walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: authBuildEnv))
         self.redirectUrl = redirectUrl
         authConnectionConfig = []
         whiteLabel = nil
@@ -222,12 +222,12 @@ public struct W3AInitParams: Codable {
         chains = nil
         chainId = nil
         originData = nil
-        dashboardUrl = URL(string: getDashboardUrl(buildEnv: buildEnv))
+        dashboardUrl = URL(string: getDashboardUrl(buildEnv: authBuildEnv))
     }
 
     let clientId: String
     let network: Network
-    let buildEnv: BuildEnv?
+    let authBuildEnv: BuildEnv?
     var sdkUrl: URL?
     var walletSdkUrl: URL?
     var redirectUrl: String
@@ -237,7 +237,7 @@ public struct W3AInitParams: Codable {
     let useCoreKitKey: Bool?
     let mfaSettings: MfaSettings?
     let sessionTime: Int
-    var chains: [ChainConfig]? = nil
+    var chains: [ChainsConfig]? = nil
     var chainId: String? = nil
     var originData: [String: String]?
     var dashboardUrl: URL?
@@ -246,18 +246,18 @@ public struct W3AInitParams: Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         clientId = try values.decode(String.self, forKey: .clientId)
         network = try values.decode(Network.self, forKey: .network)
-        buildEnv = try values.decodeIfPresent(BuildEnv.self, forKey: .buildEnv) ?? BuildEnv.production
+        authBuildEnv = try values.decodeIfPresent(BuildEnv.self, forKey: .authBuildEnv) ?? BuildEnv.production
         let customSdkUrl = try values.decodeIfPresent(String.self, forKey: .sdkUrl)
         if customSdkUrl != nil {
             sdkUrl = URL(string: customSdkUrl!)!
         } else {
-            sdkUrl = URL(string: getSdkUrl(buildEnv: buildEnv))
+            sdkUrl = URL(string: getSdkUrl(buildEnv: authBuildEnv))
         }
         let customWalletSdkUrl = try values.decodeIfPresent(String.self, forKey: .walletSdkUrl)
         if customWalletSdkUrl != nil {
             walletSdkUrl = URL(string: customWalletSdkUrl!)!
         } else {
-            walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: buildEnv))
+            walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: authBuildEnv))
         }
         redirectUrl = try values.decode(String.self, forKey: .redirectUrl)
         authConnectionConfig = try values.decodeIfPresent([AuthConnectionConfig].self, forKey: .authConnectionConfig)
@@ -314,7 +314,7 @@ public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public struct W3ALoginParams: Codable {
-    public init(authConnection: AUTH_CONNECTION, dappShare: String? = nil,
+    public init(authConnection: AuthConnection, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
         self.authConnection = authConnection.rawValue
@@ -476,7 +476,7 @@ public struct MfaSetting: Codable {
     }
 }
 
-public struct ChainConfig: Codable {
+public struct ChainsConfig: Codable {
     public init(chainNamespace: ChainNamespace = ChainNamespace.eip155, decimals: Int? = 18, blockExplorerUrl: String? = nil, chainId: String, displayName: String? = nil, logo: String? = nil, rpcTarget: String, ticker: String? = nil, tickerName: String? = nil) {
         self.chainNamespace = chainNamespace
         self.decimals = decimals

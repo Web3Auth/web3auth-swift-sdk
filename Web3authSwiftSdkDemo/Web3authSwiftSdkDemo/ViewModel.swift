@@ -20,8 +20,8 @@ class ViewModel: ObservableObject {
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
     //  private var network: Network = .mainnet
     private var useCoreKit: Bool = false
-    private var chainConfig: [ChainConfig] = [
-        ChainConfig(
+    private var chainConfig: [ChainsConfig] = [
+        ChainsConfig(
             chainNamespace: .eip155,
             chainId: "0x1",
             rpcTarget: "https://mainnet.infura.io/v3/79921cf5a1f149f7af0a0fef80cf3363",
@@ -42,16 +42,9 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = try await Web3Auth(.init(clientId: clientID, network: network, buildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
+        web3Auth = try await Web3Auth(.init(clientId: clientID, network: network, authBuildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
                                             // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                             // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
-                                            authConnectionConfig: [
-                                                    AuthConnectionConfig(
-                                                        authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-                                                        typeOfLogin: .jwt,
-                                                        clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
-                                                    )
-                                                ],
                                             useCoreKitKey: useCoreKit))
         await MainActor.run(body: {
             if self.web3Auth?.state != nil {
@@ -75,7 +68,7 @@ class ViewModel: ObservableObject {
         }
     }
 
-    func login(authConnection: AUTH_CONNECTION) {
+    func login(authConnection: AuthConnection) {
         Task {
             do {
                 _ = try await web3Auth?.login(W3ALoginParams(authConnection: authConnection,
@@ -90,13 +83,13 @@ class ViewModel: ObservableObject {
         }
     }
 
-    func loginWithGoogle(authConnection: AUTH_CONNECTION) {
+    func loginWithGoogle(authConnection: AuthConnection) {
         Task {
             do {
                 web3Auth = try await Web3Auth(.init(
                     clientId: clientID,
                     network: network,
-                    buildEnv: buildEnv,
+                    authBuildEnv: buildEnv,
                     redirectUrl: redirectUrl, // we should probably use this throughout instead of being part of other classes
                     authConnectionConfig: [
                             AuthConnectionConfig(
@@ -126,7 +119,7 @@ class ViewModel: ObservableObject {
                 web3Auth = try await Web3Auth(.init(
                     clientId: clientID,
                     network: network,
-                    buildEnv: buildEnv,
+                    authBuildEnv: buildEnv,
                     redirectUrl: redirectUrl,
                     authConnectionConfig: [
                         AuthConnectionConfig(
@@ -169,7 +162,7 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.launchWalletServices(chains: chainConfig, chainId: "0x1")
+                try await web3Auth?.showWalletUI(chains: chainConfig, chainId: "0x1")
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
@@ -217,9 +210,9 @@ class ViewModel: ObservableObject {
                 params.append("Hello, Web3Auth from Android!")
                 params.append(checksumAddress)
                 params.append("Web3Auth")
-                let signResponse = try await self.web3Auth?.request(chains: [ChainConfig(
+                let signResponse = try await self.web3Auth?.request(chainConfig: ChainsConfig(
                     chainNamespace: ChainNamespace.eip155, chainId: "0x89", rpcTarget: "https://polygon-rpc.com"
-                )], chainId: "0x89", method: "personal_sign", requestParams: params)
+                ), method: "personal_sign", requestParams: params)
                 if let response = signResponse {
                     print("Sign response received: \(response)")
                 } else {
@@ -239,7 +232,7 @@ class ViewModel: ObservableObject {
                     W3AInitParams(
                         clientId: clientID,
                         network: network,
-                        buildEnv: buildEnv,
+                        authBuildEnv: buildEnv,
                         redirectUrl: redirectUrl,
                         authConnectionConfig: [
                                 AuthConnectionConfig(

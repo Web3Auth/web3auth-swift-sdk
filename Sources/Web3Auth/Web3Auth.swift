@@ -406,7 +406,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func launchWalletServices(chains: [ChainConfig], chainId: String, path: String? = "wallet") async throws {
+    public func showWalletUI(chains: [ChainsConfig], chainId: String, path: String? = "wallet") async throws {
         let savedSessionId = SessionManager.getSessionIdFromStorage()!
         if !savedSessionId.isEmpty {
             initParams.chains = chains
@@ -442,11 +442,12 @@ public class Web3Auth: NSObject {
         }
     }
 
-    public func request(chains: [ChainConfig], chainId: String, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
+    public func request(chainConfig: ChainsConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
         let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
-            initParams.chains = chains
-            initParams.chainId = chainId
+            let chainConfigList = [chainConfig]
+            initParams.chains = chainConfigList
+            initParams.chainId = chainConfig.chainId
             let walletServicesParams = WalletServicesParams(options: initParams, appState: appState)
             let loginId = try SessionManager.generateRandomSessionID()!
             let _loginId = try await getLoginId(sessionId: loginId, data: walletServicesParams)
