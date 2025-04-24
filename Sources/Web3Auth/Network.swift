@@ -3,7 +3,7 @@ import Foundation
 /**
  List of networks that can run Web3Auth.
  */
-public enum Network: String, Codable {
+public enum Web3AuthNetwork: String, Codable {
     case mainnet
     case testnet
     case cyan

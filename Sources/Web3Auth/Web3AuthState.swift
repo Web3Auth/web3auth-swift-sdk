@@ -63,7 +63,7 @@ public struct Web3AuthState: Codable {
 }
 
 extension Web3AuthState {
-    init?(dict: [String: Any], sessionID: String, network: Network) {
+    init?(dict: [String: Any], sessionID: String, web3AuthNetwork: Web3AuthNetwork) {
         guard let privKey = dict["privKey"] as? String,
               let ed25519PrivKey = dict["ed25519PrivKey"] as? String,
               let userInfoDict = dict["userInfo"] as? [String: Any],

@@ -8,7 +8,7 @@ import SessionManager
  */
 
 public class Web3Auth: NSObject {
-    private var initParams: W3AInitParams
+    private var web3AuthOptions: Web3AuthOptions
     private var authSession: ASWebAuthenticationSession?
     // You can check the state variable before logging the user in, if the user
     // has an active session the state variable will already have all the values you
@@ -16,10 +16,10 @@ public class Web3Auth: NSObject {
     public var state: Web3AuthState?
     var sessionManager: SessionManager
     var webViewController: WebViewController = DispatchQueue.main.sync { WebViewController(onSignResponse: { _ in }) }
-    private var w3ALoginParams: W3ALoginParams?
+    private var loginParams: LoginParams?
     private static var signResponse: SignResponse?
 
-    let SIGNER_MAP: [Network: String] = [
+    let SIGNER_MAP: [Web3AuthNetwork: String] = [
         .mainnet: "https://signer.web3auth.io",
         .testnet: "https://signer.web3auth.io",
         .cyan: "https://signer-polygon.web3auth.io",
@@ -31,17 +31,17 @@ public class Web3Auth: NSObject {
      Web3Auth  component for authenticating with web-based flow.
 
      ```
-     Web3Auth(OLInitParams(clientId: clientId, network: .mainnet))
+     Web3Auth(Web3AuthOptions(clientId: clientId, network: .mainnet))
      ```
 
      - parameter params: Init params for your Web3Auth instance.
 
      - returns: Web3Auth component.
      */
-    public init(_ params: W3AInitParams) async throws {
-        initParams = params
-        Router.baseURL = SIGNER_MAP[params.network] ?? ""
-        sessionManager = SessionManager(sessionTime: params.sessionTime, allowedOrigin: params.redirectUrl)
+    public init(_ options: Web3AuthOptions) async throws {
+        web3AuthOptions = options
+        Router.baseURL = SIGNER_MAP[options.web3AuthNetwork] ?? ""
+        sessionManager = SessionManager(sessionTime: options.sessionTime, allowedOrigin: options.redirectUrl)
         super.init()
         let fetchConfigResult = try await fetchProjectConfig()
         if fetchConfigResult {
@@ -50,9 +50,9 @@ public class Web3Auth: NSObject {
                 sessionManager.setSessionId(sessionId: sessionId!)
                 do {
                     // Restore from valid session
-                    let loginDetailsDict = try await sessionManager.authorizeSession(origin: params.redirectUrl)
+                    let loginDetailsDict = try await sessionManager.authorizeSession(origin: options.redirectUrl)
                     guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(),
-                                                           network: initParams.network)
+                                                           web3AuthNetwork: options.web3AuthNetwork)
                     else {
                         throw Web3AuthError.decodingError
                     }
@@ -82,9 +82,9 @@ public class Web3Auth: NSObject {
     }
 
     private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthState {
-        let loginDetailsDict = try await sessionManager.authorizeSession(origin: initParams.redirectUrl)
+        let loginDetailsDict = try await sessionManager.authorizeSession(origin: web3AuthOptions.redirectUrl)
         guard
-            let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(), network: initParams.network)
+            let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(), web3AuthNetwork: web3AuthOptions.web3AuthNetwork)
         else {
             throw Web3AuthError.decodingError
         }
@@ -120,9 +120,9 @@ public class Web3Auth: NSObject {
      */
     public convenience init(_ bundle: Bundle = Bundle.main) async throws {
         let values = plistValues(bundle)!
-        try await self.init(W3AInitParams(
+        try await self.init(Web3AuthOptions(
             clientId: values.clientId,
-            network: values.network,
+            web3AuthNetwork: values.web3AuthNetwork,
             redirectUrl: values.redirectUrl
         ))
     }
@@ -141,7 +141,7 @@ public class Web3Auth: NSObject {
                          User info:
                              Name: \(result.userInfo.name)
                              Profile image: \(result.userInfo.profileImage ?? "N/A")
-                             Type of login: \(result.userInfo.typeOfLogin)
+                             Type of login: \(result.userInfo.authConnection)
                      """)
              case .failure(let error):
                  print("Error: \(error)")
@@ -154,22 +154,22 @@ public class Web3Auth: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
-    public func login(_ loginParams: W3ALoginParams) async throws -> Web3AuthState {
-        self.w3ALoginParams = loginParams
+    public func login(_ loginParams: LoginParams) async throws -> Web3AuthState {
+        self.loginParams = loginParams
         // assign loginParams redirectUrl from intiParamas redirectUrl
         
-        if w3ALoginParams!.redirectUrl == nil {
-            w3ALoginParams!.redirectUrl = initParams.redirectUrl
+        if self.loginParams!.redirectUrl == nil {
+            self.loginParams!.redirectUrl = web3AuthOptions.redirectUrl
         }
-        if w3ALoginParams?.redirectUrl == nil {
+        if self.loginParams?.redirectUrl == nil {
             throw Web3AuthError.invalidOrMissingRedirectURI
         }
-        if let authConnectionConfig = initParams.authConnectionConfig?.first,
+        if let authConnectionConfig = web3AuthOptions.authConnectionConfig?.first,
            let savedDappShare = KeychainManager.shared.getDappShare(authConnectionId: authConnectionConfig.authConnectionId) {
-            w3ALoginParams?.dappShare = savedDappShare
+            self.loginParams?.dappShare = savedDappShare
         }
 
-        let sdkUrlParams = SdkUrlParams(options: initParams, params: w3ALoginParams!, actionType: "login")
+        let sdkUrlParams = SdkUrlParams(options: web3AuthOptions, params: self.loginParams!, actionType: "login")
         let sessionId = try SessionManager.generateRandomSessionID()!
         let loginId = try await getLoginId(sessionId: sessionId, data: sdkUrlParams)
 
@@ -177,13 +177,13 @@ public class Web3Auth: NSObject {
             "loginId": loginId,
         ]
 
-        let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
+        let url = try Web3Auth.generateAuthSessionURL(web3AuthOptions: web3AuthOptions, jsonObject: jsonObject, sdkUrl: web3AuthOptions.sdkUrl?.absoluteString, path: "start")
 
         return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
 
             DispatchQueue.main.async { [self] in // Ensure the UI-related setup is on the main thread.
                 self.authSession = ASWebAuthenticationSession(
-                    url: url, callbackURLScheme: URL(string: w3ALoginParams!.redirectUrl!)!.scheme
+                    url: url, callbackURLScheme: URL(string: self.loginParams!.redirectUrl!)!.scheme
                 ) { callbackURL, authError in
 
                     guard
@@ -228,7 +228,7 @@ public class Web3Auth: NSObject {
         })
     }
 
-    public func enableMFA(_ loginParams: W3ALoginParams? = nil) async throws -> Bool {
+    public func enableMFA(_ loginParams: LoginParams? = nil) async throws -> Bool {
         // Note that this function can be called without login on restored session, so loginParams should not be optional.
         if state?.userInfo?.isMfaEnabled == true {
             throw Web3AuthError.mfaAlreadyEnabled
@@ -236,11 +236,11 @@ public class Web3Auth: NSObject {
         let sessionId = sessionManager.getSessionId()
         if !sessionId.isEmpty {
             if loginParams != nil {
-                self.w3ALoginParams = loginParams
-                if w3ALoginParams?.redirectUrl == nil {
-                    w3ALoginParams?.redirectUrl = initParams.redirectUrl
+                self.loginParams = loginParams
+                if self.loginParams?.redirectUrl == nil {
+                    self.loginParams?.redirectUrl = web3AuthOptions.redirectUrl
                 }
-                if w3ALoginParams?.redirectUrl == nil {
+                if self.loginParams?.redirectUrl == nil {
                     throw Web3AuthError.invalidOrMissingRedirectURI
                 }
             }
@@ -248,17 +248,17 @@ public class Web3Auth: NSObject {
             if loginParams?.extraLoginOptions != nil {
                 extraLoginOptions = loginParams?.extraLoginOptions
             } else {
-                extraLoginOptions = w3ALoginParams?.extraLoginOptions
+                extraLoginOptions = self.loginParams?.extraLoginOptions
             }
             extraLoginOptions?.login_hint = state?.userInfo?.userId
 
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
             
-            let redirectUrl = if self.w3ALoginParams != nil {
-                self.w3ALoginParams?.redirectUrl
+            let redirectUrl = if self.loginParams != nil {
+                self.loginParams?.redirectUrl
             } else {
-                initParams.redirectUrl
+                web3AuthOptions.redirectUrl
             }
             
             let params: [String: String?] = [
@@ -268,7 +268,7 @@ public class Web3Auth: NSObject {
                 "extraLoginOptions": _extraLoginOptions,
             ]
 
-            let setUpMFAParams = SetUpMFAParams(options: initParams, params: params, actionType: "enable_mfa", sessionId: sessionId)
+            let setUpMFAParams = SetUpMFAParams(options: web3AuthOptions, params: params, actionType: "enable_mfa", sessionId: sessionId)
             let sessionId = try SessionManager.generateRandomSessionID()!
             let loginId = try await getLoginId(sessionId: sessionId, data: setUpMFAParams)
 
@@ -276,7 +276,7 @@ public class Web3Auth: NSObject {
                 "loginId": loginId,
             ]
 
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: jsonObject, sdkUrl: initParams.sdkUrl?.absoluteString, path: "start")
+            let url = try Web3Auth.generateAuthSessionURL(web3AuthOptions: web3AuthOptions, jsonObject: jsonObject, sdkUrl: web3AuthOptions.sdkUrl?.absoluteString, path: "start")
 
             return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Bool, Error>) in
 
@@ -327,7 +327,7 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func manageMFA(_ loginParams: W3ALoginParams? = nil) async throws -> Bool {
+    public func manageMFA(_ loginParams: LoginParams? = nil) async throws -> Bool {
         if state?.userInfo?.isMfaEnabled == false {
             throw Web3AuthError.mfaNotEnabled
         }
@@ -337,8 +337,8 @@ public class Web3Auth: NSObject {
             throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
         }
 
-        var modifiedLoginParams = self.w3ALoginParams
-        var modifiedInitParams = initParams
+        var modifiedLoginParams = self.loginParams
+        var modifiedInitParams = web3AuthOptions
 
         if loginParams != nil {
             modifiedLoginParams = loginParams
@@ -378,7 +378,7 @@ public class Web3Auth: NSObject {
 
         let jsonObject: [String: String?] = ["loginId": loginId]
 
-        let url = try Web3Auth.generateAuthSessionURL(initParams: modifiedInitParams, jsonObject: jsonObject, sdkUrl: modifiedInitParams.sdkUrl?.absoluteString, path: "start")
+        let url = try Web3Auth.generateAuthSessionURL(web3AuthOptions: modifiedInitParams, jsonObject: jsonObject, sdkUrl: modifiedInitParams.sdkUrl?.absoluteString, path: "start")
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
             DispatchQueue.main.async {
@@ -406,12 +406,12 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func showWalletUI(chains: [ChainsConfig], chainId: String, path: String? = "wallet") async throws {
+    public func showWalletUI(chainConfig: [ChainConfig], chainId: String, path: String? = "wallet") async throws {
         let savedSessionId = SessionManager.getSessionIdFromStorage()!
         if !savedSessionId.isEmpty {
-            initParams.chains = chains
-            initParams.chainId = chainId
-            let walletServicesParams = WalletServicesParams(options: initParams, appState: nil)
+            web3AuthOptions.chains = chainConfig
+            web3AuthOptions.chainId = chainId
+            let walletServicesParams = WalletServicesParams(options: web3AuthOptions, appState: nil)
             let sessionId = try SessionManager.generateRandomSessionID()!
             let loginId = try await getLoginId(sessionId: sessionId ,data: walletServicesParams)
 
@@ -422,9 +422,9 @@ public class Web3Auth: NSObject {
             ]
 
             let url = try Web3Auth.generateAuthSessionURL(
-                initParams: initParams,
+                web3AuthOptions: web3AuthOptions,
                 jsonObject: jsonObject,
-                sdkUrl: initParams.walletSdkUrl?.absoluteString,
+                sdkUrl: web3AuthOptions.walletSdkUrl?.absoluteString,
                 path: path
             )
 
@@ -442,13 +442,13 @@ public class Web3Auth: NSObject {
         }
     }
 
-    public func request(chainConfig: ChainsConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
+    public func request(chainConfig: ChainConfig, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
         let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
             let chainConfigList = [chainConfig]
-            initParams.chains = chainConfigList
-            initParams.chainId = chainConfig.chainId
-            let walletServicesParams = WalletServicesParams(options: initParams, appState: appState)
+            web3AuthOptions.chains = chainConfigList
+            web3AuthOptions.chainId = chainConfig.chainId
+            let walletServicesParams = WalletServicesParams(options: web3AuthOptions, appState: appState)
             let loginId = try SessionManager.generateRandomSessionID()!
             let _loginId = try await getLoginId(sessionId: loginId, data: walletServicesParams)
 
@@ -468,13 +468,13 @@ public class Web3Auth: NSObject {
                 signMessageMap["request"] = requestDataJsonString
             }
 
-            let url = try Web3Auth.generateAuthSessionURL(initParams: initParams, jsonObject: signMessageMap, sdkUrl: initParams.walletSdkUrl?.absoluteString, path: path)
+            let url = try Web3Auth.generateAuthSessionURL(web3AuthOptions: web3AuthOptions, jsonObject: signMessageMap, sdkUrl: web3AuthOptions.walletSdkUrl?.absoluteString, path: path)
 
             // open url in webview
             return await withCheckedContinuation { continuation in
                 Task {
                     let webViewController = await MainActor.run {
-                        WebViewController(redirectUrl: initParams.redirectUrl, onSignResponse: { signResponse in
+                        WebViewController(redirectUrl: web3AuthOptions.redirectUrl, onSignResponse: { signResponse in
                             continuation.resume(returning: signResponse)
                         }, onCancel: {
                             continuation.resume(returning: nil)
@@ -493,7 +493,7 @@ public class Web3Auth: NSObject {
         }
     }
 
-    static func generateAuthSessionURL(initParams: W3AInitParams, jsonObject: [String: String?], sdkUrl: String?, path: String?) throws -> URL {
+    static func generateAuthSessionURL(web3AuthOptions: Web3AuthOptions, jsonObject: [String: String?], sdkUrl: String?, path: String?) throws -> URL {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting.insert(.sortedKeys)
 
@@ -544,7 +544,7 @@ public class Web3Auth: NSObject {
 
     public func fetchProjectConfig() async throws -> Bool {
         var response: Bool = false
-        let api = Router.get([.init(name: "project_id", value: initParams.clientId), .init(name: "network", value: initParams.network.rawValue), .init(name: "whitelist", value: "true")])
+        let api = Router.get([.init(name: "project_id", value: web3AuthOptions.clientId), .init(name: "network", value: web3AuthOptions.web3AuthNetwork.rawValue), .init(name: "whitelist", value: "true")])
         let result = await Service.request(router: api)
         switch result {
         case let .success(data):
@@ -552,12 +552,12 @@ public class Web3Auth: NSObject {
                 let decoder = JSONDecoder()
                 let result = try decoder.decode(ProjectConfigResponse.self, from: data)
                 // os_log("fetchProjectConfig API response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(String(describing: result))")
-                initParams.originData = result.whitelist.signedUrls.merging(initParams.originData ?? [:]) { _, new in new }
+                web3AuthOptions.originData = result.whitelist.signedUrls.merging(web3AuthOptions.originData ?? [:]) { _, new in new }
                 if let whiteLabelData = result.whiteLabelData {
-                    if initParams.whiteLabel == nil {
-                        initParams.whiteLabel = whiteLabelData
+                    if web3AuthOptions.whiteLabel == nil {
+                        web3AuthOptions.whiteLabel = whiteLabelData
                     } else {
-                        initParams.whiteLabel = initParams.whiteLabel?.merge(with: whiteLabelData)
+                        web3AuthOptions.whiteLabel = web3AuthOptions.whiteLabel?.merge(with: whiteLabelData)
                     }
                 }
                 response = true
@@ -574,7 +574,7 @@ public class Web3Auth: NSObject {
         if state == nil {
             return ""
         }
-        let privKey: String = initParams.useCoreKitKey == true ? state?.coreKitKey ?? "" : state?.privKey ?? ""
+        let privKey: String = web3AuthOptions.useCoreKitKey == true ? state?.coreKitKey ?? "" : state?.privKey ?? ""
         return privKey
     }
 
@@ -582,7 +582,7 @@ public class Web3Auth: NSObject {
         if state == nil {
             return ""
         }
-        let ed25519Key: String = initParams.useCoreKitKey == true ?
+        let ed25519Key: String = web3AuthOptions.useCoreKitKey == true ?
             state?.coreKitEd25519PrivKey ?? "" : state?.ed25519PrivKey ?? ""
         return ed25519Key
     }

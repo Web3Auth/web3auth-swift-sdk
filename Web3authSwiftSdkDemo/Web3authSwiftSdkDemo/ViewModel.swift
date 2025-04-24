@@ -15,13 +15,13 @@ class ViewModel: ObservableObject {
     var errorMessage: String = ""
     private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
     private var redirectUrl: String = "com.web3auth.sdkapp://auth"
-    private var network: Network = .sapphire_devnet
+    private var web3AuthNetwork: Web3AuthNetwork = .sapphire_devnet
     private var buildEnv: BuildEnv = .testing
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
-    //  private var network: Network = .mainnet
+    //  private var network: Web3AuthNetwork = .mainnet
     private var useCoreKit: Bool = false
-    private var chainConfig: [ChainsConfig] = [
-        ChainsConfig(
+    private var chainConfig: [ChainConfig] = [
+        ChainConfig(
             chainNamespace: .eip155,
             chainId: "0x1",
             rpcTarget: "https://mainnet.infura.io/v3/79921cf5a1f149f7af0a0fef80cf3363",
@@ -31,7 +31,7 @@ class ViewModel: ObservableObject {
     private var authConnectionConfig: [AuthConnectionConfig] = [
         AuthConnectionConfig(
             authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-            typeOfLogin: .jwt,
+            authConnection: .JWT,
             clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
         )
     ]
@@ -42,7 +42,7 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = try await Web3Auth(.init(clientId: clientID, network: network, authBuildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
+        web3Auth = try await Web3Auth(.init(clientId: clientID, web3AuthNetwork: web3AuthNetwork, authBuildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
                                             // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                             // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
                                             useCoreKitKey: useCoreKit))
@@ -71,7 +71,7 @@ class ViewModel: ObservableObject {
     func login(authConnection: AuthConnection) {
         Task {
             do {
-                _ = try await web3Auth?.login(W3ALoginParams(authConnection: authConnection,
+                _ = try await web3Auth?.login(LoginParams(authConnection: authConnection,
                                                              extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "hello@tor.us", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
                                                              mfaLevel: .DEFAULT,
                                                              curve: .SECP256K1
@@ -88,20 +88,20 @@ class ViewModel: ObservableObject {
             do {
                 web3Auth = try await Web3Auth(.init(
                     clientId: clientID,
-                    network: network,
+                    web3AuthNetwork: web3AuthNetwork,
                     authBuildEnv: buildEnv,
                     redirectUrl: redirectUrl, // we should probably use this throughout instead of being part of other classes
                     authConnectionConfig: [
                             AuthConnectionConfig(
                                 authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-                                typeOfLogin: .jwt,
+                                authConnection: .JWT,
                                 clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
                             )
                         ],
                     whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]),
                     useCoreKitKey: useCoreKit
                 ))
-                _ = try await web3Auth?.login(W3ALoginParams(authConnection: authConnection,
+                _ = try await web3Auth?.login(LoginParams(authConnection: authConnection,
                                                              redirectUrl: redirectUrl,
                                                              mfaLevel: .DEFAULT,
                                                              curve: .SECP256K1
@@ -118,13 +118,13 @@ class ViewModel: ObservableObject {
             do {
                 web3Auth = try await Web3Auth(.init(
                     clientId: clientID,
-                    network: network,
+                    web3AuthNetwork: web3AuthNetwork,
                     authBuildEnv: buildEnv,
                     redirectUrl: redirectUrl,
                     authConnectionConfig: [
                         AuthConnectionConfig(
                             authConnectionId: "w3a-agg-example",
-                            typeOfLogin: .google,
+                            authConnection: .GOOGLE,
                             name: "Web3Auth-Aggregate-Verifier-Google-Example",
                             clientId: "774338308167-q463s7kpvja16l4l0kko3nb925ikds2p.apps.googleusercontent.com",
                             verifierSubIdentifier: "w3a-google"
@@ -133,7 +133,7 @@ class ViewModel: ObservableObject {
                 )
                 )
                 _ = try await web3Auth?.login(
-                    W3ALoginParams(
+                    LoginParams(
                         authConnection: "random",
                         dappShare: nil,
                         extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
@@ -162,7 +162,7 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.showWalletUI(chains: chainConfig, chainId: "0x1")
+                try await web3Auth?.showWalletUI(chainConfig: chainConfig, chainId: "0x1")
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
@@ -174,8 +174,8 @@ class ViewModel: ObservableObject {
         Task {
             do {
                 /*
-                web3Auth = try await Web3Auth(W3AInitParams(clientId: clientID,
-                                                            network: network,
+                web3Auth = try await Web3Auth(Web3AuthOptions(clientId: clientID,
+                                                web3AuthNetwork: web3AuthNetwork,
                                                             buildEnv: buildEnv,
                                                             redirectUrl: redirectUrl,
                                                             whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
@@ -210,7 +210,7 @@ class ViewModel: ObservableObject {
                 params.append("Hello, Web3Auth from Android!")
                 params.append(checksumAddress)
                 params.append("Web3Auth")
-                let signResponse = try await self.web3Auth?.request(chainConfig: ChainsConfig(
+                let signResponse = try await self.web3Auth?.request(chainConfig: ChainConfig(
                     chainNamespace: ChainNamespace.eip155, chainId: "0x89", rpcTarget: "https://polygon-rpc.com"
                 ), method: "personal_sign", requestParams: params)
                 if let response = signResponse {
@@ -229,21 +229,21 @@ class ViewModel: ObservableObject {
         Task.detached { [unowned self] in
             do {
                 web3Auth = try await Web3Auth(
-                    W3AInitParams(
+                    Web3AuthOptions(
                         clientId: clientID,
-                        network: network,
+                        web3AuthNetwork: web3AuthNetwork,
                         authBuildEnv: buildEnv,
                         redirectUrl: redirectUrl,
                         authConnectionConfig: [
                                 AuthConnectionConfig(
                                     authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-                                    typeOfLogin: .jwt,
+                                    authConnection: .JWT,
                                     clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
                                 )
                             ],
                         whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
                 _ = try await self.web3Auth?
-                    .login(W3ALoginParams(authConnection: .GOOGLE))
+                    .login(LoginParams(authConnection: .GOOGLE))
                 await handleUserDetails()
             } catch let error {
                 print(error)

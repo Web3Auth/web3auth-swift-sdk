@@ -68,25 +68,6 @@ public enum MFALevel: String, Codable {
     case NONE = "none"
 }
 
-public enum TypeOfLogin: String, Codable {
-    case google
-    case facebook
-    case reddit
-    case discord
-    case twitch
-    case apple
-    case github
-    case linkedin
-    case twitter
-    case weibo
-    case line
-    case email_passwordless
-    case passwordless
-    case jwt
-    case sms_passwordless
-    case farcaster
-}
-
 public enum ChainNamespace: String, Codable {
     case eip155
     case solana
@@ -127,10 +108,10 @@ public struct W3AWhiteLabelData: Codable {
 }
 
 public struct AuthConnectionConfig: Codable {
-    public init(authConnectionId: String, typeOfLogin: TypeOfLogin, name: String? = nil, description: String? = nil, clientId: String, verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
+    public init(authConnectionId: String, authConnection: AuthConnection, name: String? = nil, description: String? = nil, clientId: String, verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
                 showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
         self.authConnectionId = authConnectionId
-        self.typeOfLogin = typeOfLogin
+        self.authConnection = authConnection
         self.name = name
         self.description = description
         self.clientId = clientId
@@ -145,7 +126,7 @@ public struct AuthConnectionConfig: Codable {
     }
 
     let authConnectionId: String
-    let typeOfLogin: TypeOfLogin
+    let authConnection: AuthConnection
     let name: String?
     let description: String?
     let clientId: String
@@ -161,7 +142,7 @@ public struct AuthConnectionConfig: Codable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         authConnectionId = try values.decode(String.self, forKey: .authConnectionId)
-        typeOfLogin = try values.decode(TypeOfLogin.self, forKey: .typeOfLogin)
+        authConnection = try values.decode(AuthConnection.self, forKey: .authConnection)
         name = try values.decodeIfPresent(String.self, forKey: .name)
         description = try values.decodeIfPresent(String.self, forKey: .description)
         clientId = try values.decode(String.self, forKey: .clientId)
@@ -176,10 +157,10 @@ public struct AuthConnectionConfig: Codable {
     }
 }
 
-public struct W3AInitParams: Codable {
-    public init(clientId: String, network: Network, authBuildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, authConnectionConfig: [AuthConnectionConfig] = [], whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
+public struct Web3AuthOptions: Codable {
+    public init(clientId: String, web3AuthNetwork: Web3AuthNetwork, authBuildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, authConnectionConfig: [AuthConnectionConfig] = [], whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
         self.clientId = clientId
-        self.network = network
+        self.web3AuthNetwork = web3AuthNetwork
         self.authBuildEnv = authBuildEnv
         if sdkUrl != nil {
             self.sdkUrl = sdkUrl
@@ -206,9 +187,9 @@ public struct W3AInitParams: Codable {
         }
     }
 
-    public init(clientId: String, network: Network, redirectUrl: String) {
+    public init(clientId: String, web3AuthNetwork: Web3AuthNetwork, redirectUrl: String) {
         self.clientId = clientId
-        self.network = network
+        self.web3AuthNetwork = web3AuthNetwork
         authBuildEnv = BuildEnv.production
         sdkUrl = URL(string: getSdkUrl(buildEnv: authBuildEnv))
         walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: authBuildEnv))
@@ -226,7 +207,7 @@ public struct W3AInitParams: Codable {
     }
 
     let clientId: String
-    let network: Network
+    let web3AuthNetwork: Web3AuthNetwork
     let authBuildEnv: BuildEnv?
     var sdkUrl: URL?
     var walletSdkUrl: URL?
@@ -237,7 +218,7 @@ public struct W3AInitParams: Codable {
     let useCoreKitKey: Bool?
     let mfaSettings: MfaSettings?
     let sessionTime: Int
-    var chains: [ChainsConfig]? = nil
+    var chains: [ChainConfig]? = nil
     var chainId: String? = nil
     var originData: [String: String]?
     var dashboardUrl: URL?
@@ -245,7 +226,7 @@ public struct W3AInitParams: Codable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         clientId = try values.decode(String.self, forKey: .clientId)
-        network = try values.decode(Network.self, forKey: .network)
+        web3AuthNetwork = try values.decode(Web3AuthNetwork.self, forKey: .web3AuthNetwork)
         authBuildEnv = try values.decodeIfPresent(BuildEnv.self, forKey: .authBuildEnv) ?? BuildEnv.production
         let customSdkUrl = try values.decodeIfPresent(String.self, forKey: .sdkUrl)
         if customSdkUrl != nil {
@@ -313,7 +294,7 @@ public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
     }
 }
 
-public struct W3ALoginParams: Codable {
+public struct LoginParams: Codable {
     public init(authConnection: AuthConnection, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
@@ -476,7 +457,7 @@ public struct MfaSetting: Codable {
     }
 }
 
-public struct ChainsConfig: Codable {
+public struct ChainConfig: Codable {
     public init(chainNamespace: ChainNamespace = ChainNamespace.eip155, decimals: Int? = 18, blockExplorerUrl: String? = nil, chainId: String, displayName: String? = nil, logo: String? = nil, rpcTarget: String, ticker: String? = nil, tickerName: String? = nil) {
         self.chainNamespace = chainNamespace
         self.decimals = decimals
@@ -514,8 +495,8 @@ public struct ChainsConfig: Codable {
 }
 
 struct SdkUrlParams: Codable {
-    let options: W3AInitParams
-    let params: W3ALoginParams
+    let options: Web3AuthOptions
+    let params: LoginParams
     let actionType: String
 
     enum CodingKeys: String, CodingKey {
@@ -526,7 +507,7 @@ struct SdkUrlParams: Codable {
 }
 
 struct WalletServicesParams: Codable {
-    let options: W3AInitParams
+    let options: Web3AuthOptions
     let appState: String?
 
     enum CodingKeys: String, CodingKey {
@@ -536,7 +517,7 @@ struct WalletServicesParams: Codable {
 }
 
 struct SetUpMFAParams: Codable {
-    let options: W3AInitParams
+    let options: Web3AuthOptions
     let params: [String: String?]
     let actionType: String
     let sessionId: String

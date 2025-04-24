@@ -6,7 +6,7 @@ var web3AuthLogType = OSLogType.default
 public struct Web3AuthLogger {
     static let inactiveLog = OSLog.disabled
     static let core = OSLog(subsystem: subsystem, category: "core")
-    static let network = OSLog(subsystem: subsystem, category: "network")
+    static let web3AuthNetwork = OSLog(subsystem: subsystem, category: "web3AuthNetwork")
 }
 
 @available(macOS 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *)
