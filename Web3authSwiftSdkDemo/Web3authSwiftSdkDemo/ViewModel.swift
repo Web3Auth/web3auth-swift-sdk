@@ -5,7 +5,7 @@ import Web3Auth
 class ViewModel: ObservableObject {
     var web3Auth: Web3Auth?
     @Published var loggedIn: Bool = false
-    @Published var user: Web3AuthState?
+    @Published var user: Web3AuthResponse?
     @Published var isLoading = false
     @Published var navigationTitle: String = ""
     @Published var privateKey: String = ""
@@ -253,10 +253,10 @@ class ViewModel: ObservableObject {
 }
 
 extension ViewModel {
-    func showResult(result: Web3AuthState) {
+    func showResult(result: Web3AuthResponse) {
         print("""
         Signed in successfully!
-            Private key: \(result.privKey ?? "")
+            Private key: \(result.privateKey ?? "")
                 Ed25519 Private key: \(result.ed25519PrivKey ?? "")
             User info:
                 Name: \(result.userInfo?.name ?? "")

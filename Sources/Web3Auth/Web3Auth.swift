@@ -13,7 +13,7 @@ public class Web3Auth: NSObject {
     // You can check the state variable before logging the user in, if the user
     // has an active session the state variable will already have all the values you
     // get from login so the user does not have to re-login
-    public var state: Web3AuthState?
+    public var state: Web3AuthResponse?
     var sessionManager: SessionManager
     var webViewController: WebViewController = DispatchQueue.main.sync { WebViewController(onSignResponse: { _ in }) }
     private var loginParams: LoginParams?
@@ -51,7 +51,7 @@ public class Web3Auth: NSObject {
                 do {
                     // Restore from valid session
                     let loginDetailsDict = try await sessionManager.authorizeSession(origin: options.redirectUrl)
-                    guard let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(),
+                    guard let loginDetails = Web3AuthResponse(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(),
                                                            web3AuthNetwork: options.web3AuthNetwork)
                     else {
                         throw Web3AuthError.decodingError
@@ -81,10 +81,10 @@ public class Web3Auth: NSObject {
         return try await sessionManager.createSession(data: data)
     }
 
-    private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthState {
+    private func getLoginDetails(_ callbackURL: URL) async throws -> Web3AuthResponse {
         let loginDetailsDict = try await sessionManager.authorizeSession(origin: web3AuthOptions.redirectUrl)
         guard
-            let loginDetails = Web3AuthState(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(), web3AuthNetwork: web3AuthOptions.web3AuthNetwork)
+            let loginDetails = Web3AuthResponse(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(), web3AuthNetwork: web3AuthOptions.web3AuthNetwork)
         else {
             throw Web3AuthError.decodingError
         }
@@ -154,7 +154,7 @@ public class Web3Auth: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
-    public func login(_ loginParams: LoginParams) async throws -> Web3AuthState {
+    public func login(_ loginParams: LoginParams) async throws -> Web3AuthResponse {
         self.loginParams = loginParams
         // assign loginParams redirectUrl from intiParamas redirectUrl
         
@@ -179,7 +179,7 @@ public class Web3Auth: NSObject {
 
         let url = try Web3Auth.generateAuthSessionURL(web3AuthOptions: web3AuthOptions, jsonObject: jsonObject, sdkUrl: web3AuthOptions.sdkUrl?.absoluteString, path: "start")
 
-        return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthState, Error>) in
+        return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthResponse, Error>) in
 
             DispatchQueue.main.async { [self] in // Ensure the UI-related setup is on the main thread.
                 self.authSession = ASWebAuthenticationSession(
@@ -574,8 +574,8 @@ public class Web3Auth: NSObject {
         if state == nil {
             return ""
         }
-        let privKey: String = web3AuthOptions.useCoreKitKey == true ? state?.coreKitKey ?? "" : state?.privKey ?? ""
-        return privKey
+        let privateKey: String = web3AuthOptions.useCoreKitKey == true ? state?.coreKitKey ?? "" : state?.privateKey ?? ""
+        return privateKey
     }
 
     public func getEd25519PrivKey() -> String {
@@ -592,7 +592,7 @@ public class Web3Auth: NSObject {
         return userInfo
     }
 
-    public func getWeb3AuthResponse() throws -> Web3AuthState {
+    public func getWeb3AuthResponse() throws -> Web3AuthResponse {
         guard let state = state else {
             throw Web3AuthError.noUserFound
         }

@@ -3,8 +3,8 @@ import Foundation
 /**
  User's credentials and info obtained from Web3Auth.
  */
-public struct Web3AuthState: Codable {
-    public let privKey: String?
+public struct Web3AuthResponse: Codable {
+    public let privateKey: String?
     public let ed25519PrivKey: String?
     public let sessionId: String?
     public let userInfo: Web3AuthUserInfo?
@@ -20,10 +20,29 @@ public struct Web3AuthState: Codable {
     public var tssNonce: Int?
     public var nodeIndexes: [Int]?
     public var keyMode: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case privateKey = "privKey"
+        case ed25519PrivKey
+        case sessionId
+        case userInfo
+        case error
+        case coreKitKey
+        case coreKitEd25519PrivKey
+        case factorKey
+        case signatures
+        case tssShareIndex
+        case tssPubKey
+        case tssShare
+        case tssTag
+        case tssNonce
+        case nodeIndexes
+        case keyMode
+    }
 
-    public init(privKey: String?, ed25519PrivKey: String?, sessionId: String?, userInfo: Web3AuthUserInfo?, error: String?,
+    public init(privateKey: String?, ed25519PrivKey: String?, sessionId: String?, userInfo: Web3AuthUserInfo?, error: String?,
                 coreKitKey: String?, coreKitEd25519PrivKey: String?, factorKey: String?, signatures: [String]?, tssShareIndex: Int?, tssPubKey: String?, tssShare: String?, tssTag: String? ,tssNonce: Int?, nodeIndexes: [Int]?, keyMode: String?) {
-        self.privKey = privKey
+        self.privateKey = privateKey
         self.ed25519PrivKey = ed25519PrivKey
         self.sessionId = sessionId
         self.userInfo = userInfo
@@ -43,7 +62,7 @@ public struct Web3AuthState: Codable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        privKey = try container.decodeIfPresent(String.self, forKey: .privKey)
+        privateKey = try container.decodeIfPresent(String.self, forKey: .privateKey)
         ed25519PrivKey = try container.decodeIfPresent(String.self, forKey: .ed25519PrivKey)
         sessionId = try container.decodeIfPresent(String.self, forKey: .sessionId)
         userInfo = try container.decodeIfPresent(Web3AuthUserInfo.self, forKey: .userInfo)
@@ -62,15 +81,15 @@ public struct Web3AuthState: Codable {
     }
 }
 
-extension Web3AuthState {
+extension Web3AuthResponse {
     init?(dict: [String: Any], sessionID: String, web3AuthNetwork: Web3AuthNetwork) {
-        guard let privKey = dict["privKey"] as? String,
+        guard let privateKey = dict["privKey"] as? String,
               let ed25519PrivKey = dict["ed25519PrivKey"] as? String,
               let userInfoDict = dict["userInfo"] as? [String: Any],
               let userInfo = Web3AuthUserInfo(dict: userInfoDict)
         else { return nil }
         let error = dict["error"] as? String
-        self.privKey = privKey
+        self.privateKey = privateKey
         self.ed25519PrivKey = ed25519PrivKey
         sessionId = sessionID
         self.userInfo = userInfo
