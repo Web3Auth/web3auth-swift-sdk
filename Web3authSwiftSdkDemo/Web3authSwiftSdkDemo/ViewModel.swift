@@ -13,9 +13,9 @@ class ViewModel: ObservableObject {
     @Published var userInfo: Web3AuthUserInfo?
     @Published var showError: Bool = false
     var errorMessage: String = ""
-    private var clientID: String = "BG4pe3aBso5SjVbpotFQGnXVHgxhgOxnqnNBKyjfEJ3izFvIVWUaMIzoCrAfYag8O6t6a6AOvdLcS4JR2sQMjR4"
+    private var clientID: String = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ"
     private var redirectUrl: String = "com.web3auth.sdkapp://auth"
-    private var web3AuthNetwork: Web3AuthNetwork = .sapphire_devnet
+    private var web3AuthNetwork: Web3AuthNetwork = .sapphire_mainnet
     private var buildEnv: BuildEnv = .testing
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
     //  private var network: Web3AuthNetwork = .mainnet

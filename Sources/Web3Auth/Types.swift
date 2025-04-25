@@ -222,6 +222,25 @@ public struct Web3AuthOptions: Codable {
     var chainId: String? = nil
     var originData: [String: String]?
     var dashboardUrl: URL?
+    
+    enum CodingKeys: String, CodingKey {
+        case clientId
+        case web3AuthNetwork = "network"
+        case authBuildEnv
+        case sdkUrl
+        case walletSdkUrl
+        case redirectUrl
+        case authConnectionConfig
+        case whiteLabel
+        case chainNamespace
+        case useCoreKitKey
+        case mfaSettings
+        case sessionTime
+        case chains
+        case chainId
+        case originData
+        case dashboardUrl
+    }
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
