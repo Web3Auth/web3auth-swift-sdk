@@ -31,7 +31,7 @@ class ViewModel: ObservableObject {
     private var authConnectionConfig: [AuthConnectionConfig] = [
         AuthConnectionConfig(
             authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-            authConnection: .JWT,
+            authConnection: .CUSTOM,
             clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
         )
     ]
@@ -94,7 +94,7 @@ class ViewModel: ObservableObject {
                     authConnectionConfig: [
                             AuthConnectionConfig(
                                 authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-                                authConnection: .JWT,
+                                authConnection: .CUSTOM,
                                 clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
                             )
                         ],
@@ -237,7 +237,7 @@ class ViewModel: ObservableObject {
                         authConnectionConfig: [
                                 AuthConnectionConfig(
                                     authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-                                    authConnection: .JWT,
+                                    authConnection: .CUSTOM,
                                     clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
                                 )
                             ],
