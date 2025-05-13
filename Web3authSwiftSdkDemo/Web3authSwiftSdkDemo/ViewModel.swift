@@ -47,7 +47,7 @@ class ViewModel: ObservableObject {
                                             // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
                                             useCoreKitKey: useCoreKit))
         await MainActor.run(body: {
-            if self.web3Auth?.state != nil {
+            if self.web3Auth?.web3AuthResponse != nil {
                 handleUserDetails()
                 loggedIn = true
             }
@@ -59,7 +59,7 @@ class ViewModel: ObservableObject {
     @MainActor func handleUserDetails() {
         do {
             loggedIn = true
-            privateKey = ((web3Auth?.getPrivkey() != "") ? web3Auth?.getPrivkey() : try web3Auth?.getWeb3AuthResponse().factorKey) ?? ""
+            privateKey = ((web3Auth?.getPrivateKey() != "") ? web3Auth?.getPrivateKey() : try web3Auth?.getWeb3AuthResponse().factorKey) ?? ""
             ed25519PrivKey = web3Auth?.getEd25519PrivKey() ?? ""
             userInfo = try web3Auth?.getUserInfo()
         } catch {
@@ -202,7 +202,7 @@ class ViewModel: ObservableObject {
     @MainActor func request() {
         Task {
             do {
-                let key = self.web3Auth!.getPrivkey()
+                let key = self.web3Auth!.getPrivateKey()
                 let pk = try KeyUtil.generatePublicKey(from: Data(hexString: key) ?? Data())
                 let pkAddress = KeyUtil.generateAddress(from: pk).asString()
                 let checksumAddress = EthereumAddress(pkAddress).toChecksumAddress()

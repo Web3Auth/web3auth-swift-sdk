@@ -10,10 +10,10 @@ import SessionManager
 public class Web3Auth: NSObject {
     private var web3AuthOptions: Web3AuthOptions
     private var authSession: ASWebAuthenticationSession?
-    // You can check the state variable before logging the user in, if the user
-    // has an active session the state variable will already have all the values you
+    // You can check the web3AuthResponse variable before logging the user in, if the user
+    // has an active session the web3AuthResponse variable will already have all the values you
     // get from login so the user does not have to re-login
-    public var state: Web3AuthResponse?
+    public var web3AuthResponse: Web3AuthResponse?
     var sessionManager: SessionManager
     var webViewController: WebViewController = DispatchQueue.main.sync { WebViewController(onSignResponse: { _ in }) }
     private var loginParams: LoginParams?
@@ -56,7 +56,7 @@ public class Web3Auth: NSObject {
                     else {
                         throw Web3AuthError.decodingError
                     }
-                    state = loginDetails
+                    web3AuthResponse = loginDetails
                 } catch SessionManagerError.dataNotFound {
                     // Clear invalid session
                     SessionManager.deleteSessionIdFromStorage()
@@ -67,13 +67,13 @@ public class Web3Auth: NSObject {
     }
 
     public func logout() async throws {
-        guard let state = state else { throw Web3AuthError.noUserFound }
+        guard let web3AuthResponse = web3AuthResponse else { throw Web3AuthError.noUserFound }
         try await sessionManager.invalidateSession()
         SessionManager.deleteSessionIdFromStorage()
-        if let authConnectionId = state.userInfo?.authConnectionId, let dappShare = KeychainManager.shared.getDappShare(authConnectionId: authConnectionId) {
+        if let authConnectionId = web3AuthResponse.userInfo?.authConnectionId, let dappShare = KeychainManager.shared.getDappShare(authConnectionId: authConnectionId) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
-        self.state = nil
+        self.web3AuthResponse = nil
     }
 
     public func getLoginId<T: Encodable>(sessionId: String, data: T) async throws -> String? {
@@ -211,7 +211,7 @@ public class Web3Auth: NSObject {
                                 KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                             }
 
-                            self.state = loginDetails
+                            self.web3AuthResponse = loginDetails
                             continuation.resume(returning: loginDetails)
                         } catch {
                             continuation.resume(throwing: Web3AuthError.unknownError)
@@ -230,7 +230,7 @@ public class Web3Auth: NSObject {
 
     public func enableMFA(_ loginParams: LoginParams? = nil) async throws -> Bool {
         // Note that this function can be called without login on restored session, so loginParams should not be optional.
-        if state?.userInfo?.isMfaEnabled == true {
+        if web3AuthResponse?.userInfo?.isMfaEnabled == true {
             throw Web3AuthError.mfaAlreadyEnabled
         }
         let sessionId = sessionManager.getSessionId()
@@ -250,7 +250,7 @@ public class Web3Auth: NSObject {
             } else {
                 extraLoginOptions = self.loginParams?.extraLoginOptions
             }
-            extraLoginOptions?.login_hint = state?.userInfo?.userId
+            extraLoginOptions?.login_hint = web3AuthResponse?.userInfo?.userId
 
             let jsonData = try? JSONEncoder().encode(extraLoginOptions)
             let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
@@ -262,7 +262,7 @@ public class Web3Auth: NSObject {
             }
             
             let params: [String: String?] = [
-                "authConnection": state?.userInfo?.authConnection,
+                "authConnection": web3AuthResponse?.userInfo?.authConnection,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
                 "redirectUrl": URL(string: redirectUrl!)?.absoluteString,
                 "extraLoginOptions": _extraLoginOptions,
@@ -308,7 +308,7 @@ public class Web3Auth: NSObject {
                                 if let safeUserInfo = loginDetails.userInfo {
                                     KeychainManager.shared.saveDappShare(userInfo: safeUserInfo)
                                 }
-                                self.state = loginDetails
+                                self.web3AuthResponse = loginDetails
                                 continuation.resume(returning: true)
                             } catch {
                                 continuation.resume(throwing: Web3AuthError.unknownError)
@@ -328,7 +328,7 @@ public class Web3Auth: NSObject {
     }
     
     public func manageMFA(_ loginParams: LoginParams? = nil) async throws -> Bool {
-        if state?.userInfo?.isMfaEnabled == false {
+        if web3AuthResponse?.userInfo?.isMfaEnabled == false {
             throw Web3AuthError.mfaNotEnabled
         }
         
@@ -346,7 +346,7 @@ public class Web3Auth: NSObject {
         }
 
         var extraLoginOptions: ExtraLoginOptions? = modifiedLoginParams?.extraLoginOptions ?? loginParams?.extraLoginOptions ?? ExtraLoginOptions()
-        extraLoginOptions?.login_hint = state?.userInfo?.userId
+        extraLoginOptions?.login_hint = web3AuthResponse?.userInfo?.userId
 
         let jsonData = try? JSONEncoder().encode(extraLoginOptions)
         let _extraLoginOptions = jsonData.flatMap { String(data: $0, encoding: .utf8) }
@@ -363,7 +363,7 @@ public class Web3Auth: NSObject {
         let dappUrl = modifiedInitParams.redirectUrl
         
         let params: [String: String?] = [
-            "authConnection": state?.userInfo?.authConnection,
+            "authConnection": web3AuthResponse?.userInfo?.authConnection,
             "mfaLevel": MFALevel.MANDATORY.rawValue,
             "redirectUrl": modifiedInitParams.dashboardUrl?.absoluteString,
             "extraLoginOptions": _extraLoginOptions,
@@ -570,33 +570,33 @@ public class Web3Auth: NSObject {
         return response
     }
 
-    public func getPrivkey() -> String {
-        if state == nil {
+    public func getPrivateKey() -> String {
+        if web3AuthResponse == nil {
             return ""
         }
-        let privateKey: String = web3AuthOptions.useCoreKitKey == true ? state?.coreKitKey ?? "" : state?.privateKey ?? ""
+        let privateKey: String = web3AuthOptions.useCoreKitKey == true ? web3AuthResponse?.coreKitKey ?? "" : web3AuthResponse?.privateKey ?? ""
         return privateKey
     }
 
-    public func getEd25519PrivKey() -> String {
-        if state == nil {
+    public func getEd25519PrivateKey() -> String {
+        if web3AuthResponse == nil {
             return ""
         }
         let ed25519Key: String = web3AuthOptions.useCoreKitKey == true ?
-            state?.coreKitEd25519PrivKey ?? "" : state?.ed25519PrivKey ?? ""
+        web3AuthResponse?.coreKitEd25519PrivKey ?? "" : web3AuthResponse?.ed25519PrivKey ?? ""
         return ed25519Key
     }
 
     public func getUserInfo() throws -> Web3AuthUserInfo {
-        guard let state = state, let userInfo = state.userInfo else { throw Web3AuthError.noUserFound }
+        guard let web3AuthResponse = web3AuthResponse, let userInfo = web3AuthResponse.userInfo else { throw Web3AuthError.noUserFound }
         return userInfo
     }
 
     public func getWeb3AuthResponse() throws -> Web3AuthResponse {
-        guard let state = state else {
+        guard let web3AuthResponse = web3AuthResponse else {
             throw Web3AuthError.noUserFound
         }
-        return state
+        return web3AuthResponse
     }
 }
 

@@ -108,13 +108,14 @@ public struct W3AWhiteLabelData: Codable {
 }
 
 public struct AuthConnectionConfig: Codable {
-    public init(authConnectionId: String, authConnection: AuthConnection, name: String? = nil, description: String? = nil, clientId: String, verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
+    public init(authConnectionId: String, authConnection: AuthConnection, name: String? = nil, description: String? = nil, clientId: String, groupedAuthConnectionId: String? = nil ,verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
                 showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
         self.authConnectionId = authConnectionId
         self.authConnection = authConnection
         self.name = name
         self.description = description
         self.clientId = clientId
+        self.groupedAuthConnectionId = groupedAuthConnectionId
         self.verifierSubIdentifier = verifierSubIdentifier
         self.logoHover = logoHover
         self.logoLight = logoLight
@@ -130,6 +131,7 @@ public struct AuthConnectionConfig: Codable {
     let name: String?
     let description: String?
     let clientId: String
+    let groupedAuthConnectionId: String?
     let verifierSubIdentifier: String?
     let logoHover: String?
     let logoLight: String?
@@ -146,6 +148,7 @@ public struct AuthConnectionConfig: Codable {
         name = try values.decodeIfPresent(String.self, forKey: .name)
         description = try values.decodeIfPresent(String.self, forKey: .description)
         clientId = try values.decode(String.self, forKey: .clientId)
+        groupedAuthConnectionId = try values.decodeIfPresent(String.self, forKey: .groupedAuthConnectionId)
         verifierSubIdentifier = try values.decodeIfPresent(String.self, forKey: .verifierSubIdentifier)
         logoHover = try values.decodeIfPresent(String.self, forKey: .logoHover)
         logoLight = try values.decodeIfPresent(String.self, forKey: .logoLight)
