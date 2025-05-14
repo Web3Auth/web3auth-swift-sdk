@@ -108,7 +108,7 @@ public struct W3AWhiteLabelData: Codable {
 }
 
 public struct AuthConnectionConfig: Codable {
-    public init(authConnectionId: String, authConnection: AuthConnection, name: String? = nil, description: String? = nil, clientId: String, groupedAuthConnectionId: String? = nil ,verifierSubIdentifier: String? = nil, logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
+    public init(authConnectionId: String, authConnection: AuthConnection, name: String? = nil, description: String? = nil, clientId: String, groupedAuthConnectionId: String? = nil , logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
                 showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
         self.authConnectionId = authConnectionId
         self.authConnection = authConnection
@@ -116,7 +116,6 @@ public struct AuthConnectionConfig: Codable {
         self.description = description
         self.clientId = clientId
         self.groupedAuthConnectionId = groupedAuthConnectionId
-        self.verifierSubIdentifier = verifierSubIdentifier
         self.logoHover = logoHover
         self.logoLight = logoLight
         self.logoDark = logoDark
@@ -132,7 +131,6 @@ public struct AuthConnectionConfig: Codable {
     let description: String?
     let clientId: String
     let groupedAuthConnectionId: String?
-    let verifierSubIdentifier: String?
     let logoHover: String?
     let logoLight: String?
     let logoDark: String?
@@ -149,7 +147,6 @@ public struct AuthConnectionConfig: Codable {
         description = try values.decodeIfPresent(String.self, forKey: .description)
         clientId = try values.decode(String.self, forKey: .clientId)
         groupedAuthConnectionId = try values.decodeIfPresent(String.self, forKey: .groupedAuthConnectionId)
-        verifierSubIdentifier = try values.decodeIfPresent(String.self, forKey: .verifierSubIdentifier)
         logoHover = try values.decodeIfPresent(String.self, forKey: .logoHover)
         logoLight = try values.decodeIfPresent(String.self, forKey: .logoLight)
         logoDark = try values.decodeIfPresent(String.self, forKey: .logoDark)
@@ -317,10 +314,12 @@ public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public struct LoginParams: Codable {
-    public init(authConnection: AuthConnection, dappShare: String? = nil,
+    public init(authConnection: AuthConnection, authConnectionId: String? = nil, groupedAuthConnectionId: String? = nil, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
         self.authConnection = authConnection.rawValue
+        self.authConnectionId = authConnectionId
+        self.groupedAuthConnectionId = groupedAuthConnectionId
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
@@ -330,10 +329,12 @@ public struct LoginParams: Codable {
         self.dappUrl = dappUrl
     }
 
-    public init(authConnection: String, dappShare: String? = nil,
+    public init(authConnection: String, authConnectionId: String? = nil, groupedAuthConnectionId: String? = nil, dappShare: String? = nil,
                 extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
         self.authConnection = authConnection
+        self.authConnectionId = authConnectionId
+        self.groupedAuthConnectionId = groupedAuthConnectionId
         self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
         self.redirectUrl = redirectUrl
@@ -344,6 +345,8 @@ public struct LoginParams: Codable {
     }
 
     let authConnection: String
+    let authConnectionId: String?
+    let groupedAuthConnectionId: String?
     var dappShare: String?
     let extraLoginOptions: ExtraLoginOptions?
     var redirectUrl: String?
@@ -355,6 +358,8 @@ public struct LoginParams: Codable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         authConnection = try values.decode(String.self, forKey: .authConnection)
+        authConnectionId = try values.decode(String.self, forKey: .authConnectionId)
+        groupedAuthConnectionId = try values.decode(String.self, forKey: .groupedAuthConnectionId)
         dappShare = try values.decodeIfPresent(String.self, forKey: .dappShare)
         extraLoginOptions = try values.decodeIfPresent(ExtraLoginOptions.self, forKey: .extraLoginOptions)
         redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
