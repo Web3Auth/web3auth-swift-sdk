@@ -285,7 +285,7 @@ public func getSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
-    let walletServicesVersion = "v4"
+    let walletServicesVersion = "v5"
     guard let buildEnv = buildEnv else {
         return "https://wallet.web3auth.io"
     }
