@@ -158,7 +158,7 @@ public struct AuthConnectionConfig: Codable {
 }
 
 public struct Web3AuthOptions: Codable {
-    public init(clientId: String, web3AuthNetwork: Web3AuthNetwork, authBuildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, authConnectionConfig: [AuthConnectionConfig] = [], whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil) {
+    public init(clientId: String, web3AuthNetwork: Web3AuthNetwork, authBuildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, authConnectionConfig: [AuthConnectionConfig] = [], whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil, includeUserDataInToken: Bool? = true) {
         self.clientId = clientId
         self.web3AuthNetwork = web3AuthNetwork
         self.authBuildEnv = authBuildEnv
@@ -185,6 +185,7 @@ public struct Web3AuthOptions: Codable {
         } else {
             self.dashboardUrl = URL(string: getDashboardUrl(buildEnv: self.authBuildEnv))
         }
+        self.includeUserDataInToken = includeUserDataInToken
     }
 
     public init(clientId: String, web3AuthNetwork: Web3AuthNetwork, redirectUrl: String) {
@@ -204,6 +205,7 @@ public struct Web3AuthOptions: Codable {
         chainId = nil
         originData = nil
         dashboardUrl = URL(string: getDashboardUrl(buildEnv: authBuildEnv))
+        includeUserDataInToken = true
     }
 
     let clientId: String
@@ -222,6 +224,7 @@ public struct Web3AuthOptions: Codable {
     var chainId: String? = nil
     var originData: [String: String]?
     var dashboardUrl: URL?
+    let includeUserDataInToken: Bool?
     
     enum CodingKeys: String, CodingKey {
         case clientId
@@ -240,6 +243,7 @@ public struct Web3AuthOptions: Codable {
         case chainId
         case originData
         case dashboardUrl
+        case includeUserDataInToken
     }
 
     public init(from decoder: Decoder) throws {
@@ -268,6 +272,7 @@ public struct Web3AuthOptions: Codable {
         sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 30 * 86400
         originData = try values.decodeIfPresent([String: String].self, forKey: .originData)
         dashboardUrl = try values.decodeIfPresent(String.self, forKey: .dashboardUrl).flatMap { URL(string: $0) }
+        includeUserDataInToken = try values.decodeIfPresent(Bool.self, forKey: .includeUserDataInToken)
     }
 }
 
