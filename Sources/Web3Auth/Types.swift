@@ -374,7 +374,7 @@ public struct ExtraLoginOptions: Codable {
     public init(display: String? = nil, prompt: String? = nil, max_age: String? = nil, ui_locales: String? = nil,
                 id_token_hint: String? = nil, id_token: String? = nil, login_hint: String? = nil, acr_values: String? = nil, scope: String? = nil,
                 audience: String? = nil, connection: String? = nil, domain: String? = nil, client_id: String? = nil, redirect_uri: String? = nil, leeway: Int? = 0, userIdField: String? = nil, isUserIdCaseSensitive: Bool? = false, additionalParams: [String: String]? = nil, access_token: String? = nil,
-                flow_type: EMAIL_FLOW_TYPE = EMAIL_FLOW_TYPE.link) {
+                flow_type: EmailFlowType = EmailFlowType.link) {
         self.display = display
         self.prompt = prompt
         self.max_age = max_age
@@ -394,7 +394,7 @@ public struct ExtraLoginOptions: Codable {
         self.isUserIdCaseSensitive = isUserIdCaseSensitive
         self.additionalParams = additionalParams
         self.access_token = access_token
-        self.flow_type = EMAIL_FLOW_TYPE.link
+        self.flow_type = EmailFlowType.link
     }
 
     let display: String?
@@ -416,7 +416,7 @@ public struct ExtraLoginOptions: Codable {
     let isUserIdCaseSensitive: Bool?
     let additionalParams: [String: String]?
     let access_token: String?
-    let flow_type: EMAIL_FLOW_TYPE?
+    let flow_type: EmailFlowType?
     
 
     public init(from decoder: Decoder) throws {
@@ -440,7 +440,7 @@ public struct ExtraLoginOptions: Codable {
         isUserIdCaseSensitive = try values.decodeIfPresent(Bool.self, forKey: .isUserIdCaseSensitive)
         additionalParams = try values.decodeIfPresent([String: String].self, forKey: .additionalParams)
         access_token = try values.decodeIfPresent(String.self, forKey: .access_token)
-        flow_type = try values.decodeIfPresent(EMAIL_FLOW_TYPE.self, forKey: .flow_type)
+        flow_type = try values.decodeIfPresent(EmailFlowType.self, forKey: .flow_type)
     }
 }
 

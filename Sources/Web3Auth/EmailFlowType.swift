@@ -1,6 +1,6 @@
 import Foundation
 
-public enum EMAIL_FLOW_TYPE: String, Codable {
+public enum EmailFlowType: String, Codable {
     case link
     case code
 }
