@@ -373,7 +373,8 @@ public struct LoginParams: Codable {
 public struct ExtraLoginOptions: Codable {
     public init(display: String? = nil, prompt: String? = nil, max_age: String? = nil, ui_locales: String? = nil,
                 id_token_hint: String? = nil, id_token: String? = nil, login_hint: String? = nil, acr_values: String? = nil, scope: String? = nil,
-                audience: String? = nil, connection: String? = nil, domain: String? = nil, client_id: String? = nil, redirect_uri: String? = nil, leeway: Int? = 0, verifierIdField: String? = nil, isVerifierIdCaseSensitive: Bool? = false, additionalParams: [String: String]? = nil) {
+                audience: String? = nil, connection: String? = nil, domain: String? = nil, client_id: String? = nil, redirect_uri: String? = nil, leeway: Int? = 0, userIdField: String? = nil, isUserIdCaseSensitive: Bool? = false, additionalParams: [String: String]? = nil, access_token: String? = nil,
+                flow_type: EMAIL_FLOW_TYPE = EMAIL_FLOW_TYPE.link) {
         self.display = display
         self.prompt = prompt
         self.max_age = max_age
@@ -389,9 +390,11 @@ public struct ExtraLoginOptions: Codable {
         self.client_id = client_id
         self.redirect_uri = redirect_uri
         self.leeway = leeway
-        self.verifierIdField = verifierIdField
-        self.isVerifierIdCaseSensitive = isVerifierIdCaseSensitive
+        self.userIdField = userIdField
+        self.isUserIdCaseSensitive = isUserIdCaseSensitive
         self.additionalParams = additionalParams
+        self.access_token = access_token
+        self.flow_type = EMAIL_FLOW_TYPE.link
     }
 
     let display: String?
@@ -409,9 +412,12 @@ public struct ExtraLoginOptions: Codable {
     let client_id: String?
     let redirect_uri: String?
     let leeway: Int?
-    let verifierIdField: String?
-    let isVerifierIdCaseSensitive: Bool?
+    let userIdField: String?
+    let isUserIdCaseSensitive: Bool?
     let additionalParams: [String: String]?
+    let access_token: String?
+    let flow_type: EMAIL_FLOW_TYPE?
+    
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -430,9 +436,11 @@ public struct ExtraLoginOptions: Codable {
         client_id = try values.decodeIfPresent(String.self, forKey: .client_id)
         redirect_uri = try values.decodeIfPresent(String.self, forKey: .redirect_uri)
         leeway = try values.decodeIfPresent(Int.self, forKey: .leeway)
-        verifierIdField = try values.decodeIfPresent(String.self, forKey: .verifierIdField)
-        isVerifierIdCaseSensitive = try values.decodeIfPresent(Bool.self, forKey: .isVerifierIdCaseSensitive)
+        userIdField = try values.decodeIfPresent(String.self, forKey: .userIdField)
+        isUserIdCaseSensitive = try values.decodeIfPresent(Bool.self, forKey: .isUserIdCaseSensitive)
         additionalParams = try values.decodeIfPresent([String: String].self, forKey: .additionalParams)
+        access_token = try values.decodeIfPresent(String.self, forKey: .access_token)
+        flow_type = try values.decodeIfPresent(EMAIL_FLOW_TYPE.self, forKey: .flow_type)
     }
 }
 
