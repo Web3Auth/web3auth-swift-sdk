@@ -5,7 +5,7 @@ import Foundation
  */
 public struct Web3AuthResponse: Codable {
     public let privateKey: String?
-    public let ed25519PrivKey: String?
+    public let ed25519PrivateKey: String?
     public let sessionId: String?
     public let userInfo: Web3AuthUserInfo?
     public let error: String?
@@ -23,7 +23,7 @@ public struct Web3AuthResponse: Codable {
     
     enum CodingKeys: String, CodingKey {
         case privateKey = "privKey"
-        case ed25519PrivKey
+        case ed25519PrivateKey = "ed25519PrivKey"
         case sessionId
         case userInfo
         case error
@@ -40,10 +40,10 @@ public struct Web3AuthResponse: Codable {
         case keyMode
     }
 
-    public init(privateKey: String?, ed25519PrivKey: String?, sessionId: String?, userInfo: Web3AuthUserInfo?, error: String?,
+    public init(privateKey: String?, ed25519PrivateKey: String?, sessionId: String?, userInfo: Web3AuthUserInfo?, error: String?,
                 coreKitKey: String?, coreKitEd25519PrivKey: String?, factorKey: String?, signatures: [String]?, tssShareIndex: Int?, tssPubKey: String?, tssShare: String?, tssTag: String? ,tssNonce: Int?, nodeIndexes: [Int]?, keyMode: String?) {
         self.privateKey = privateKey
-        self.ed25519PrivKey = ed25519PrivKey
+        self.ed25519PrivateKey = ed25519PrivateKey
         self.sessionId = sessionId
         self.userInfo = userInfo
         self.error = error
@@ -63,7 +63,7 @@ public struct Web3AuthResponse: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         privateKey = try container.decodeIfPresent(String.self, forKey: .privateKey)
-        ed25519PrivKey = try container.decodeIfPresent(String.self, forKey: .ed25519PrivKey)
+        ed25519PrivateKey = try container.decodeIfPresent(String.self, forKey: .ed25519PrivateKey)
         sessionId = try container.decodeIfPresent(String.self, forKey: .sessionId)
         userInfo = try container.decodeIfPresent(Web3AuthUserInfo.self, forKey: .userInfo)
         error = try container.decodeIfPresent(String.self, forKey: .error)
@@ -84,13 +84,13 @@ public struct Web3AuthResponse: Codable {
 extension Web3AuthResponse {
     init?(dict: [String: Any], sessionID: String, web3AuthNetwork: Web3AuthNetwork) {
         guard let privateKey = dict["privKey"] as? String,
-              let ed25519PrivKey = dict["ed25519PrivKey"] as? String,
+              let ed25519PrivateKey = dict["ed25519PrivKey"] as? String,
               let userInfoDict = dict["userInfo"] as? [String: Any],
               let userInfo = Web3AuthUserInfo(dict: userInfoDict)
         else { return nil }
         let error = dict["error"] as? String
         self.privateKey = privateKey
-        self.ed25519PrivKey = ed25519PrivKey
+        self.ed25519PrivateKey = ed25519PrivateKey
         sessionId = sessionID
         self.userInfo = userInfo
         self.error = error

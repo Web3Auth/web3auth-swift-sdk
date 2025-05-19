@@ -583,7 +583,7 @@ public class Web3Auth: NSObject {
             return ""
         }
         let ed25519Key: String = web3AuthOptions.useCoreKitKey == true ?
-        web3AuthResponse?.coreKitEd25519PrivKey ?? "" : web3AuthResponse?.ed25519PrivKey ?? ""
+        web3AuthResponse?.coreKitEd25519PrivKey ?? "" : web3AuthResponse?.ed25519PrivateKey ?? ""
         return ed25519Key
     }
 
