@@ -22,8 +22,8 @@ func plistValues(_ bundle: Bundle) -> (clientId: String, web3AuthNetwork: Web3Au
     return (clientId: clientId, web3AuthNetwork: web3AuthNetwork, redirectUrl)
 }
 
-extension W3AWhiteLabelData {
-    func merge(with other: W3AWhiteLabelData) -> W3AWhiteLabelData {
+extension WhiteLabelData {
+    func merge(with other: WhiteLabelData) -> WhiteLabelData {
         return W3AWhiteLabelData(
             appName: appName ?? other.appName,
             logoLight: logoLight ?? other.logoLight,

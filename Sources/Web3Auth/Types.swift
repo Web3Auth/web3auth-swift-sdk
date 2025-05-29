@@ -73,7 +73,7 @@ public enum ChainNamespace: String, Codable {
     case solana
 }
 
-public struct W3AWhiteLabelData: Codable {
+public struct WhiteLabelData: Codable {
     public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = Language.en, mode: ThemeModes? = ThemeModes.auto, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false) {
         self.appName = appName
         self.logoLight = logoLight
@@ -109,7 +109,7 @@ public struct W3AWhiteLabelData: Codable {
 
 public struct AuthConnectionConfig: Codable {
     public init(authConnectionId: String, authConnection: AuthConnection, name: String? = nil, description: String? = nil, clientId: String, groupedAuthConnectionId: String? = nil , logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
-                showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil) {
+                showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil, jwtParameters: ExtraLoginOptions? = nil) {
         self.authConnectionId = authConnectionId
         self.authConnection = authConnection
         self.name = name
@@ -123,6 +123,7 @@ public struct AuthConnectionConfig: Codable {
         self.showOnModal = showOnModal
         self.showOnDesktop = showOnDesktop
         self.showOnMobile = showOnMobile
+        self.jwtParameters = jwtParameters
     }
 
     let authConnectionId: String
@@ -138,6 +139,7 @@ public struct AuthConnectionConfig: Codable {
     let showOnModal: Bool?
     let showOnDesktop: Bool?
     let showOnMobile: Bool?
+    let jwtParameters: ExtraLoginOptions?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -154,125 +156,175 @@ public struct AuthConnectionConfig: Codable {
         showOnModal = try values.decodeIfPresent(Bool.self, forKey: .showOnModal)
         showOnDesktop = try values.decodeIfPresent(Bool.self, forKey: .showOnDesktop)
         showOnMobile = try values.decodeIfPresent(Bool.self, forKey: .showOnMobile)
+        jwtParameters = try values.decodeIfPresent(ExtraLoginOptions.self, forKey: .jwtParameters)
     }
 }
 
 public struct Web3AuthOptions: Codable {
-    public init(clientId: String, web3AuthNetwork: Web3AuthNetwork, authBuildEnv: BuildEnv? = BuildEnv.production, sdkUrl: URL? = nil, walletSdkUrl: URL? = nil, redirectUrl: String, authConnectionConfig: [AuthConnectionConfig] = [], whiteLabel: W3AWhiteLabelData? = nil, chainNamespace: ChainNamespace? = ChainNamespace.eip155, useCoreKitKey: Bool? = false, mfaSettings: MfaSettings? = nil, sessionTime: Int = 30 * 86400, originData: [String: String]? = nil, dashboardUrl: URL? = nil, includeUserDataInToken: Bool? = true) {
+    public init(clientId: String, redirectUrl: String, originData: [String: String]? = nil, authBuildEnv: BuildEnv? = .production, sdkUrl: String? = nil,
+                storageServerUrl: String? = nil,sessionSocketUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,dashboardUrl: String? = nil,
+                accountAbstractionConfig: String? = nil, walletSdkUrl: String? = nil, sessionNamespace: String? = nil, includeUserDataInToken: Bool? = true,
+                chains: [Chains]? = nil, defaultChainId: String? = nil, enableLogging: Bool? = nil, sessionTime: Int = 30 * 86400,
+                web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil, mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
-        self.web3AuthNetwork = web3AuthNetwork
+        self.redirectUrl = redirectUrl
+        self.originData = originData
         self.authBuildEnv = authBuildEnv
         if sdkUrl != nil {
             self.sdkUrl = sdkUrl
         } else {
-            self.sdkUrl = URL(string: getSdkUrl(buildEnv: self.authBuildEnv))
+            self.sdkUrl = getSdkUrl(buildEnv: self.authBuildEnv)
         }
-        if walletSdkUrl != nil {
-            self.walletSdkUrl = walletSdkUrl
-        } else {
-            self.walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: self.authBuildEnv))
-        }
-        self.redirectUrl = redirectUrl
+        self.storageServerUrl = storageServerUrl
+        self.sessionSocketUrl = sessionSocketUrl
         self.authConnectionConfig = authConnectionConfig
-        self.whiteLabel = whiteLabel
-        self.chainNamespace = chainNamespace
-        self.useCoreKitKey = useCoreKitKey
-        self.mfaSettings = mfaSettings
-        self.sessionTime = min(30 * 86400, sessionTime)
-        self.originData = originData
         if dashboardUrl != nil {
             self.dashboardUrl = dashboardUrl
         } else {
-            self.dashboardUrl = URL(string: getDashboardUrl(buildEnv: self.authBuildEnv))
+            self.dashboardUrl = getDashboardUrl(buildEnv: self.authBuildEnv)
         }
+        self.accountAbstractionConfig = accountAbstractionConfig
+        if walletSdkUrl != nil {
+            self.walletSdkUrl = walletSdkUrl
+        } else {
+            self.walletSdkUrl = getWalletSdkUrl(buildEnv: self.authBuildEnv)
+        }
+        self.sessionNamespace = sessionNamespace
         self.includeUserDataInToken = includeUserDataInToken
+        self.chains = chains
+        self.defaultChainId = defaultChainId
+        self.enableLogging = enableLogging
+        self.sessionTime = min(sessionTime, 30 * 86400) // Clamp to max 30 days
+        self.web3AuthNetwork = web3AuthNetwork
+        self.useSFAKey = useSFAKey
+        self.walletServicesConfig = walletServicesConfig
+        self.mfaSettings = mfaSettings
     }
 
     public init(clientId: String, web3AuthNetwork: Web3AuthNetwork, redirectUrl: String) {
         self.clientId = clientId
-        self.web3AuthNetwork = web3AuthNetwork
-        authBuildEnv = BuildEnv.production
-        sdkUrl = URL(string: getSdkUrl(buildEnv: authBuildEnv))
-        walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: authBuildEnv))
         self.redirectUrl = redirectUrl
-        authConnectionConfig = []
-        whiteLabel = nil
-        chainNamespace = ChainNamespace.eip155
-        useCoreKitKey = false
-        mfaSettings = nil
-        sessionTime = 30 * 86400
-        chains = nil
-        chainId = nil
-        originData = nil
-        dashboardUrl = URL(string: getDashboardUrl(buildEnv: authBuildEnv))
-        includeUserDataInToken = true
+        self.originData = nil
+        self.authBuildEnv = BuildEnv.production
+        sdkUrl = getSdkUrl(buildEnv: authBuildEnv)
+        self.storageServerUrl = nil
+        self.sessionSocketUrl = nil
+        self.authConnectionConfig = nil
+        dashboardUrl = getDashboardUrl(buildEnv: authBuildEnv)
+        self.accountAbstractionConfig = nil
+        walletSdkUrl = getWalletSdkUrl(buildEnv: authBuildEnv)
+        self.sessionNamespace = nil
+        self.includeUserDataInToken = true
+        self.chains = nil
+        self.defaultChainId = nil
+        self.enableLogging = false
+        self.sessionTime = 30 * 86400
+        self.web3AuthNetwork = web3AuthNetwork
+        self.useSFAKey = false
+        self.walletServicesConfig = nil
+        self.mfaSettings = nil
     }
 
     let clientId: String
-    let web3AuthNetwork: Web3AuthNetwork
-    let authBuildEnv: BuildEnv?
-    var sdkUrl: URL?
-    var walletSdkUrl: URL?
     var redirectUrl: String
-    var authConnectionConfig: [AuthConnectionConfig]?
-    var whiteLabel: W3AWhiteLabelData?
-    let chainNamespace: ChainNamespace?
-    let useCoreKitKey: Bool?
-    let mfaSettings: MfaSettings?
-    let sessionTime: Int
-    var chains: [ChainConfig]? = nil
-    var chainId: String? = nil
     var originData: [String: String]?
-    var dashboardUrl: URL?
+    let authBuildEnv: BuildEnv?
+    var sdkUrl: String?
+    var storageServerUrl: String?
+    var sessionSocketUrl: String?
+    var authConnectionConfig: [AuthConnectionConfig]?
+    var dashboardUrl: String?
+    var accountAbstractionConfig: String?
+    var walletSdkUrl: String?
+    var sessionNamespace: String?
     let includeUserDataInToken: Bool?
+    var chains: [Chains]? = nil
+    var defaultChainId: String?
+    let enableLogging: Bool?
+    let sessionTime: Int
+    let web3AuthNetwork: Web3AuthNetwork
+    var useSFAKey: Bool?
+    var walletServicesConfig: WalletServicesConfig?
+    let mfaSettings: MfaSettings?
+
     
     enum CodingKeys: String, CodingKey {
-        case clientId
-        case web3AuthNetwork = "network"
-        case authBuildEnv
-        case sdkUrl
-        case walletSdkUrl
-        case redirectUrl
-        case authConnectionConfig
-        case whiteLabel
-        case chainNamespace
-        case useCoreKitKey
-        case mfaSettings
-        case sessionTime
-        case chains
-        case chainId
-        case originData
-        case dashboardUrl
-        case includeUserDataInToken
-    }
+            case clientId
+            case redirectUrl
+            case originData
+            case authBuildEnv = "buildEnv"
+            case sdkUrl
+            case storageServerUrl
+            case sessionSocketUrl
+            case authConnectionConfig
+            case dashboardUrl
+            case accountAbstractionConfig
+            case walletSdkUrl
+            case sessionNamespace
+            case includeUserDataInToken
+            case chains
+            case defaultChainId
+            case enableLogging
+            case sessionTime
+            case web3AuthNetwork = "network"
+            case useSFAKey
+            case walletServicesConfig
+            case mfaSettings
+        }
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         clientId = try values.decode(String.self, forKey: .clientId)
-        web3AuthNetwork = try values.decode(Web3AuthNetwork.self, forKey: .web3AuthNetwork)
-        authBuildEnv = try values.decodeIfPresent(BuildEnv.self, forKey: .authBuildEnv) ?? BuildEnv.production
-        let customSdkUrl = try values.decodeIfPresent(String.self, forKey: .sdkUrl)
-        if customSdkUrl != nil {
-            sdkUrl = URL(string: customSdkUrl!)!
-        } else {
-            sdkUrl = URL(string: getSdkUrl(buildEnv: authBuildEnv))
-        }
-        let customWalletSdkUrl = try values.decodeIfPresent(String.self, forKey: .walletSdkUrl)
-        if customWalletSdkUrl != nil {
-            walletSdkUrl = URL(string: customWalletSdkUrl!)!
-        } else {
-            walletSdkUrl = URL(string: getWalletSdkUrl(buildEnv: authBuildEnv))
-        }
         redirectUrl = try values.decode(String.self, forKey: .redirectUrl)
-        authConnectionConfig = try values.decodeIfPresent([AuthConnectionConfig].self, forKey: .authConnectionConfig)
-        whiteLabel = try values.decodeIfPresent(W3AWhiteLabelData.self, forKey: .whiteLabel)
-        chainNamespace = try values.decodeIfPresent(ChainNamespace.self, forKey: .chainNamespace) ?? ChainNamespace.eip155
-        useCoreKitKey = try values.decodeIfPresent(Bool.self, forKey: .useCoreKitKey)
-        mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
-        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 30 * 86400
         originData = try values.decodeIfPresent([String: String].self, forKey: .originData)
-        dashboardUrl = try values.decodeIfPresent(String.self, forKey: .dashboardUrl).flatMap { URL(string: $0) }
+        authBuildEnv = try values.decodeIfPresent(BuildEnv.self, forKey: .authBuildEnv) ?? .production
+
+        if let customSdkUrl = try values.decodeIfPresent(String.self, forKey: .sdkUrl) {
+            sdkUrl = customSdkUrl
+        } else {
+            sdkUrl = getSdkUrl(buildEnv: authBuildEnv)
+        }
+
+        storageServerUrl = try values.decodeIfPresent(String.self, forKey: .storageServerUrl)
+        sessionSocketUrl = try values.decodeIfPresent(String.self, forKey: .sessionSocketUrl)
+        authConnectionConfig = try values.decodeIfPresent([AuthConnectionConfig].self, forKey: .authConnectionConfig)
+        dashboardUrl = try values.decodeIfPresent(String.self, forKey: .dashboardUrl)
+        accountAbstractionConfig = try values.decodeIfPresent(String.self, forKey: .accountAbstractionConfig)
+
+        if let customWalletSdkUrl = try values.decodeIfPresent(String.self, forKey: .walletSdkUrl) {
+            walletSdkUrl = customWalletSdkUrl
+        } else {
+            walletSdkUrl = getWalletSdkUrl(buildEnv: authBuildEnv)
+        }
+
+        sessionNamespace = try values.decodeIfPresent(String.self, forKey: .sessionNamespace)
         includeUserDataInToken = try values.decodeIfPresent(Bool.self, forKey: .includeUserDataInToken)
+        chains = try values.decodeIfPresent([Chains].self, forKey: .chains)
+        defaultChainId = try values.decodeIfPresent(String.self, forKey: .defaultChainId)
+        enableLogging = try values.decodeIfPresent(Bool.self, forKey: .enableLogging)
+        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 30 * 86400
+        web3AuthNetwork = try values.decode(Web3AuthNetwork.self, forKey: .web3AuthNetwork)
+        useSFAKey = try values.decodeIfPresent(Bool.self, forKey: .useSFAKey)
+        walletServicesConfig = try values.decodeIfPresent(WalletServicesConfig.self, forKey: .walletServicesConfig)
+        mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
+    }
+}
+
+public struct WalletServicesConfig: Codable {
+    var confirmationStrategy: ConfirmationStrategy? = .defaultStrategy
+    var whiteLabel: WhiteLabelData? = nil
+}
+
+public enum ConfirmationStrategy: String, Codable {
+    case popup = "popup"
+    case modal = "modal"
+    case autoApprove = "auto-approve"
+    case defaultStrategy = "default"
+
+    private enum CodingKeys: String, CodingKey {
+        case popup, modal
+        case autoApprove = "auto-approve"
+        case defaultStrategy = "default"
     }
 }
 
@@ -319,59 +371,47 @@ public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public struct LoginParams: Codable {
-    public init(authConnection: AuthConnection, authConnectionId: String? = nil, groupedAuthConnectionId: String? = nil, dappShare: String? = nil,
-                extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
-                mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
+    public init(authConnection: AuthConnection, authConnectionId: String? = nil, groupedAuthConnectionId: String? = nil, appState: String? = nil,
+                mfaLevel: MFALevel? = nil, extraLoginOptions: ExtraLoginOptions? = nil, dappShare: String? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1,
+    dappUrl: String? = nil, loginHint: String? = nil, idToken: String? = nil) {
         self.authConnection = authConnection.rawValue
         self.authConnectionId = authConnectionId
         self.groupedAuthConnectionId = groupedAuthConnectionId
-        self.dappShare = dappShare
-        self.extraLoginOptions = extraLoginOptions
-        self.redirectUrl = redirectUrl
         self.appState = appState
         self.mfaLevel = mfaLevel
-        self.curve = curve
-        self.dappUrl = dappUrl
-    }
-
-    public init(authConnection: String, authConnectionId: String? = nil, groupedAuthConnectionId: String? = nil, dappShare: String? = nil,
-                extraLoginOptions: ExtraLoginOptions? = nil, redirectUrl: String? = nil, appState: String? = nil,
-                mfaLevel: MFALevel? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1, dappUrl: String? = nil) {
-        self.authConnection = authConnection
-        self.authConnectionId = authConnectionId
-        self.groupedAuthConnectionId = groupedAuthConnectionId
-        self.dappShare = dappShare
         self.extraLoginOptions = extraLoginOptions
-        self.redirectUrl = redirectUrl
-        self.appState = appState
-        self.mfaLevel = mfaLevel
+        self.dappShare = dappShare
         self.curve = curve
         self.dappUrl = dappUrl
+        self.loginHint = loginHint
+        
     }
 
     let authConnection: String
     let authConnectionId: String?
     let groupedAuthConnectionId: String?
-    var dappShare: String?
-    let extraLoginOptions: ExtraLoginOptions?
-    var redirectUrl: String?
     let appState: String?
     let mfaLevel: MFALevel?
+    let extraLoginOptions: ExtraLoginOptions?
+    var dappShare: String?
     let curve: SUPPORTED_KEY_CURVES
     let dappUrl: String?
+    var loginHint: String?
+    var idToken: String?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         authConnection = try values.decode(String.self, forKey: .authConnection)
         authConnectionId = try values.decode(String.self, forKey: .authConnectionId)
         groupedAuthConnectionId = try values.decode(String.self, forKey: .groupedAuthConnectionId)
-        dappShare = try values.decodeIfPresent(String.self, forKey: .dappShare)
-        extraLoginOptions = try values.decodeIfPresent(ExtraLoginOptions.self, forKey: .extraLoginOptions)
-        redirectUrl = try values.decodeIfPresent(String.self, forKey: .redirectUrl)
         appState = try values.decodeIfPresent(String.self, forKey: .appState)
         mfaLevel = try values.decodeIfPresent(MFALevel.self, forKey: .mfaLevel)
+        extraLoginOptions = try values.decodeIfPresent(ExtraLoginOptions.self, forKey: .extraLoginOptions)
+        dappShare = try values.decodeIfPresent(String.self, forKey: .dappShare)
         curve = try values.decodeIfPresent(SUPPORTED_KEY_CURVES.self, forKey: .curve) ?? .SECP256K1
         dappUrl = try values.decodeIfPresent(String.self, forKey: .dappUrl)
+        loginHint = try values.decodeIfPresent(String.self, forKey: .loginHint)
+        idToken = try values.decodeIfPresent(String.self, forKey: .idToken)
     }
 }
 
@@ -497,7 +537,7 @@ public struct MfaSetting: Codable {
     }
 }
 
-public struct ChainConfig: Codable {
+public struct Chains: Codable {
     public init(chainNamespace: ChainNamespace = ChainNamespace.eip155, decimals: Int? = 18, blockExplorerUrl: String? = nil, chainId: String, displayName: String? = nil, logo: String? = nil, rpcTarget: String, ticker: String? = nil, tickerName: String? = nil) {
         self.chainNamespace = chainNamespace
         self.decimals = decimals
@@ -532,6 +572,61 @@ public struct ChainConfig: Codable {
         ticker = try values.decodeIfPresent(String.self, forKey: .ticker)
         tickerName = try values.decodeIfPresent(String.self, forKey: .tickerName)
     }
+}
+
+public struct WalletUiConfig: Codable {
+    public var enablePortfolioWidget: Bool?
+    public var enableConfirmationModal: Bool?
+    public var enableWalletConnect: Bool?
+    public var enableTokenDisplay: Bool?
+    public var enableNftDisplay: Bool?
+    public var enableShowAllTokensButton: Bool?
+    public var enableBuyButton: Bool?
+    public var enableSendButton: Bool?
+    public var enableSwapButton: Bool?
+    public var enableReceiveButton: Bool?
+    public var portfolioWidgetPosition: ButtonPositionType?
+    public var defaultPortfolio: DefaultPortfolioType?
+
+    public init(
+        enablePortfolioWidget: Bool? = nil,
+        enableConfirmationModal: Bool? = nil,
+        enableWalletConnect: Bool? = nil,
+        enableTokenDisplay: Bool? = nil,
+        enableNftDisplay: Bool? = nil,
+        enableShowAllTokensButton: Bool? = nil,
+        enableBuyButton: Bool? = nil,
+        enableSendButton: Bool? = nil,
+        enableSwapButton: Bool? = nil,
+        enableReceiveButton: Bool? = nil,
+        portfolioWidgetPosition: ButtonPositionType? = nil,
+        defaultPortfolio: DefaultPortfolioType? = nil
+    ) {
+        self.enablePortfolioWidget = enablePortfolioWidget
+        self.enableConfirmationModal = enableConfirmationModal
+        self.enableWalletConnect = enableWalletConnect
+        self.enableTokenDisplay = enableTokenDisplay
+        self.enableNftDisplay = enableNftDisplay
+        self.enableShowAllTokensButton = enableShowAllTokensButton
+        self.enableBuyButton = enableBuyButton
+        self.enableSendButton = enableSendButton
+        self.enableSwapButton = enableSwapButton
+        self.enableReceiveButton = enableReceiveButton
+        self.portfolioWidgetPosition = portfolioWidgetPosition
+        self.defaultPortfolio = defaultPortfolio
+    }
+}
+
+public enum ButtonPositionType: String, Codable {
+    case bottomLeft = "bottom-left"
+    case topLeft = "top-left"
+    case bottomRight = "bottom-right"
+    case topRight = "top-right"
+}
+
+public enum DefaultPortfolioType: String, Codable {
+    case token = "token"
+    case nft = "nft"
 }
 
 struct SdkUrlParams: Codable {
@@ -570,20 +665,7 @@ struct SetUpMFAParams: Codable {
     }
 }
 
-struct ProjectConfigResponse: Codable {
-    let smsOtpEnabled, walletConnectEnabled: Bool
-    let whitelist: Whitelist
-    let whiteLabelData: W3AWhiteLabelData?
-
-    enum CodingKeys: String, CodingKey {
-        case smsOtpEnabled = "sms_otp_enabled"
-        case walletConnectEnabled = "wallet_connect_enabled"
-        case whitelist
-        case whiteLabelData = "whitelabel"
-    }
-}
-
-struct Whitelist: Codable {
+public struct Whitelist: Codable {
     let urls: [String]
     let signedUrls: [String: String]
 
@@ -592,3 +674,81 @@ struct Whitelist: Codable {
         case signedUrls = "signed_urls"
     }
 }
+
+public struct ProjectConfigResponse: Codable {
+    public var userDataIncludedInToken: Bool? = true
+    public var sessionTime: Int? = 30 * 86400
+    public var enableKeyExport: Bool? = false
+    public var whitelist: Whitelist
+    public var chains: [Chains]? = nil
+    public var smartAccounts: SmartAccountsConfig? = nil
+    public var walletUiConfig: WalletUiConfig? = nil
+    public var embeddedWalletAuth: [AuthConnectionConfig]? = nil
+    public var smsOtpEnabled: Bool
+    public var walletConnectEnabled: Bool
+    public var walletConnectProjectId: String? = nil
+    public let whitelabel: WhiteLabelData? = nil
+
+    enum CodingKeys: String, CodingKey {
+        case userDataIncludedInToken
+        case sessionTime
+        case enableKeyExport
+        case whitelist
+        case chains
+        case smartAccounts
+        case walletUiConfig
+        case embeddedWalletAuth
+        case smsOtpEnabled = "sms_otp_enabled"
+        case walletConnectEnabled = "wallet_connect_enabled"
+        case walletConnectProjectId = "wallet_connect_project_id"
+        case whitelabel
+    }
+}
+
+public struct SmartAccountsConfig: Codable {
+    public var smartAccountType: SmartAccountType
+    public var walletScope: SmartAccountWalletScope
+    public var chains: [ChainConfig]
+
+    enum CodingKeys: String, CodingKey {
+        case smartAccountType
+        case walletScope
+        case chains
+    }
+}
+
+public struct ChainConfig: Codable {
+    public var chainId: String
+    public var bundlerConfig: BundlerConfig
+    public var paymasterConfig: PaymasterConfig?
+
+    enum CodingKeys: String, CodingKey {
+        case chainId
+        case bundlerConfig
+        case paymasterConfig
+    }
+}
+
+public struct BundlerConfig: Codable {
+    public var url: String
+}
+
+public struct PaymasterConfig: Codable {
+    public var url: String
+}
+
+public enum SmartAccountType: String, Codable {
+    case biconomy = "biconomy"
+    case kernel = "kernel"
+    case safe = "safe"
+    case trust = "trust"
+    case light = "light"
+    case simple = "simple"
+    case nexus = "nexus"
+}
+
+public enum SmartAccountWalletScope: String, Codable {
+    case embedded = "embedded"
+    case all = "all"
+}
+

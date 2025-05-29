@@ -38,11 +38,31 @@ class ViewModel: ObservableObject {
 
     func setup() async throws {
         guard web3Auth == nil else { return }
+        var authConfig: [AuthConnectionConfig] = []
+
+        authConfig.append(
+            AuthConnectionConfig(
+                authConnectionId: "w3ads",
+                authConnection: .GOOGLE,
+                clientId: "519228911939-snh959gvvmjieoo4j14kkaancbkjp34r.apps.googleusercontent.com",
+                groupedAuthConnectionId: "aggregate-mobile"
+            )
+        )
+
+        authConfig.append(
+            AuthConnectionConfig(
+                authConnectionId: "auth0-test",
+                authConnection: .CUSTOM,
+                clientId: "hUVVf4SEsZT7syOiL0gLU9hFEtm2gQ6O",
+                groupedAuthConnectionId: "aggregate-mobile"
+            )
+        )
         await MainActor.run(body: {
             isLoading = true
             navigationTitle = "Loading"
         })
         web3Auth = try await Web3Auth(.init(clientId: clientID, web3AuthNetwork: web3AuthNetwork, authBuildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
+                                            authConnectionConfig: authConfig,
                                             // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                             // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
                                             useCoreKitKey: useCoreKit))
@@ -60,7 +80,7 @@ class ViewModel: ObservableObject {
         do {
             loggedIn = true
             privateKey = ((web3Auth?.getPrivateKey() != "") ? web3Auth?.getPrivateKey() : try web3Auth?.getWeb3AuthResponse().factorKey) ?? ""
-            ed25519PrivKey = web3Auth?.getEd25519PrivKey() ?? ""
+            ed25519PrivKey = web3Auth?.getEd25519PrivateKey() ?? ""
             userInfo = try web3Auth?.getUserInfo()
         } catch {
             errorMessage = error.localizedDescription
@@ -72,7 +92,7 @@ class ViewModel: ObservableObject {
         Task {
             do {
                 _ = try await web3Auth?.login(LoginParams(authConnection: authConnection,
-                                                             extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "hello@tor.us", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
+                                                          extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "hello@tor.us", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil),
                                                              mfaLevel: .DEFAULT,
                                                              curve: .SECP256K1
                     ))
@@ -86,22 +106,38 @@ class ViewModel: ObservableObject {
     func loginWithGoogle(authConnection: AuthConnection) {
         Task {
             do {
+                var authConfig: [AuthConnectionConfig] = []
+
+                authConfig.append(
+                    AuthConnectionConfig(
+                        authConnectionId: "w3ads",
+                        authConnection: .GOOGLE,
+                        clientId: "519228911939-snh959gvvmjieoo4j14kkaancbkjp34r.apps.googleusercontent.com",
+                        groupedAuthConnectionId: "aggregate-mobile"
+                    )
+                )
+
+                authConfig.append(
+                    AuthConnectionConfig(
+                        authConnectionId: "auth0-test",
+                        authConnection: .CUSTOM,
+                        clientId: "hUVVf4SEsZT7syOiL0gLU9hFEtm2gQ6O",
+                        groupedAuthConnectionId: "aggregate-mobile"
+                    )
+                )
                 web3Auth = try await Web3Auth(.init(
                     clientId: clientID,
                     web3AuthNetwork: web3AuthNetwork,
                     authBuildEnv: buildEnv,
                     redirectUrl: redirectUrl, // we should probably use this throughout instead of being part of other classes
-                    authConnectionConfig: [
-                            AuthConnectionConfig(
-                                authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-                                authConnection: .CUSTOM,
-                                clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
-                            )
-                        ],
+                    authConnectionConfig: authConfig,
                     whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]),
                     useCoreKitKey: useCoreKit
                 ))
-                _ = try await web3Auth?.login(LoginParams(authConnection: authConnection,
+                _ = try await web3Auth?.login(LoginParams(authConnection: .GOOGLE,
+                                                          authConnectionId: "w3ads",
+                                                          groupedAuthConnectionId: "aggregate-mobile",
+                                                          extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: "https://web3auth.au.auth0.com/", client_id: nil, redirect_uri: nil, leeway: nil, userIdField: "email", isUserIdCaseSensitive: false, additionalParams: nil),
                                                              redirectUrl: redirectUrl,
                                                              mfaLevel: .DEFAULT,
                                                              curve: .SECP256K1
@@ -127,7 +163,7 @@ class ViewModel: ObservableObject {
                             authConnection: .GOOGLE,
                             name: "Web3Auth-Aggregate-Verifier-Google-Example",
                             clientId: "774338308167-q463s7kpvja16l4l0kko3nb925ikds2p.apps.googleusercontent.com",
-                            verifierSubIdentifier: "w3a-google"
+                            groupedAuthConnectionId: "w3a-google"
                         )
                     ]
                 )
@@ -136,7 +172,7 @@ class ViewModel: ObservableObject {
                     LoginParams(
                         authConnection: "random",
                         dappShare: nil,
-                        extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, verifierIdField: nil, isVerifierIdCaseSensitive: nil, additionalParams: nil),
+                        extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil),
                         mfaLevel: .DEFAULT,
                         curve: .SECP256K1
                     ))
@@ -257,7 +293,7 @@ extension ViewModel {
         print("""
         Signed in successfully!
             Private key: \(result.privateKey ?? "")
-                Ed25519 Private key: \(result.ed25519PrivKey ?? "")
+                Ed25519 Private key: \(result.ed25519PrivateKey ?? "")
             User info:
                 Name: \(result.userInfo?.name ?? "")
                 Profile image: \(result.userInfo?.profileImage ?? "N/A")
