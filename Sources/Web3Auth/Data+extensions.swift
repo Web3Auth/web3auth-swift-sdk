@@ -21,6 +21,14 @@ internal extension Data {
         result = result.replacingOccurrences(of: "=", with: "")
         return result
     }
+    
+    var bytes: Array<UInt8> {
+        Array(self)
+    }
+
+    func toHexString() -> String {
+        bytes.toHexString()
+    }
 }
 
 internal extension Data {

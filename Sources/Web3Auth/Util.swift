@@ -1,4 +1,5 @@
 import Foundation
+import FetchNodeDetails
 
 func plistValues(_ bundle: Bundle) -> (clientId: String, web3AuthNetwork: Web3AuthNetwork, redirectUrl: String)? {
     guard
@@ -13,7 +14,7 @@ func plistValues(_ bundle: Bundle) -> (clientId: String, web3AuthNetwork: Web3Au
         let clientId = values["ClientId"] as? String,
         let networkValue = values["Network"] as? String,
         let redirectUrl = values["RedirectUrl"] as? String,
-        let web3AuthNetwork = Web3AuthNetwork(rawValue: networkValue)
+        let web3AuthNetwork = Web3AuthNetwork(string: networkValue)
     else {
         print("Web3Auth.plist file at \(path) is missing or having incorrect 'ClientId' and/or 'Network' entries!")
         print("File currently has the following entries: \(values)")
@@ -24,7 +25,7 @@ func plistValues(_ bundle: Bundle) -> (clientId: String, web3AuthNetwork: Web3Au
 
 extension WhiteLabelData {
     func merge(with other: WhiteLabelData) -> WhiteLabelData {
-        return W3AWhiteLabelData(
+        return WhiteLabelData(
             appName: appName ?? other.appName,
             logoLight: logoLight ?? other.logoLight,
             logoDark: logoDark ?? other.logoDark,

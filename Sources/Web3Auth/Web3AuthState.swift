@@ -1,4 +1,5 @@
 import Foundation
+import FetchNodeDetails
 
 /**
  User's credentials and info obtained from Web3Auth.

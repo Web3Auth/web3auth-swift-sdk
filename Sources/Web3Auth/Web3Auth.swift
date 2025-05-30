@@ -2,6 +2,19 @@ import AuthenticationServices
 import curveSecp256k1
 import OSLog
 import SessionManager
+import BigInt
+#if canImport(UIKit)
+import UIKit
+#endif
+import Combine
+import FetchNodeDetails
+import SessionManager
+import TorusUtils
+import JWTDecode
+#if canImport(curveSecp256k1)
+    import curveSecp256k1
+#endif
+
 
 /**
  Authentication using Web3Auth.
@@ -18,14 +31,17 @@ public class Web3Auth: NSObject {
     var webViewController: WebViewController = DispatchQueue.main.sync { WebViewController(onSignResponse: { _ in }) }
     private var loginParams: LoginParams?
     private static var signResponse: SignResponse?
+    private var projectConfigResponse: ProjectConfigResponse? = nil
+    let nodeDetailManager: NodeDetailManager
+    let torusUtils: TorusUtils
 
     let SIGNER_MAP: [Web3AuthNetwork: String] = [
-        .mainnet: "https://signer.web3auth.io",
-        .testnet: "https://signer.web3auth.io",
-        .cyan: "https://signer-polygon.web3auth.io",
-        .aqua: "https://signer-polygon.web3auth.io",
-        .sapphire_mainnet: "https://signer.web3auth.io",
-        .sapphire_devnet: "https://signer.web3auth.io",
+        .MAINNET: "https://signer.web3auth.io",
+        .TESTNET: "https://signer.web3auth.io",
+        .CYAN: "https://signer-polygon.web3auth.io",
+        .AQUA: "https://signer-polygon.web3auth.io",
+        .SAPPHIRE_MAINNET: "https://signer.web3auth.io",
+        .SAPPHIRE_DEVNET: "https://signer.web3auth.io",
     ]
     /**
      Web3Auth  component for authenticating with web-based flow.
@@ -42,6 +58,9 @@ public class Web3Auth: NSObject {
         web3AuthOptions = options
         Router.baseURL = SIGNER_MAP[options.web3AuthNetwork] ?? ""
         sessionManager = SessionManager(sessionTime: options.sessionTime, allowedOrigin: options.redirectUrl)
+        nodeDetailManager = NodeDetailManager(network: options.web3AuthNetwork)
+        let torusOptions = TorusOptions(clientId: options.clientId, network: options.web3AuthNetwork, serverTimeOffset: options.sessionTime, enableOneKey: true)
+        try torusUtils = TorusUtils(params: torusOptions)
         super.init()
         let fetchConfigResult = try await fetchProjectConfig()
         if fetchConfigResult {
@@ -154,7 +173,7 @@ public class Web3Auth: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
-    public func login(_ loginParams: LoginParams) async throws -> Web3AuthResponse {
+    public func login(loginParams: LoginParams) async throws -> Web3AuthResponse {
         self.loginParams = loginParams
         // assign loginParams redirectUrl from intiParamas redirectUrl
         
@@ -177,7 +196,7 @@ public class Web3Auth: NSObject {
 
             DispatchQueue.main.async { [self] in // Ensure the UI-related setup is on the main thread.
                 self.authSession = ASWebAuthenticationSession(
-                    url: url, callbackURLScheme: self.web3AuthOptions.redirectUrl
+                    url: url, callbackURLScheme: URL(string: self.web3AuthOptions.redirectUrl)?.scheme
                 ) { callbackURL, authError in
 
                     guard
@@ -220,6 +239,152 @@ public class Web3Auth: NSObject {
                 }
             }
         })
+    }
+    
+    public func connectTo(loginParams: LoginParams) async throws -> Web3AuthResponse {
+        // Case 1: No idToken provided
+        if loginParams.idToken?.isEmpty ?? true {
+            if let loginHint = loginParams.loginHint, !loginHint.isEmpty {
+                // Create or update extraLoginOptions with loginHint
+                var updatedExtraLoginOptions = loginParams.extraLoginOptions
+                if updatedExtraLoginOptions == nil {
+                    updatedExtraLoginOptions = ExtraLoginOptions(login_hint: loginHint)
+                } else {
+                    updatedExtraLoginOptions?.login_hint = loginHint
+                }
+                
+                var updatedLoginParams = loginParams
+                updatedLoginParams.extraLoginOptions = updatedExtraLoginOptions
+                
+                return try await login(loginParams: updatedLoginParams) // PnP login
+            } else {
+                return try await login(loginParams: loginParams) // PnP login
+            }
+        }
+        
+        // Case 2: idToken exists
+        if let groupedId = loginParams.groupedAuthConnectionId, !groupedId.isEmpty {
+            let newLoginParams = LoginParams(
+                authConnection: .CUSTOM,
+                authConnectionId: groupedId,
+                idToken: loginParams.idToken
+            )
+            let subVerifierInfoArray = [
+                Web3AuthSubVerifierInfo(
+                    verifier: loginParams.authConnectionId ?? "",
+                    idToken: loginParams.idToken ?? ""
+                )
+            ]
+            return try await connect(loginParams: newLoginParams, subVerifierInfoArray: subVerifierInfoArray)
+        } else {
+            return try await connect(loginParams: loginParams) // SFA login fallback
+        }
+    }
+
+    
+    private func getTorusKey(loginParams: LoginParams, subVerifierInfoArray: [Web3AuthSubVerifierInfo]? = nil) async throws -> TorusKey {
+        var retrieveSharesResponse: TorusKey
+
+        let userId = getUserId(from: loginParams.idToken!)
+        let details = try await nodeDetailManager.getNodeDetails(verifier: loginParams.authConnectionId!, verifierID: userId!)
+        
+        if let subVerifierInfoArray = subVerifierInfoArray, !subVerifierInfoArray.isEmpty {
+            var aggregateIdTokenSeeds = [String]()
+            var subVerifierIds = [String]()
+            var verifyParams = [VerifyParams]()
+            for value in subVerifierInfoArray {
+                aggregateIdTokenSeeds.append(value.idToken)
+
+                let verifyParam = VerifyParams(verifier_id: userId, idtoken: value.idToken)
+
+                verifyParams.append(verifyParam)
+                subVerifierIds.append(value.verifier)
+            }
+            aggregateIdTokenSeeds.sort()
+
+            let verifierParams = VerifierParams(verifier_id: userId!, sub_verifier_ids: subVerifierIds, verify_params: verifyParams)
+
+            let aggregateIdToken = try curveSecp256k1.keccak256(data: Data(aggregateIdTokenSeeds.joined(separator: "\u{001d}").utf8)).toHexString()
+            
+            retrieveSharesResponse = try await torusUtils.retrieveShares(
+                endpoints: details.getTorusNodeEndpoints(),
+                verifier: loginParams.authConnectionId!,
+                verifierParams: verifierParams,
+                idToken: aggregateIdToken
+            )
+        } else {
+            let verifierParams = VerifierParams(verifier_id: userId!)
+
+            retrieveSharesResponse = try await torusUtils.retrieveShares(
+                endpoints: details.getTorusNodeEndpoints(),
+                verifier: loginParams.authConnectionId!,
+                verifierParams: verifierParams,
+                idToken: loginParams.idToken!
+            )
+        }
+        
+        if retrieveSharesResponse.metadata.upgraded == true {
+            throw Web3AuthError.mfaAlreadyEnabled
+        }
+
+        return retrieveSharesResponse
+    }
+
+    public func connect(loginParams: LoginParams,  subVerifierInfoArray: [Web3AuthSubVerifierInfo]? = nil) async throws -> Web3AuthResponse {
+        let torusKey = try await getTorusKey(loginParams: loginParams)
+
+        let publicAddress = torusKey.finalKeyData.evmAddress
+        let privateKey = if (torusKey.finalKeyData.privKey.isEmpty) {
+            torusKey.oAuthKeyData.privKey
+        } else {
+            torusKey.finalKeyData.privKey
+        }
+
+        var decodedUserInfo: Web3AuthUserInfo? = nil
+        
+        do {
+            let jwt = try decode(jwt: loginParams.idToken!)
+            decodedUserInfo = Web3AuthUserInfo.init(email: jwt.body["email"] as? String ?? "",
+                                                    name: jwt.body["name"] as? String ?? "",
+                                                    profileImage: jwt.body["picture"] as? String ?? "",
+                                                    groupedAuthConnectionId: nil,
+                                                    authConnectionId: loginParams.authConnectionId, userId: jwt.body["user_id"] as? String ?? "",
+                                                    dappShare: nil, idToken: nil, oAuthIdToken: nil, oAuthAccessToken: nil, isMfaEnabled: false, authConnection: "custom", appState: nil)
+        } catch {
+            throw Web3AuthError.inValidLogin
+        }
+        
+        let sessionId = try SessionManager.generateRandomSessionID()!
+        sessionManager.setSessionId(sessionId: sessionId)
+        
+        let web3AuthResponse = Web3AuthResponse(privateKey: privateKey, ed25519PrivateKey: nil, sessionId: nil, userInfo: decodedUserInfo, error: nil, coreKitKey: nil, coreKitEd25519PrivKey: nil, factorKey: nil, signatures: getSignatureData(sessionTokenData: torusKey.sessionData.sessionTokenData), tssShareIndex: 0, tssPubKey: nil, tssShare: nil, tssTag: nil, tssNonce: 0, nodeIndexes: [], keyMode: nil)
+    
+        _ = try await sessionManager.createSession(data: web3AuthResponse)
+        
+        SessionManager.saveSessionIdToStorage(sessionId)
+        sessionManager.setSessionId(sessionId: sessionId)
+        //self.state = sfaKey
+        return web3AuthResponse
+    }
+    
+    private func getSignatureData(sessionTokenData: [SessionToken?]) -> [String] {
+        return sessionTokenData
+            .compactMap { $0 } // Filters out nil values
+            .map { session in
+                """
+                {"data":"\(session.token)","sig":"\(session.signature)"}
+                """
+            }
+    }
+    
+    private func getUserId(from token: String) -> String? {
+        do {
+            let jwt = try decode(jwt: token)
+            return jwt.claim(name: "user_id").string
+        } catch {
+            print("Failed to decode JWT: \(error)")
+            return nil
+        }
     }
 
     public func enableMFA(_ loginParams: LoginParams? = nil) async throws -> Bool {
@@ -266,7 +431,7 @@ public class Web3Auth: NSObject {
 
                 DispatchQueue.main.async { // Ensure UI-related calls are made on the main thread
                     self.authSession = ASWebAuthenticationSession(
-                        url: url, callbackURLScheme:  self.web3AuthOptions.redirectUrl
+                        url: url, callbackURLScheme: URL(string: self.web3AuthOptions.redirectUrl)?.scheme
                     ) { callbackURL, authError in
                         guard
                             authError == nil,
@@ -326,7 +491,7 @@ public class Web3Auth: NSObject {
 
         if loginParams != nil {
             modifiedLoginParams = loginParams
-            modifiedLoginParams?.redirectUrl = modifiedInitParams.dashboardUrl
+            //modifiedLoginParams?.redirectUrl = modifiedInitParams.dashboardUrl
         }
 
         var extraLoginOptions: ExtraLoginOptions? = modifiedLoginParams?.extraLoginOptions ?? loginParams?.extraLoginOptions ?? ExtraLoginOptions()
@@ -344,7 +509,7 @@ public class Web3Auth: NSObject {
         let jsonEncoder = JSONEncoder()
         let data = try? jsonEncoder.encode(loginIdObject)
         
-        let dappUrl = modifiedInitParams.redirectUrl
+        let dappUrl = self.web3AuthOptions.redirectUrl
         
         let params: [String: String?] = [
             "authConnection": web3AuthResponse?.userInfo?.authConnection,
@@ -390,10 +555,10 @@ public class Web3Auth: NSObject {
         }
     }
     
-    public func showWalletUI(chainConfig: [Chains], chainId: String, path: String? = "wallet") async throws {
+    public func showWalletUI(path: String? = "wallet") async throws {
         let savedSessionId = SessionManager.getSessionIdFromStorage()!
         if !savedSessionId.isEmpty {
-            web3AuthOptions.chains = chainConfig
+            web3AuthOptions.chains = projectConfigResponse?.chains
             let walletServicesParams = WalletServicesParams(options: web3AuthOptions, appState: nil)
             let sessionId = try SessionManager.generateRandomSessionID()!
             let loginId = try await getLoginId(sessionId: sessionId ,data: walletServicesParams)
@@ -425,12 +590,10 @@ public class Web3Auth: NSObject {
         }
     }
 
-    public func request(chainConfig: Chains, method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
+    public func request(method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
         let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
-            let chainConfigList = [chainConfig]
-            web3AuthOptions.chains = chainConfigList
-            web3AuthOptions.chainId = chainConfig.chainId
+            web3AuthOptions.chains = projectConfigResponse?.chains
             let walletServicesParams = WalletServicesParams(options: web3AuthOptions, appState: appState)
             let loginId = try SessionManager.generateRandomSessionID()!
             let _loginId = try await getLoginId(sessionId: loginId, data: walletServicesParams)
@@ -528,7 +691,7 @@ public class Web3Auth: NSObject {
 
     public func fetchProjectConfig() async throws -> Bool {
         var response: Bool = false
-        let api = Router.get([.init(name: "project_id", value: web3AuthOptions.clientId), .init(name: "network", value: web3AuthOptions.web3AuthNetwork.rawValue), .init(name: "build_env", value: web3AuthOptions.authBuildEnv?.rawValue)])
+        let api = Router.get([.init(name: "project_id", value: web3AuthOptions.clientId), .init(name: "network", value: web3AuthOptions.web3AuthNetwork.name), .init(name: "build_env", value: web3AuthOptions.authBuildEnv?.rawValue)])
         let result = await Service.request(router: api)
         switch result {
         case let .success(data):
@@ -536,6 +699,7 @@ public class Web3Auth: NSObject {
                 let decoder = JSONDecoder()
                 let result = try decoder.decode(ProjectConfigResponse.self, from: data)
                 // os_log("fetchProjectConfig API response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(String(describing: result))")
+                projectConfigResponse = result
                 web3AuthOptions.originData = result.whitelist.signedUrls.merging(web3AuthOptions.originData ?? [:]) { _, new in new }
                 if let whiteLabelData = result.whitelabel {
                     if web3AuthOptions.walletServicesConfig?.whiteLabel == nil {

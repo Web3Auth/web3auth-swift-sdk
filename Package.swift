@@ -24,10 +24,17 @@ let package = Package(
     targets: [
         .target(
             name: "Web3Auth",
-            dependencies: ["KeychainSwift", .product(name: "curveSecp256k1", package: "curvelib.swift"), "SessionManager", "BigInt"]),
+            dependencies: [
+                "KeychainSwift",
+                .product(name: "curveSecp256k1", package: "curvelib.swift"),
+                "SessionManager",
+                "BigInt",
+                .product(name: "TorusUtils", package: "torus-utils-swift"),
+                .product(name: "JWTDecode", package: "JWTDecode.swift")
+            ]),
         .testTarget(
             name: "Web3AuthTests",
-            dependencies: ["Web3Auth"])
+            dependencies: ["Web3Auth", .product(name: "JWTKit", package: "jwt-kit")])
     ],
     swiftLanguageVersions: [.v5]
 )

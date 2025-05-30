@@ -1,6 +1,7 @@
 //TODO: Split up this file.
 
 import Foundation
+import FetchNodeDetails
 
 public struct Signature: Codable {
     let r: String
@@ -71,6 +72,7 @@ public enum MFALevel: String, Codable {
 public enum ChainNamespace: String, Codable {
     case eip155
     case solana
+    case other
 }
 
 public struct WhiteLabelData: Codable {
@@ -392,7 +394,7 @@ public struct LoginParams: Codable {
     let groupedAuthConnectionId: String?
     let appState: String?
     let mfaLevel: MFALevel?
-    let extraLoginOptions: ExtraLoginOptions?
+    var extraLoginOptions: ExtraLoginOptions?
     var dappShare: String?
     let curve: SUPPORTED_KEY_CURVES
     let dappUrl: String?
@@ -676,21 +678,21 @@ public struct Whitelist: Codable {
 }
 
 public struct ProjectConfigResponse: Codable {
-    public var userDataIncludedInToken: Bool? = true
-    public var sessionTime: Int? = 30 * 86400
+    public var userDataInIdToken: Bool? = true
+    public var sessionTime: String? = "86400"
     public var enableKeyExport: Bool? = false
     public var whitelist: Whitelist
     public var chains: [Chains]? = nil
     public var smartAccounts: SmartAccountsConfig? = nil
     public var walletUiConfig: WalletUiConfig? = nil
     public var embeddedWalletAuth: [AuthConnectionConfig]? = nil
-    public var smsOtpEnabled: Bool
-    public var walletConnectEnabled: Bool
+    public var smsOtpEnabled: Bool? = nil
+    public var walletConnectEnabled: Bool? = nil
     public var walletConnectProjectId: String? = nil
-    public let whitelabel: WhiteLabelData? = nil
+    public var whitelabel: WhiteLabelData? = nil
 
     enum CodingKeys: String, CodingKey {
-        case userDataIncludedInToken
+        case userDataInIdToken
         case sessionTime
         case enableKeyExport
         case whitelist
@@ -700,8 +702,24 @@ public struct ProjectConfigResponse: Codable {
         case embeddedWalletAuth
         case smsOtpEnabled = "sms_otp_enabled"
         case walletConnectEnabled = "wallet_connect_enabled"
-        case walletConnectProjectId = "wallet_connect_project_id"
+        case walletConnectProjectId
         case whitelabel
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.userDataInIdToken = try container.decodeIfPresent(Bool.self, forKey: .userDataInIdToken) ?? true
+        self.sessionTime = try container.decodeIfPresent(String.self, forKey: .sessionTime) ?? "86400"
+        self.enableKeyExport = try container.decodeIfPresent(Bool.self, forKey: .enableKeyExport) ?? false
+        self.whitelist = try container.decode(Whitelist.self, forKey: .whitelist)
+        self.chains = try container.decodeIfPresent([Chains].self, forKey: .chains)
+        self.smartAccounts = try container.decodeIfPresent(SmartAccountsConfig.self, forKey: .smartAccounts)
+        self.walletUiConfig = try container.decodeIfPresent(WalletUiConfig.self, forKey: .walletUiConfig)
+        self.embeddedWalletAuth = try container.decodeIfPresent([AuthConnectionConfig].self, forKey: .embeddedWalletAuth)
+        self.smsOtpEnabled = try container.decodeIfPresent(Bool.self, forKey: .smsOtpEnabled) ?? false
+        self.walletConnectEnabled = try container.decodeIfPresent(Bool.self, forKey: .walletConnectEnabled) ?? false
+        self.walletConnectProjectId = try container.decodeIfPresent(String.self, forKey: .walletConnectProjectId)
+        self.whitelabel = try container.decodeIfPresent(WhiteLabelData.self, forKey: .whitelabel)
     }
 }
 
@@ -750,5 +768,10 @@ public enum SmartAccountType: String, Codable {
 public enum SmartAccountWalletScope: String, Codable {
     case embedded = "embedded"
     case all = "all"
+}
+
+public struct Web3AuthSubVerifierInfo: Codable {
+    var verifier: String
+    var idToken: String
 }
 

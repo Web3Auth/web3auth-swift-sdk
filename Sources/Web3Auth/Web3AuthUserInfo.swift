@@ -18,8 +18,8 @@ public struct Web3AuthUserInfo: Codable {
     public let authConnection: String?
     public let appState: String?
 
-    public init(name: String?, profileImage: String?, groupedAuthConnectionId: String?,
-                authConnectionId: String?, userId: String?, email: String?, dappShare: String?, idToken: String?, oAuthIdToken: String?, oAuthAccessToken: String?,
+    public init(email: String, name: String?, profileImage: String?, groupedAuthConnectionId: String?,
+                authConnectionId: String?, userId: String?, dappShare: String?, idToken: String?, oAuthIdToken: String?, oAuthAccessToken: String?,
                 isMfaEnabled: Bool?, authConnection: String?, appState: String?) {
         self.name = name
         self.profileImage = profileImage

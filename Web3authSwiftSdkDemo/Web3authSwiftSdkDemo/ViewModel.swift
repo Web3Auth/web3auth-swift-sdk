@@ -20,8 +20,8 @@ class ViewModel: ObservableObject {
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
     //  private var network: Web3AuthNetwork = .mainnet
     private var useCoreKit: Bool = false
-    private var chainConfig: [ChainConfig] = [
-        ChainConfig(
+    private var chainConfig: [Chains] = [
+        Chains(
             chainNamespace: .eip155,
             chainId: "0x1",
             rpcTarget: "https://mainnet.infura.io/v3/79921cf5a1f149f7af0a0fef80cf3363",
@@ -61,11 +61,10 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = try await Web3Auth(.init(clientId: clientID, web3AuthNetwork: web3AuthNetwork, authBuildEnv: buildEnv, redirectUrl: "com.web3auth.sdkapp://auth",
-                                            authConnectionConfig: authConfig,
+        web3Auth = try await Web3Auth(.init(clientId: clientID, redirectUrl: "com.web3auth.sdkapp://auth", authBuildEnv: buildEnv, authConnectionConfig: authConfig,                                           web3AuthNetwork: web3AuthNetwork,
                                             // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                             // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
-                                            useCoreKitKey: useCoreKit))
+                                            useSFAKey: useCoreKit))
         await MainActor.run(body: {
             if self.web3Auth?.web3AuthResponse != nil {
                 handleUserDetails()
@@ -92,8 +91,7 @@ class ViewModel: ObservableObject {
         Task {
             do {
                 _ = try await web3Auth?.login(LoginParams(authConnection: authConnection,
-                                                          extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "hello@tor.us", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil),
-                                                             mfaLevel: .DEFAULT,
+                                                          mfaLevel: .DEFAULT, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "hello@tor.us", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil),
                                                              curve: .SECP256K1
                     ))
                 await handleUserDetails()
@@ -127,19 +125,13 @@ class ViewModel: ObservableObject {
                 )
                 web3Auth = try await Web3Auth(.init(
                     clientId: clientID,
-                    web3AuthNetwork: web3AuthNetwork,
-                    authBuildEnv: buildEnv,
-                    redirectUrl: redirectUrl, // we should probably use this throughout instead of being part of other classes
-                    authConnectionConfig: authConfig,
-                    whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"]),
-                    useCoreKitKey: useCoreKit
+                    redirectUrl: redirectUrl, authBuildEnv: buildEnv, authConnectionConfig: authConfig, web3AuthNetwork: web3AuthNetwork,
+                    useSFAKey: useCoreKit
                 ))
                 _ = try await web3Auth?.login(LoginParams(authConnection: .GOOGLE,
                                                           authConnectionId: "w3ads",
                                                           groupedAuthConnectionId: "aggregate-mobile",
-                                                          extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: "https://web3auth.au.auth0.com/", client_id: nil, redirect_uri: nil, leeway: nil, userIdField: "email", isUserIdCaseSensitive: false, additionalParams: nil),
-                                                             redirectUrl: redirectUrl,
-                                                             mfaLevel: .DEFAULT,
+                                                          mfaLevel: .DEFAULT, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: "https://web3auth.au.auth0.com/", client_id: nil, redirect_uri: nil, leeway: nil, userIdField: "email", isUserIdCaseSensitive: false, additionalParams: nil),
                                                              curve: .SECP256K1
                     ))
                 await handleUserDetails()
@@ -154,10 +146,7 @@ class ViewModel: ObservableObject {
             do {
                 web3Auth = try await Web3Auth(.init(
                     clientId: clientID,
-                    web3AuthNetwork: web3AuthNetwork,
-                    authBuildEnv: buildEnv,
-                    redirectUrl: redirectUrl,
-                    authConnectionConfig: [
+                    redirectUrl: redirectUrl, authBuildEnv: buildEnv, authConnectionConfig: [
                         AuthConnectionConfig(
                             authConnectionId: "w3a-agg-example",
                             authConnection: .GOOGLE,
@@ -165,15 +154,13 @@ class ViewModel: ObservableObject {
                             clientId: "774338308167-q463s7kpvja16l4l0kko3nb925ikds2p.apps.googleusercontent.com",
                             groupedAuthConnectionId: "w3a-google"
                         )
-                    ]
+                    ], web3AuthNetwork: web3AuthNetwork
                 )
                 )
                 _ = try await web3Auth?.login(
                     LoginParams(
-                        authConnection: "random",
-                        dappShare: nil,
-                        extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil),
-                        mfaLevel: .DEFAULT,
+                        authConnection: .GOOGLE,
+                        mfaLevel: .DEFAULT, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil), dappShare: nil,
                         curve: .SECP256K1
                     ))
                 await handleUserDetails()
@@ -198,7 +185,7 @@ class ViewModel: ObservableObject {
     @MainActor func launchWalletServices() {
         Task {
             do {
-                try await web3Auth?.showWalletUI(chainConfig: chainConfig, chainId: "0x1")
+                try await web3Auth?.showWalletUI()
             } catch {
                 errorMessage = error.localizedDescription
                 showError = true
@@ -246,9 +233,7 @@ class ViewModel: ObservableObject {
                 params.append("Hello, Web3Auth from Android!")
                 params.append(checksumAddress)
                 params.append("Web3Auth")
-                let signResponse = try await self.web3Auth?.request(chainConfig: ChainConfig(
-                    chainNamespace: ChainNamespace.eip155, chainId: "0x89", rpcTarget: "https://polygon-rpc.com"
-                ), method: "personal_sign", requestParams: params)
+                let signResponse = try await self.web3Auth?.request(method: "personal_sign", requestParams: params)
                 if let response = signResponse {
                     print("Sign response received: \(response)")
                 } else {
@@ -267,17 +252,14 @@ class ViewModel: ObservableObject {
                 web3Auth = try await Web3Auth(
                     Web3AuthOptions(
                         clientId: clientID,
-                        web3AuthNetwork: web3AuthNetwork,
-                        authBuildEnv: buildEnv,
-                        redirectUrl: redirectUrl,
-                        authConnectionConfig: [
-                                AuthConnectionConfig(
-                                    authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
-                                    authConnection: .CUSTOM,
-                                    clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
-                                )
-                            ],
-                        whiteLabel: W3AWhiteLabelData(appName: "Web3Auth Stub", defaultLanguage: .en, mode: .dark, theme: ["primary": "#123456"])))
+                        redirectUrl: redirectUrl, authBuildEnv: buildEnv, authConnectionConfig: [
+                            AuthConnectionConfig(
+                                authConnectionId: "web3auth-auth0-email-passwordless-sapphire-devnet",
+                                authConnection: .CUSTOM,
+                                clientId: "d84f6xvbdV75VTGmHiMWfZLeSPk8M07C"
+                            )
+                        ], web3AuthNetwork: web3AuthNetwork
+                        ))
                 _ = try await self.web3Auth?
                     .login(LoginParams(authConnection: .GOOGLE))
                 await handleUserDetails()
