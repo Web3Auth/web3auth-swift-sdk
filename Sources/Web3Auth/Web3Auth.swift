@@ -622,10 +622,39 @@ public class Web3Auth: NSObject {
     public func request(method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
         let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
-            web3AuthOptions.chains = projectConfigResponse?.chains
-            let walletServicesParams = WalletServicesParams(options: web3AuthOptions, appState: appState)
+            var initOptionsJson = try JSONSerialization.jsonObject(with: JSONEncoder().encode(web3AuthOptions)) as! [String: Any]
+
+            if let chains = projectConfigResponse?.chains {
+                let chainsData = try JSONEncoder().encode(chains)
+                let chainsJson = try JSONSerialization.jsonObject(with: chainsData) as! [Any]
+                initOptionsJson["chains"] = chainsJson
+            }
+
+            if let defaultChainId = web3AuthOptions.defaultChainId {
+                initOptionsJson["chainId"] = defaultChainId
+            }
+
+            if let embeddedWalletAuth = projectConfigResponse?.embeddedWalletAuth {
+                let authData = try JSONEncoder().encode(embeddedWalletAuth)
+                let authArray = try JSONSerialization.jsonObject(with: authData) as! [Any]
+                initOptionsJson["embeddedWalletAuth"] = authArray
+            }
+
+            if let smartAccounts = projectConfigResponse?.smartAccounts {
+                let saData = try JSONEncoder().encode(smartAccounts)
+                let saJson = try JSONSerialization.jsonObject(with: saData) as! [String: Any]
+                initOptionsJson["smartAccounts"] = saJson
+            }
+
+            let paramMap: [String: Any] = [
+                "options": initOptionsJson,
+                "appState" : appState
+            ]
+            let jsonData = try JSONSerialization.data(withJSONObject: paramMap)
+            let jsonString = String(data: jsonData, encoding: .utf8)!
+
             let loginId = try SessionManager.generateRandomSessionID()!
-            let _loginId = try await getLoginId(sessionId: loginId, data: walletServicesParams)
+            let _loginId = try await getLoginId(sessionId: loginId, data: jsonString)
 
             var signMessageMap: [String: String] = [:]
             signMessageMap["loginId"] = _loginId
