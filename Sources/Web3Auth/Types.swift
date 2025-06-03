@@ -244,7 +244,7 @@ public struct Web3AuthOptions: Codable {
     var defaultChainId: String?
     let enableLogging: Bool?
     let sessionTime: Int
-    let web3AuthNetwork: Web3AuthNetwork
+    var web3AuthNetwork: Web3AuthNetwork
     var useSFAKey: Bool?
     var walletServicesConfig: WalletServicesConfig?
     let mfaSettings: MfaSettings?
@@ -309,6 +309,46 @@ public struct Web3AuthOptions: Codable {
         useSFAKey = try values.decodeIfPresent(Bool.self, forKey: .useSFAKey)
         walletServicesConfig = try values.decodeIfPresent(WalletServicesConfig.self, forKey: .walletServicesConfig)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(clientId, forKey: .clientId)
+        try container.encode(redirectUrl, forKey: .redirectUrl)
+        try container.encodeIfPresent(originData, forKey: .originData)
+        try container.encode(authBuildEnv, forKey: .authBuildEnv)
+
+        // Encode sdkUrl only if it's different from the default computed value
+        let defaultSdkUrl = getSdkUrl(buildEnv: authBuildEnv)
+        if sdkUrl != defaultSdkUrl {
+            try container.encode(sdkUrl, forKey: .sdkUrl)
+        }
+
+        try container.encodeIfPresent(storageServerUrl, forKey: .storageServerUrl)
+        try container.encodeIfPresent(sessionSocketUrl, forKey: .sessionSocketUrl)
+        try container.encodeIfPresent(authConnectionConfig, forKey: .authConnectionConfig)
+        try container.encodeIfPresent(dashboardUrl, forKey: .dashboardUrl)
+        try container.encodeIfPresent(accountAbstractionConfig, forKey: .accountAbstractionConfig)
+
+        let defaultWalletSdkUrl = getWalletSdkUrl(buildEnv: authBuildEnv)
+        if walletSdkUrl != defaultWalletSdkUrl {
+            try container.encode(walletSdkUrl, forKey: .walletSdkUrl)
+        }
+
+        try container.encodeIfPresent(sessionNamespace, forKey: .sessionNamespace)
+        try container.encodeIfPresent(includeUserDataInToken, forKey: .includeUserDataInToken)
+        try container.encodeIfPresent(chains, forKey: .chains)
+        try container.encodeIfPresent(defaultChainId, forKey: .defaultChainId)
+        try container.encodeIfPresent(enableLogging, forKey: .enableLogging)
+        try container.encode(sessionTime, forKey: .sessionTime)
+
+        // Encode as lowercase string
+        try container.encode(web3AuthNetwork.lowercaseString, forKey: .web3AuthNetwork)
+
+        try container.encodeIfPresent(useSFAKey, forKey: .useSFAKey)
+        try container.encodeIfPresent(walletServicesConfig, forKey: .walletServicesConfig)
+        try container.encodeIfPresent(mfaSettings, forKey: .mfaSettings)
     }
 }
 
@@ -632,7 +672,7 @@ public enum DefaultPortfolioType: String, Codable {
 }
 
 struct SdkUrlParams: Codable {
-    let options: Web3AuthOptions
+    var options: Web3AuthOptions
     let params: LoginParams
     let actionType: String
 

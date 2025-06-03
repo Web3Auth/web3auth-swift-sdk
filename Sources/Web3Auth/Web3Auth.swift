@@ -70,8 +70,7 @@ public class Web3Auth: NSObject {
                 do {
                     // Restore from valid session
                     let loginDetailsDict = try await sessionManager.authorizeSession(origin: options.redirectUrl)
-                    guard let loginDetails = Web3AuthResponse(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(),
-                                                           web3AuthNetwork: options.web3AuthNetwork)
+                    guard let loginDetails = Web3AuthResponse(dict: loginDetailsDict, sessionID: sessionManager.getSessionId(), web3AuthNetwork: options.web3AuthNetwork)
                     else {
                         throw Web3AuthError.decodingError
                     }
@@ -181,7 +180,7 @@ public class Web3Auth: NSObject {
            let savedDappShare = KeychainManager.shared.getDappShare(authConnectionId: authConnectionConfig.authConnectionId) {
             self.loginParams?.dappShare = savedDappShare
         }
-
+    
         let sdkUrlParams = SdkUrlParams(options: web3AuthOptions, params: self.loginParams!, actionType: "login")
         let sessionId = try SessionManager.generateRandomSessionID()!
         let loginId = try await getLoginId(sessionId: sessionId, data: sdkUrlParams)
@@ -558,15 +557,45 @@ public class Web3Auth: NSObject {
     public func showWalletUI(path: String? = "wallet") async throws {
         let savedSessionId = SessionManager.getSessionIdFromStorage()!
         if !savedSessionId.isEmpty {
-            web3AuthOptions.chains = projectConfigResponse?.chains
-            let walletServicesParams = WalletServicesParams(options: web3AuthOptions, appState: nil)
+            var initOptionsJson = try JSONSerialization.jsonObject(with: JSONEncoder().encode(web3AuthOptions)) as! [String: Any]
+
+            if let chains = projectConfigResponse?.chains {
+                let chainsData = try JSONEncoder().encode(chains)
+                let chainsJson = try JSONSerialization.jsonObject(with: chainsData) as! [Any]
+                initOptionsJson["chains"] = chainsJson
+            }
+
+            if let defaultChainId = web3AuthOptions.defaultChainId {
+                initOptionsJson["chainId"] = defaultChainId
+            }
+
+            if let embeddedWalletAuth = projectConfigResponse?.embeddedWalletAuth {
+                let authData = try JSONEncoder().encode(embeddedWalletAuth)
+                let authArray = try JSONSerialization.jsonObject(with: authData) as! [Any]
+                initOptionsJson["embeddedWalletAuth"] = authArray
+            }
+
+            if let smartAccounts = projectConfigResponse?.smartAccounts {
+                let saData = try JSONEncoder().encode(smartAccounts)
+                let saJson = try JSONSerialization.jsonObject(with: saData) as! [String: Any]
+                initOptionsJson["smartAccounts"] = saJson
+            }
+
+            let paramMap: [String: Any] = [
+                "options": initOptionsJson
+            ]
+
             let sessionId = try SessionManager.generateRandomSessionID()!
-            let loginId = try await getLoginId(sessionId: sessionId ,data: walletServicesParams)
+            let jsonData = try JSONSerialization.data(withJSONObject: paramMap)
+            let jsonString = String(data: jsonData, encoding: .utf8)!
+
+            let loginId = try await getLoginId(sessionId: sessionId, data: jsonString)
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
                 "sessionId": savedSessionId,
                 "platform": "ios",
+                "sessionNamespace": web3AuthOptions.sessionNamespace
             ]
 
             let url = try Web3Auth.generateAuthSessionURL(
@@ -603,6 +632,7 @@ public class Web3Auth: NSObject {
             signMessageMap["sessionId"] = sessionId
             signMessageMap["platform"] = "ios"
             signMessageMap["appState"] = appState
+            signMessageMap["sessionNamespace"] = web3AuthOptions.sessionNamespace
 
             var requestData: [String: Any] = [:]
             requestData["method"] = method
