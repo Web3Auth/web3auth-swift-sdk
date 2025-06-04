@@ -18,6 +18,9 @@ class ViewModel: ObservableObject {
     private var redirectUrl: String = "com.web3auth.sdkapp://auth"
     private var web3AuthNetwork: Web3AuthNetwork = .SAPPHIRE_MAINNET
     private var buildEnv: BuildEnv = .testing
+    let TORUS_TEST_EMAIL = "devnettestuser@tor.us"
+    let TEST_VERIFIER = "torus-test-health"
+    let TEST_AGGREGRATE_VERIFIER = "torus-aggregate-sapphire-mainnet"
     //  private var clientID: String = "BEaGnq-mY0ZOXk2UT1ivWUe0PZ_iJX4Vyb6MtpOp7RMBu_6ErTrATlfuK3IaFcvHJr27h6L1T4owkBH6srLphIw"
     //  private var network: Web3AuthNetwork = .mainnet
     private var useCoreKit: Bool = false
@@ -62,7 +65,7 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = try await Web3Auth(.init(clientId: clientID, redirectUrl: "com.web3auth.sdkapp://auth", authBuildEnv: buildEnv, authConnectionConfig: authConfig, defaultChainId: "0x1", web3AuthNetwork: web3AuthNetwork,
+        web3Auth = try await Web3Auth(options: .init(clientId: clientID, redirectUrl: "com.web3auth.sdkapp://auth", authBuildEnv: buildEnv, authConnectionConfig: authConfig, defaultChainId: "0x1", web3AuthNetwork: web3AuthNetwork,
                                             // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
                                             // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
                                             useSFAKey: useCoreKit))
@@ -124,7 +127,7 @@ class ViewModel: ObservableObject {
                         groupedAuthConnectionId: "aggregate-mobile"
                     )
                 )
-                web3Auth = try await Web3Auth(.init(
+                web3Auth = try await Web3Auth(options: .init(
                     clientId: clientID,
                     redirectUrl: redirectUrl, authBuildEnv: buildEnv, authConnectionConfig: authConfig, web3AuthNetwork: web3AuthNetwork,
                     useSFAKey: useCoreKit
@@ -145,7 +148,7 @@ class ViewModel: ObservableObject {
     func loginWithGoogleCustomVerifier() {
         Task {
             do {
-                web3Auth = try await Web3Auth(.init(
+                web3Auth = try await Web3Auth(options: .init(
                     clientId: clientID,
                     redirectUrl: redirectUrl, authBuildEnv: buildEnv, authConnectionConfig: [
                         AuthConnectionConfig(
@@ -251,7 +254,7 @@ class ViewModel: ObservableObject {
         Task.detached { [unowned self] in
             do {
                 web3Auth = try await Web3Auth(
-                    Web3AuthOptions(
+                    options: Web3AuthOptions(
                         clientId: clientID,
                         redirectUrl: redirectUrl, authBuildEnv: buildEnv, authConnectionConfig: [
                             AuthConnectionConfig(
@@ -264,6 +267,29 @@ class ViewModel: ObservableObject {
                 _ = try await self.web3Auth?
                     .login(loginParams: LoginParams(authConnection: .GOOGLE))
                 await handleUserDetails()
+            } catch let error {
+                print(error)
+            }
+        }
+    }
+    
+    func sfaLogin() {
+        Task.detached { [unowned self] in
+            do {
+                web3Auth = try await Web3Auth(
+                    options: Web3AuthOptions(
+                        clientId: "YOUR_CLIENT_ID",
+                        redirectUrl: redirectUrl,
+                        authBuildEnv: buildEnv,
+                        web3AuthNetwork: .SAPPHIRE_MAINNET
+                        ))
+                let idToken = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZGV2bmV0dGVzdHVzZXJAdG9yLnVzIiwiaWF0IjoxNzQ5MDE0Njg5LjQyMzkwMSwiZW1haWwiOiJkZXZuZXR0ZXN0dXNlckB0b3IudXMiLCJpc3MiOiJ0b3J1cy1rZXktdGVzdCIsImFkbWluIjpmYWxzZSwibmFtZSI6ImRldm5ldHRlc3R1c2VyQHRvci51cyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdWQiOiJ0b3J1cy1rZXktdGVzdCIsImV4cCI6MTc0OTAxNDgwOS40MjM5MDEsInN1YiI6ImVtYWlsfGRldm5ldHRlc3R1c2VyIn0.7Rp-tg1tjp93yyT3t9O6p311TvYYL10bKO3bXhsWmQeJVBAnrxVXmQAdE3-CABztFZ4PgvInbWJxrmVq8NR-Og"
+                let web3AuthResponse = try await self.web3Auth?
+                    .connectTo(loginParams: LoginParams(authConnection: .GOOGLE,
+                                                        authConnectionId: TEST_VERIFIER,
+                                                        groupedAuthConnectionId: TEST_AGGREGRATE_VERIFIER,
+                                                        idToken: idToken))
+                print(web3AuthResponse as Any)
             } catch let error {
                 print(error)
             }

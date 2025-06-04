@@ -426,7 +426,7 @@ public struct LoginParams: Codable {
         self.curve = curve
         self.dappUrl = dappUrl
         self.loginHint = loginHint
-        
+        self.idToken = idToken
     }
 
     let authConnection: String

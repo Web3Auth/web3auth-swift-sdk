@@ -54,7 +54,7 @@ public class Web3Auth: NSObject {
 
      - returns: Web3Auth component.
      */
-    public init(_ options: Web3AuthOptions) async throws {
+    public init(options: Web3AuthOptions) async throws {
         web3AuthOptions = options
         Router.baseURL = SIGNER_MAP[options.web3AuthNetwork] ?? ""
         sessionManager = SessionManager(sessionTime: options.sessionTime, allowedOrigin: options.redirectUrl)
@@ -138,7 +138,7 @@ public class Web3Auth: NSObject {
      */
     public convenience init(_ bundle: Bundle = Bundle.main) async throws {
         let values = plistValues(bundle)!
-        try await self.init(Web3AuthOptions(
+        try await self.init(options: Web3AuthOptions(
             clientId: values.clientId,
             web3AuthNetwork: values.web3AuthNetwork,
             redirectUrl: values.redirectUrl
@@ -330,9 +330,13 @@ public class Web3Auth: NSObject {
     }
 
     public func connect(loginParams: LoginParams,  subVerifierInfoArray: [Web3AuthSubVerifierInfo]? = nil) async throws -> Web3AuthResponse {
-        let torusKey = try await getTorusKey(loginParams: loginParams)
+        let torusKey: TorusKey
+        if let array = subVerifierInfoArray, !array.isEmpty {
+            torusKey = try await getTorusKey(loginParams: loginParams, subVerifierInfoArray: array)
+        } else {
+            torusKey = try await getTorusKey(loginParams: loginParams)
+        }
 
-        let publicAddress = torusKey.finalKeyData.evmAddress
         let privateKey = if (torusKey.finalKeyData.privKey.isEmpty) {
             torusKey.oAuthKeyData.privKey
         } else {

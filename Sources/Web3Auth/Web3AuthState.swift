@@ -85,16 +85,15 @@ public struct Web3AuthResponse: Codable {
 extension Web3AuthResponse {
     init?(dict: [String: Any], sessionID: String, web3AuthNetwork: Web3AuthNetwork) {
         guard let privateKey = dict["privKey"] as? String,
-              let ed25519PrivateKey = dict["ed25519PrivKey"] as? String,
               let userInfoDict = dict["userInfo"] as? [String: Any],
               let userInfo = Web3AuthUserInfo(dict: userInfoDict)
         else { return nil }
         let error = dict["error"] as? String
         self.privateKey = privateKey
-        self.ed25519PrivateKey = ed25519PrivateKey
         sessionId = sessionID
         self.userInfo = userInfo
         self.error = error
+        self.ed25519PrivateKey = dict["ed25519PrivKey"] as? String ?? ""
         coreKitKey = dict["coreKitKey"] as? String ?? ""
         coreKitEd25519PrivKey = dict["coreKitEd25519PrivKey"] as? String ?? ""
         factorKey = dict["factorKey"] as? String

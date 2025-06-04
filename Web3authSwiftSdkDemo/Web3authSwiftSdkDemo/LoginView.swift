@@ -46,6 +46,15 @@ struct LoginView: View {
                     Text("Sign In with Whitelabel")
                 }
             )
+            
+            Button(
+                action: {
+                    vm.sfaLogin()
+                },
+                label: {
+                    Text("SFA Login")
+                }
+            )
         }
         .alert(isPresented: $vm.showError) {
             Alert(title: Text("Error"), message: Text(vm.errorMessage), dismissButton: .default(Text("OK")))
