@@ -57,7 +57,8 @@ public class Web3Auth: NSObject {
     public init(options: Web3AuthOptions) async throws {
         web3AuthOptions = options
         Router.baseURL = SIGNER_MAP[options.web3AuthNetwork] ?? ""
-        sessionManager = SessionManager(sessionTime: options.sessionTime, allowedOrigin: options.redirectUrl)
+        let sessionNamespace = (web3AuthOptions.sessionNamespace?.isEmpty == false) ? web3AuthOptions.sessionNamespace : ""
+        sessionManager = SessionManager(sessionTime: options.sessionTime, allowedOrigin: options.redirectUrl, sessionNamespace: sessionNamespace)
         nodeDetailManager = NodeDetailManager(network: options.web3AuthNetwork)
         let torusOptions = TorusOptions(clientId: options.clientId, network: options.web3AuthNetwork, serverTimeOffset: options.sessionTime, enableOneKey: true)
         try torusUtils = TorusUtils(params: torusOptions)
@@ -651,9 +652,9 @@ public class Web3Auth: NSObject {
             }
 
             let paramMap: [String: Any] = [
-                "options": initOptionsJson,
-                "appState" : appState
+                "options": initOptionsJson
             ]
+            
             let jsonData = try JSONSerialization.data(withJSONObject: paramMap)
             let jsonString = String(data: jsonData, encoding: .utf8)!
 
@@ -765,11 +766,8 @@ public class Web3Auth: NSObject {
                 projectConfigResponse = result
                 web3AuthOptions.originData = result.whitelist.signedUrls.merging(web3AuthOptions.originData ?? [:]) { _, new in new }
                 if let whiteLabelData = result.whitelabel {
-                    if web3AuthOptions.walletServicesConfig?.whiteLabel == nil {
-                        web3AuthOptions.walletServicesConfig?.whiteLabel = whiteLabelData
-                    } else {
-                        web3AuthOptions.walletServicesConfig?.whiteLabel = web3AuthOptions.walletServicesConfig?.whiteLabel?.merge(with: whiteLabelData)
-                    }
+                    web3AuthOptions.whiteLabel = web3AuthOptions.whiteLabel?.merge(with: whiteLabelData) ?? whiteLabelData
+                    web3AuthOptions.walletServicesConfig?.whiteLabel = web3AuthOptions.walletServicesConfig?.whiteLabel?.merge(with: whiteLabelData) ?? whiteLabelData
                 }
                 response = true
             } catch {

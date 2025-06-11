@@ -164,10 +164,10 @@ public struct AuthConnectionConfig: Codable {
 
 public struct Web3AuthOptions: Codable {
     public init(clientId: String, redirectUrl: String, originData: [String: String]? = nil, authBuildEnv: BuildEnv? = .production, sdkUrl: String? = nil,
-                storageServerUrl: String? = nil,sessionSocketUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,dashboardUrl: String? = nil,
-                accountAbstractionConfig: String? = nil, walletSdkUrl: String? = nil, sessionNamespace: String? = nil, includeUserDataInToken: Bool? = true,
-                chains: [Chains]? = nil, defaultChainId: String? = nil, enableLogging: Bool? = nil, sessionTime: Int = 30 * 86400,
-                web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil, mfaSettings: MfaSettings? = nil) {
+                storageServerUrl: String? = nil,sessionSocketUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,
+                whiteLabel: WhiteLabelData? = nil, dashboardUrl: String? = nil, accountAbstractionConfig: String? = nil, walletSdkUrl: String? = nil,
+                sessionNamespace: String? = nil, includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = nil, enableLogging: Bool? = nil, sessionTime: Int = 30 * 86400, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
+                mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
         self.redirectUrl = redirectUrl
         self.originData = originData
@@ -179,7 +179,9 @@ public struct Web3AuthOptions: Codable {
         }
         self.storageServerUrl = storageServerUrl
         self.sessionSocketUrl = sessionSocketUrl
+
         self.authConnectionConfig = authConnectionConfig
+        self.whiteLabel = whiteLabel
         if dashboardUrl != nil {
             self.dashboardUrl = dashboardUrl
         } else {
@@ -212,6 +214,7 @@ public struct Web3AuthOptions: Codable {
         self.storageServerUrl = nil
         self.sessionSocketUrl = nil
         self.authConnectionConfig = nil
+        self.whiteLabel = nil
         dashboardUrl = getDashboardUrl(buildEnv: authBuildEnv)
         self.accountAbstractionConfig = nil
         walletSdkUrl = getWalletSdkUrl(buildEnv: authBuildEnv)
@@ -235,6 +238,7 @@ public struct Web3AuthOptions: Codable {
     var storageServerUrl: String?
     var sessionSocketUrl: String?
     var authConnectionConfig: [AuthConnectionConfig]?
+    var whiteLabel: WhiteLabelData?
     var dashboardUrl: String?
     var accountAbstractionConfig: String?
     var walletSdkUrl: String?
@@ -259,6 +263,7 @@ public struct Web3AuthOptions: Codable {
             case storageServerUrl
             case sessionSocketUrl
             case authConnectionConfig
+            case whiteLabel
             case dashboardUrl
             case accountAbstractionConfig
             case walletSdkUrl
@@ -290,9 +295,10 @@ public struct Web3AuthOptions: Codable {
         storageServerUrl = try values.decodeIfPresent(String.self, forKey: .storageServerUrl)
         sessionSocketUrl = try values.decodeIfPresent(String.self, forKey: .sessionSocketUrl)
         authConnectionConfig = try values.decodeIfPresent([AuthConnectionConfig].self, forKey: .authConnectionConfig)
+        whiteLabel = try values.decodeIfPresent(WhiteLabelData.self, forKey: .whiteLabel)
         dashboardUrl = try values.decodeIfPresent(String.self, forKey: .dashboardUrl)
         accountAbstractionConfig = try values.decodeIfPresent(String.self, forKey: .accountAbstractionConfig)
-
+        
         if let customWalletSdkUrl = try values.decodeIfPresent(String.self, forKey: .walletSdkUrl) {
             walletSdkUrl = customWalletSdkUrl
         } else {
@@ -328,6 +334,7 @@ public struct Web3AuthOptions: Codable {
         try container.encodeIfPresent(storageServerUrl, forKey: .storageServerUrl)
         try container.encodeIfPresent(sessionSocketUrl, forKey: .sessionSocketUrl)
         try container.encodeIfPresent(authConnectionConfig, forKey: .authConnectionConfig)
+        try container.encodeIfPresent(whiteLabel, forKey: .whiteLabel)
         try container.encodeIfPresent(dashboardUrl, forKey: .dashboardUrl)
         try container.encodeIfPresent(accountAbstractionConfig, forKey: .accountAbstractionConfig)
 
