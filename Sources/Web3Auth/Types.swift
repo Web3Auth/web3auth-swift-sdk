@@ -166,7 +166,7 @@ public struct Web3AuthOptions: Codable {
     public init(clientId: String, redirectUrl: String, originData: [String: String]? = nil, authBuildEnv: BuildEnv? = .production, sdkUrl: String? = nil,
                 storageServerUrl: String? = nil,sessionSocketUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,
                 whiteLabel: WhiteLabelData? = nil, dashboardUrl: String? = nil, accountAbstractionConfig: String? = nil, walletSdkUrl: String? = nil,
-                sessionNamespace: String? = nil, includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = nil, enableLogging: Bool? = nil, sessionTime: Int = 30 * 86400, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
+                sessionNamespace: String? = nil, includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = "0x1", enableLogging: Bool? = nil, sessionTime: Int = 30 * 86400, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
                 mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
         self.redirectUrl = redirectUrl
@@ -221,7 +221,7 @@ public struct Web3AuthOptions: Codable {
         self.sessionNamespace = nil
         self.includeUserDataInToken = true
         self.chains = nil
-        self.defaultChainId = nil
+        self.defaultChainId = "0x1"
         self.enableLogging = false
         self.sessionTime = 30 * 86400
         self.web3AuthNetwork = web3AuthNetwork
@@ -245,7 +245,7 @@ public struct Web3AuthOptions: Codable {
     var sessionNamespace: String?
     let includeUserDataInToken: Bool?
     var chains: [Chains]? = nil
-    var defaultChainId: String?
+    var defaultChainId: String? = "0x1"
     let enableLogging: Bool?
     let sessionTime: Int
     var web3AuthNetwork: Web3AuthNetwork
@@ -308,7 +308,7 @@ public struct Web3AuthOptions: Codable {
         sessionNamespace = try values.decodeIfPresent(String.self, forKey: .sessionNamespace)
         includeUserDataInToken = try values.decodeIfPresent(Bool.self, forKey: .includeUserDataInToken)
         chains = try values.decodeIfPresent([Chains].self, forKey: .chains)
-        defaultChainId = try values.decodeIfPresent(String.self, forKey: .defaultChainId)
+        defaultChainId = try values.decodeIfPresent(String.self, forKey: .defaultChainId) ?? "0x1"
         enableLogging = try values.decodeIfPresent(Bool.self, forKey: .enableLogging)
         sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 30 * 86400
         web3AuthNetwork = try values.decode(Web3AuthNetwork.self, forKey: .web3AuthNetwork)
