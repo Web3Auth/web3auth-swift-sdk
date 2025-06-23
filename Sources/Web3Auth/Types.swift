@@ -166,7 +166,7 @@ public struct Web3AuthOptions: Codable {
     public init(clientId: String, redirectUrl: String, originData: [String: String]? = nil, authBuildEnv: BuildEnv? = .production, sdkUrl: String? = nil,
                 storageServerUrl: String? = nil,sessionSocketUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,
                 whiteLabel: WhiteLabelData? = nil, dashboardUrl: String? = nil, accountAbstractionConfig: String? = nil, walletSdkUrl: String? = nil,
-                sessionNamespace: String? = nil, includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = "0x1", enableLogging: Bool? = nil, sessionTime: Int = 30 * 86400, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
+                sessionNamespace: String? = nil, includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = "0x1", enableLogging: Bool? = false, sessionTime: Int = 30 * 86400, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
                 mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
         self.redirectUrl = redirectUrl
@@ -726,7 +726,7 @@ public struct Whitelist: Codable {
 
 public struct ProjectConfigResponse: Codable {
     public var userDataInIdToken: Bool? = true
-    public var sessionTime: String? = "86400"
+    public var sessionTime: Int? = 86400
     public var enableKeyExport: Bool? = false
     public var whitelist: Whitelist
     public var chains: [Chains]? = nil
@@ -756,7 +756,7 @@ public struct ProjectConfigResponse: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.userDataInIdToken = try container.decodeIfPresent(Bool.self, forKey: .userDataInIdToken) ?? true
-        self.sessionTime = try container.decodeIfPresent(String.self, forKey: .sessionTime) ?? "86400"
+        self.sessionTime = try container.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
         self.enableKeyExport = try container.decodeIfPresent(Bool.self, forKey: .enableKeyExport) ?? false
         self.whitelist = try container.decode(Whitelist.self, forKey: .whitelist)
         self.chains = try container.decodeIfPresent([Chains].self, forKey: .chains)

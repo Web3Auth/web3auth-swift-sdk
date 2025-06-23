@@ -396,7 +396,7 @@ public class Web3Auth: NSObject {
         if web3AuthResponse?.userInfo?.isMfaEnabled == true {
             throw Web3AuthError.mfaAlreadyEnabled
         }
-        let sessionId = sessionManager.getSessionId()
+        let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
             if loginParams != nil {
                 self.loginParams = loginParams
@@ -414,16 +414,30 @@ public class Web3Auth: NSObject {
             
             let redirectUrl = web3AuthOptions.redirectUrl
             
+            let newSessionId = try SessionManager.generateRandomSessionID()!
+            let loginIdObject: [String: String?] = [
+                "loginId": newSessionId,
+                "platform": "iOS",
+            ]
+            
+            let jsonEncoder = JSONEncoder()
+            let data = try? jsonEncoder.encode(loginIdObject)
+            
             let params: [String: String?] = [
                 "authConnection": web3AuthResponse?.userInfo?.authConnection,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
                 "redirectUrl": redirectUrl,
                 "extraLoginOptions": _extraLoginOptions,
+                "appState": data?.toBase64URL(),
             ]
 
             let setUpMFAParams = SetUpMFAParams(options: web3AuthOptions, params: params, actionType: "enable_mfa", sessionId: sessionId)
-            let sessionId = try SessionManager.generateRandomSessionID()!
-            let loginId = try await getLoginId(sessionId: sessionId, data: setUpMFAParams)
+            if let jsonData = try? JSONEncoder().encode(setUpMFAParams),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("setUpMFAParams JSON: \(jsonString)")
+            }
+            
+            let loginId = try await getLoginId(sessionId: newSessionId, data: setUpMFAParams)
 
             let jsonObject: [String: String?] = [
                 "loginId": loginId,
@@ -485,7 +499,7 @@ public class Web3Auth: NSObject {
             throw Web3AuthError.mfaNotEnabled
         }
         
-        let sessionId = sessionManager.getSessionId()
+        let sessionId = SessionManager.getSessionIdFromStorage()!
         if sessionId.isEmpty {
             throw Web3AuthError.runtimeError("SessionId not found. Please login first.")
         }
@@ -767,10 +781,17 @@ public class Web3Auth: NSObject {
                 web3AuthOptions.originData = result.whitelist.signedUrls.merging(web3AuthOptions.originData ?? [:]) { _, new in new }
                 if let whiteLabelData = result.whitelabel {
                     web3AuthOptions.whiteLabel = web3AuthOptions.whiteLabel?.merge(with: whiteLabelData) ?? whiteLabelData
-                    web3AuthOptions.walletServicesConfig?.whiteLabel = web3AuthOptions.walletServicesConfig?.whiteLabel?.merge(with: whiteLabelData) ?? whiteLabelData
+                    if web3AuthOptions.walletServicesConfig == nil {
+                        web3AuthOptions.walletServicesConfig = WalletServicesConfig()
+                    }
+                    if var walletConfig = web3AuthOptions.walletServicesConfig {
+                        walletConfig.whiteLabel = walletConfig.whiteLabel?.merge(with: whiteLabelData) ?? whiteLabelData
+                        web3AuthOptions.walletServicesConfig = walletConfig
+                    }
                 }
                 response = true
             } catch {
+                //print("Decoding failed: \(error)")
                 throw error
             }
         case let .failure(error):
