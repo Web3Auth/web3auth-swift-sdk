@@ -396,6 +396,11 @@ public class Web3Auth: NSObject {
         if web3AuthResponse?.userInfo?.isMfaEnabled == true {
             throw Web3AuthError.mfaAlreadyEnabled
         }
+        
+        if let idToken = self.loginParams?.idToken, !idToken.isEmpty {
+            throw Web3AuthError.enabledMfaNotAllowed
+        }
+        
         let sessionId = SessionManager.getSessionIdFromStorage()!
         if !sessionId.isEmpty {
             if loginParams != nil {
@@ -497,6 +502,10 @@ public class Web3Auth: NSObject {
     public func manageMFA(_ loginParams: LoginParams? = nil) async throws -> Bool {
         if web3AuthResponse?.userInfo?.isMfaEnabled == false {
             throw Web3AuthError.mfaNotEnabled
+        }
+        
+        if let idToken = self.loginParams?.idToken, !idToken.isEmpty {
+            throw Web3AuthError.enabledMfaNotAllowed
         }
         
         let sessionId = SessionManager.getSessionIdFromStorage()!

@@ -16,6 +16,7 @@ public enum Web3AuthError: Error {
     case mfaNotEnabled
     case invalidOrMissingRedirectURI
     case inValidLogin
+    case enabledMfaNotAllowed
 }
 
 extension Web3AuthError: LocalizedError {
@@ -45,6 +46,8 @@ extension Web3AuthError: LocalizedError {
             return "Invalid or missing redirect URI."
         case .inValidLogin:
             return "Invalid login credentials."
+        case .enabledMfaNotAllowed:
+            return "Enabling MFA is not allowed for this user."
         }
     }
 }
