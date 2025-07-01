@@ -788,6 +788,8 @@ public class Web3Auth: NSObject {
                 // os_log("fetchProjectConfig API response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(String(describing: result))")
                 projectConfigResponse = result
                 web3AuthOptions.originData = result.whitelist.signedUrls.merging(web3AuthOptions.originData ?? [:]) { _, new in new }
+                web3AuthOptions.authConnectionConfig =
+                    (web3AuthOptions.authConnectionConfig ?? []) + (projectConfigResponse?.embeddedWalletAuth ?? [])
                 if let whiteLabelData = result.whitelabel {
                     web3AuthOptions.whiteLabel = web3AuthOptions.whiteLabel?.merge(with: whiteLabelData) ?? whiteLabelData
                     if web3AuthOptions.walletServicesConfig == nil {

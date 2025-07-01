@@ -803,6 +803,7 @@ public struct PaymasterConfig: Codable {
 }
 
 public enum SmartAccountType: String, Codable {
+    case metamask = "metamask"
     case biconomy = "biconomy"
     case kernel = "kernel"
     case safe = "safe"
