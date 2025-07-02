@@ -606,7 +606,7 @@ public class Web3Auth: NSObject {
             if let smartAccounts = projectConfigResponse?.smartAccounts {
                 let saData = try JSONEncoder().encode(smartAccounts)
                 let saJson = try JSONSerialization.jsonObject(with: saData) as! [String: Any]
-                initOptionsJson["smartAccounts"] = saJson
+                initOptionsJson["accountAbstractionConfig"] = saJson
             }
 
             let paramMap: [String: Any] = [
@@ -671,7 +671,7 @@ public class Web3Auth: NSObject {
             if let smartAccounts = projectConfigResponse?.smartAccounts {
                 let saData = try JSONEncoder().encode(smartAccounts)
                 let saJson = try JSONSerialization.jsonObject(with: saData) as! [String: Any]
-                initOptionsJson["smartAccounts"] = saJson
+                initOptionsJson["accountAbstractionConfig"] = saJson
             }
 
             let paramMap: [String: Any] = [

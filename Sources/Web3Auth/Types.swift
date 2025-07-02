@@ -772,12 +772,10 @@ public struct ProjectConfigResponse: Codable {
 
 public struct SmartAccountsConfig: Codable {
     public var smartAccountType: SmartAccountType
-    public var walletScope: SmartAccountWalletScope
     public var chains: [ChainConfig]
 
     enum CodingKeys: String, CodingKey {
         case smartAccountType
-        case walletScope
         case chains
     }
 }
@@ -811,11 +809,6 @@ public enum SmartAccountType: String, Codable {
     case light = "light"
     case simple = "simple"
     case nexus = "nexus"
-}
-
-public enum SmartAccountWalletScope: String, Codable {
-    case embedded = "embedded"
-    case all = "all"
 }
 
 public struct Web3AuthSubVerifierInfo: Codable {
