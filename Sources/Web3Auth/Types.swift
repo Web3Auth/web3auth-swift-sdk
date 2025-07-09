@@ -166,7 +166,7 @@ public struct Web3AuthOptions: Codable {
     public init(clientId: String, redirectUrl: String, originData: [String: String]? = nil, authBuildEnv: BuildEnv? = .production, sdkUrl: String? = nil,
                 storageServerUrl: String? = nil,sessionSocketUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,
                 whiteLabel: WhiteLabelData? = nil, dashboardUrl: String? = nil, accountAbstractionConfig: String? = nil, walletSdkUrl: String? = nil,
-                sessionNamespace: String? = nil, includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = "0x1", enableLogging: Bool? = false, sessionTime: Int = 30 * 86400, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
+                 includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = "0x1", enableLogging: Bool? = false, sessionTime: Int = 30 * 86400, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
                 mfaSettings: MfaSettings? = nil) {
         self.clientId = clientId
         self.redirectUrl = redirectUrl
@@ -193,7 +193,6 @@ public struct Web3AuthOptions: Codable {
         } else {
             self.walletSdkUrl = getWalletSdkUrl(buildEnv: self.authBuildEnv)
         }
-        self.sessionNamespace = sessionNamespace
         self.includeUserDataInToken = includeUserDataInToken
         self.chains = chains
         self.defaultChainId = defaultChainId
@@ -218,7 +217,6 @@ public struct Web3AuthOptions: Codable {
         dashboardUrl = getDashboardUrl(buildEnv: authBuildEnv)
         self.accountAbstractionConfig = nil
         walletSdkUrl = getWalletSdkUrl(buildEnv: authBuildEnv)
-        self.sessionNamespace = nil
         self.includeUserDataInToken = true
         self.chains = nil
         self.defaultChainId = "0x1"
@@ -242,7 +240,6 @@ public struct Web3AuthOptions: Codable {
     var dashboardUrl: String?
     var accountAbstractionConfig: String?
     var walletSdkUrl: String?
-    var sessionNamespace: String?
     let includeUserDataInToken: Bool?
     var chains: [Chains]? = nil
     var defaultChainId: String? = "0x1"
@@ -267,7 +264,6 @@ public struct Web3AuthOptions: Codable {
             case dashboardUrl
             case accountAbstractionConfig
             case walletSdkUrl
-            case sessionNamespace
             case includeUserDataInToken
             case chains
             case defaultChainId
@@ -305,7 +301,6 @@ public struct Web3AuthOptions: Codable {
             walletSdkUrl = getWalletSdkUrl(buildEnv: authBuildEnv)
         }
 
-        sessionNamespace = try values.decodeIfPresent(String.self, forKey: .sessionNamespace)
         includeUserDataInToken = try values.decodeIfPresent(Bool.self, forKey: .includeUserDataInToken)
         chains = try values.decodeIfPresent([Chains].self, forKey: .chains)
         defaultChainId = try values.decodeIfPresent(String.self, forKey: .defaultChainId) ?? "0x1"
@@ -343,7 +338,6 @@ public struct Web3AuthOptions: Codable {
             try container.encode(walletSdkUrl, forKey: .walletSdkUrl)
         }
 
-        try container.encodeIfPresent(sessionNamespace, forKey: .sessionNamespace)
         try container.encodeIfPresent(includeUserDataInToken, forKey: .includeUserDataInToken)
         try container.encodeIfPresent(chains, forKey: .chains)
         try container.encodeIfPresent(defaultChainId, forKey: .defaultChainId)
