@@ -57,7 +57,8 @@ public class Web3Auth: NSObject {
     public init(options: Web3AuthOptions) async throws {
         web3AuthOptions = options
         Router.baseURL = SIGNER_MAP[options.web3AuthNetwork] ?? ""
-        let sessionNamespace = (web3AuthOptions.sessionNamespace?.isEmpty == false) ? web3AuthOptions.sessionNamespace : ""
+        let isSFA = KeychainHelper.shared.get(forKey: "isSFA", as: Bool.self)
+        let sessionNamespace = isSFA ?? false ? "sfa" : ""
         sessionManager = SessionManager(sessionTime: options.sessionTime, allowedOrigin: options.redirectUrl, sessionNamespace: sessionNamespace)
         nodeDetailManager = NodeDetailManager(network: options.web3AuthNetwork)
         let torusOptions = TorusOptions(clientId: options.clientId, network: options.web3AuthNetwork, serverTimeOffset: options.sessionTime, enableOneKey: true)
@@ -92,6 +93,7 @@ public class Web3Auth: NSObject {
         if let authConnectionId = web3AuthResponse.userInfo?.authConnectionId, let dappShare = KeychainManager.shared.getDappShare(authConnectionId: authConnectionId) {
             KeychainManager.shared.delete(key: .custom(dappShare))
         }
+        KeychainHelper.shared.clearAll()
         self.web3AuthResponse = nil
     }
 
@@ -242,6 +244,12 @@ public class Web3Auth: NSObject {
     }
     
     public func connectTo(loginParams: LoginParams) async throws -> Web3AuthResponse {
+        
+        sessionManager = SessionManager(
+            sessionTime: self.web3AuthOptions.sessionTime,
+            allowedOrigin: web3AuthOptions.redirectUrl,
+            sessionNamespace: (loginParams.idToken?.isEmpty == false) ? "sfa" : ""
+        )
         // Case 1: No idToken provided
         if loginParams.idToken?.isEmpty ?? true {
             if let loginHint = loginParams.loginHint, !loginHint.isEmpty {
@@ -275,8 +283,10 @@ public class Web3Auth: NSObject {
                     idToken: loginParams.idToken ?? ""
                 )
             ]
+            KeychainHelper.shared.save(true, forKey: KeychainKeys.isSFA)
             return try await connect(loginParams: newLoginParams, subVerifierInfoArray: subVerifierInfoArray)
         } else {
+            KeychainHelper.shared.save(true, forKey: KeychainKeys.isSFA)
             return try await connect(loginParams: loginParams) // SFA login fallback
         }
     }
@@ -619,12 +629,15 @@ public class Web3Auth: NSObject {
 
             let loginId = try await getLoginId(sessionId: sessionId, data: jsonString)
 
-            let jsonObject: [String: String?] = [
+            var jsonObject: [String: String?] = [
                 "loginId": loginId,
                 "sessionId": savedSessionId,
                 "platform": "ios",
-                "sessionNamespace": web3AuthOptions.sessionNamespace
             ]
+            
+            if let isSFA = KeychainHelper.shared.get(forKey: "isSFA", as: Bool.self), isSFA {
+                jsonObject["sessionNamespace"] = "sfa"
+            }
 
             let url = try Web3Auth.generateAuthSessionURL(
                 web3AuthOptions: web3AuthOptions,
@@ -689,7 +702,10 @@ public class Web3Auth: NSObject {
             signMessageMap["sessionId"] = sessionId
             signMessageMap["platform"] = "ios"
             signMessageMap["appState"] = appState
-            signMessageMap["sessionNamespace"] = web3AuthOptions.sessionNamespace
+            
+            if let isSFA = KeychainHelper.shared.get(forKey: "isSFA", as: Bool.self), isSFA {
+                signMessageMap["sessionNamespace"] = "sfa"
+            }
 
             var requestData: [String: Any] = [:]
             requestData["method"] = method
