@@ -462,7 +462,7 @@ public struct ExtraLoginOptions: Codable {
     public init(display: String? = nil, prompt: String? = nil, max_age: String? = nil, ui_locales: String? = nil,
                 id_token_hint: String? = nil, id_token: String? = nil, login_hint: String? = nil, acr_values: String? = nil, scope: String? = nil,
                 audience: String? = nil, connection: String? = nil, domain: String? = nil, client_id: String? = nil, redirect_uri: String? = nil, leeway: Int? = 0, userIdField: String? = nil, isUserIdCaseSensitive: Bool? = false, additionalParams: [String: String]? = nil, access_token: String? = nil,
-                flow_type: EmailFlowType = EmailFlowType.link) {
+                flow_type: EmailFlowType = EmailFlowType.code) {
         self.display = display
         self.prompt = prompt
         self.max_age = max_age
@@ -482,7 +482,7 @@ public struct ExtraLoginOptions: Codable {
         self.isUserIdCaseSensitive = isUserIdCaseSensitive
         self.additionalParams = additionalParams
         self.access_token = access_token
-        self.flow_type = EmailFlowType.link
+        self.flow_type = EmailFlowType.code
     }
 
     let display: String?

@@ -601,11 +601,9 @@ public class Web3Auth: NSObject {
                 let chainsData = try JSONEncoder().encode(chains)
                 let chainsJson = try JSONSerialization.jsonObject(with: chainsData) as! [Any]
                 initOptionsJson["chains"] = chainsJson
+                initOptionsJson["chainId"] = chains.first?.chainId ?? web3AuthOptions.defaultChainId ?? "0x1"
             }
 
-            if let defaultChainId = web3AuthOptions.defaultChainId {
-                initOptionsJson["chainId"] = defaultChainId
-            }
 
             if let embeddedWalletAuth = projectConfigResponse?.embeddedWalletAuth {
                 let authData = try JSONEncoder().encode(embeddedWalletAuth)
@@ -669,10 +667,7 @@ public class Web3Auth: NSObject {
                 let chainsData = try JSONEncoder().encode(chains)
                 let chainsJson = try JSONSerialization.jsonObject(with: chainsData) as! [Any]
                 initOptionsJson["chains"] = chainsJson
-            }
-
-            if let defaultChainId = web3AuthOptions.defaultChainId {
-                initOptionsJson["chainId"] = defaultChainId
+                initOptionsJson["chainId"] = chains.first?.chainId ?? web3AuthOptions.defaultChainId ?? "0x1"
             }
 
             if let embeddedWalletAuth = projectConfigResponse?.embeddedWalletAuth {
