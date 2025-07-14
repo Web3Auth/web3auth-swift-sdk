@@ -528,7 +528,7 @@ public struct ExtraLoginOptions: Codable {
         isUserIdCaseSensitive = try values.decodeIfPresent(Bool.self, forKey: .isUserIdCaseSensitive)
         additionalParams = try values.decodeIfPresent([String: String].self, forKey: .additionalParams)
         access_token = try values.decodeIfPresent(String.self, forKey: .access_token)
-        flow_type = try values.decodeIfPresent(EmailFlowType.self, forKey: .flow_type)
+        flow_type = try values.decodeIfPresent(EmailFlowType.self, forKey: .flow_type) ?? EmailFlowType.code
     }
 }
 
