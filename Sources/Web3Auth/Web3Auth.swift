@@ -440,6 +440,7 @@ public class Web3Auth: NSObject {
             
             let params: [String: String?] = [
                 "authConnection": web3AuthResponse?.userInfo?.authConnection,
+                "authConnectionId": web3AuthResponse?.userInfo?.authConnectionId,
                 "mfaLevel": MFALevel.MANDATORY.rawValue,
                 "redirectUrl": redirectUrl,
                 "extraLoginOptions": _extraLoginOptions,
@@ -550,6 +551,7 @@ public class Web3Auth: NSObject {
         
         let params: [String: String?] = [
             "authConnection": web3AuthResponse?.userInfo?.authConnection,
+            "authConnectionId": web3AuthResponse?.userInfo?.authConnectionId,
             "mfaLevel": MFALevel.MANDATORY.rawValue,
             "redirectUrl": modifiedInitParams.dashboardUrl,
             "extraLoginOptions": _extraLoginOptions,
