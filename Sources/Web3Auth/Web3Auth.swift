@@ -361,7 +361,7 @@ public class Web3Auth: NSObject {
             decodedUserInfo = Web3AuthUserInfo.init(email: jwt.body["email"] as? String ?? "",
                                                     name: jwt.body["name"] as? String ?? "",
                                                     profileImage: jwt.body["picture"] as? String ?? "",
-                                                    groupedAuthConnectionId: nil,
+                                                    groupedAuthConnectionId: loginParams.groupedAuthConnectionId,
                                                     authConnectionId: loginParams.authConnectionId, userId: jwt.body["user_id"] as? String ?? "",
                                                     dappShare: nil, idToken: nil, oAuthIdToken: nil, oAuthAccessToken: nil, isMfaEnabled: false, authConnection: "custom", appState: nil)
         } catch {
