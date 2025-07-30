@@ -401,7 +401,7 @@ public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
-    let authDashboardVersion = "v9"
+    let authDashboardVersion = "v10"
     let walletAccountConstant = "wallet/account"
     switch buildEnv {
     case .staging:
