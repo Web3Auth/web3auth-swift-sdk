@@ -731,6 +731,7 @@ public struct ProjectConfigResponse: Codable {
     public var walletConnectEnabled: Bool? = nil
     public var walletConnectProjectId: String? = nil
     public var whitelabel: WhiteLabelData? = nil
+    public var teamId: Int? = nil
 
     enum CodingKeys: String, CodingKey {
         case userDataInIdToken
@@ -745,6 +746,7 @@ public struct ProjectConfigResponse: Codable {
         case walletConnectEnabled = "wallet_connect_enabled"
         case walletConnectProjectId
         case whitelabel
+        case teamId
     }
     
     public init(from decoder: Decoder) throws {
@@ -761,6 +763,7 @@ public struct ProjectConfigResponse: Codable {
         self.walletConnectEnabled = try container.decodeIfPresent(Bool.self, forKey: .walletConnectEnabled) ?? false
         self.walletConnectProjectId = try container.decodeIfPresent(String.self, forKey: .walletConnectProjectId)
         self.whitelabel = try container.decodeIfPresent(WhiteLabelData.self, forKey: .whitelabel)
+        self.teamId = try container.decodeIfPresent(Int.self, forKey: .teamId)
     }
 }
 

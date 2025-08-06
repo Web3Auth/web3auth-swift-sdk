@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "Segment",
+        "repositoryURL": "https://github.com/segmentio/analytics-swift",
+        "state": {
+          "branch": null,
+          "revision": "5d3a762da5412d324205a58358b95e1da334c21e",
+          "version": "1.8.0"
+        }
+      },
+      {
         "package": "BigInt",
         "repositoryURL": "https://github.com/attaswift/BigInt",
         "state": {
@@ -35,6 +44,15 @@
           "branch": null,
           "revision": "0a06575f4038b504e78ac330913d920f1630f510",
           "version": "2.0.2"
+        }
+      },
+      {
+        "package": "JSONSafeEncoding",
+        "repositoryURL": "https://github.com/segmentio/jsonsafeencoding-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "af6a8b360984085e36c6341b21ecb35c12f47ebd",
+          "version": "2.0.0"
         }
       },
       {
@@ -83,12 +101,21 @@
         }
       },
       {
+        "package": "Sovran",
+        "repositoryURL": "https://github.com/segmentio/sovran-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "24867f3e4ac62027db9827112135e6531b6f4051",
+          "version": "1.1.2"
+        }
+      },
+      {
         "package": "swift-asn1",
         "repositoryURL": "https://github.com/apple/swift-asn1.git",
         "state": {
           "branch": null,
-          "revision": "a54383ada6cecde007d374f58f864e29370ba5c3",
-          "version": "1.3.2"
+          "revision": "f70225981241859eb4aa1a18a75531d26637c8cc",
+          "version": "1.4.0"
         }
       },
       {
@@ -114,8 +141,8 @@
         "repositoryURL": "https://github.com/apple/swift-crypto.git",
         "state": {
           "branch": null,
-          "revision": "e8d6eba1fef23ae5b359c46b03f7d94be2f41fed",
-          "version": "3.12.3"
+          "revision": "176abc28e002a9952470f08745cd26fad9286776",
+          "version": "3.13.3"
         }
       },
       {

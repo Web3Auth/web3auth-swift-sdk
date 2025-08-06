@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "Segment",
+        "repositoryURL": "https://github.com/segmentio/analytics-swift",
+        "state": {
+          "branch": null,
+          "revision": "5d3a762da5412d324205a58358b95e1da334c21e",
+          "version": "1.8.0"
+        }
+      },
+      {
         "package": "BigInt",
         "repositoryURL": "https://github.com/attaswift/BigInt",
         "state": {
@@ -20,6 +29,42 @@
         }
       },
       {
+        "package": "FetchNodeDetails",
+        "repositoryURL": "https://github.com/torusresearch/fetch-node-details-swift",
+        "state": {
+          "branch": null,
+          "revision": "5b42dd1675f8a51ffe64feb688db7b1d764d5fc0",
+          "version": "8.0.1"
+        }
+      },
+      {
+        "package": "JSONSafeEncoding",
+        "repositoryURL": "https://github.com/segmentio/jsonsafeencoding-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "af6a8b360984085e36c6341b21ecb35c12f47ebd",
+          "version": "2.0.0"
+        }
+      },
+      {
+        "package": "jwt-kit",
+        "repositoryURL": "https://github.com/vapor/jwt-kit.git",
+        "state": {
+          "branch": null,
+          "revision": "13e7513b3ba0afa13967daf77af2fb4ad087306c",
+          "version": "4.13.5"
+        }
+      },
+      {
+        "package": "JWTDecode",
+        "repositoryURL": "https://github.com/auth0/JWTDecode.swift.git",
+        "state": {
+          "branch": null,
+          "revision": "36a5ce735a61c4bc119593f43ce2c027b4ca7392",
+          "version": "3.3.0"
+        }
+      },
+      {
         "package": "KeychainSwift",
         "repositoryURL": "https://github.com/evgenyneu/keychain-swift.git",
         "state": {
@@ -35,6 +80,42 @@
           "branch": null,
           "revision": "de18a6b3d98f67b3c77f84ebab73f7a51807a503",
           "version": "6.1.0"
+        }
+      },
+      {
+        "package": "Sovran",
+        "repositoryURL": "https://github.com/segmentio/sovran-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "24867f3e4ac62027db9827112135e6531b6f4051",
+          "version": "1.1.2"
+        }
+      },
+      {
+        "package": "swift-asn1",
+        "repositoryURL": "https://github.com/apple/swift-asn1.git",
+        "state": {
+          "branch": null,
+          "revision": "f70225981241859eb4aa1a18a75531d26637c8cc",
+          "version": "1.4.0"
+        }
+      },
+      {
+        "package": "swift-crypto",
+        "repositoryURL": "https://github.com/apple/swift-crypto.git",
+        "state": {
+          "branch": null,
+          "revision": "176abc28e002a9952470f08745cd26fad9286776",
+          "version": "3.13.3"
+        }
+      },
+      {
+        "package": "TorusUtils",
+        "repositoryURL": "https://github.com/torusresearch/torus-utils-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "235a70839d3ff5723402df95d665b15b8c551ad8",
+          "version": "10.0.1"
         }
       }
     ]

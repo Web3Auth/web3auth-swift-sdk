@@ -19,7 +19,8 @@ let package = Package(
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
         .package(url: "https://github.com/torusresearch/torus-utils-swift.git", from: "10.0.1"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.0.0"),
-        .package(url: "https://github.com/auth0/JWTDecode.swift.git", from: "3.2.0")
+        .package(url: "https://github.com/auth0/JWTDecode.swift.git", from: "3.2.0"),
+        .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.8.0")
     ],
     targets: [
         .target(
@@ -30,7 +31,8 @@ let package = Package(
                 "SessionManager",
                 "BigInt",
                 .product(name: "TorusUtils", package: "torus-utils-swift"),
-                .product(name: "JWTDecode", package: "JWTDecode.swift")
+                .product(name: "JWTDecode", package: "JWTDecode.swift"),
+                .product(name: "Segment", package: "analytics-swift")
             ]),
         .testTarget(
             name: "Web3AuthTests",
