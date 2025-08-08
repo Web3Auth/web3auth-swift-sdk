@@ -69,8 +69,8 @@ public class Web3Auth: NSObject {
         )
         
         AnalyticsManager.shared.setGlobalProperties([
-            "sdk_name": AnalyticsSdkType.ios,
-            "sdk_version": AnalyticsEvents.sdkVersion,
+            "sdk_name": options.getSdkName(),
+            "sdk_version": options.getSdkVersion(),
             "web3auth_client_id": options.clientId,
             "web3auth_network": options.web3AuthNetwork
         ])
@@ -269,7 +269,7 @@ public class Web3Auth: NSObject {
                                 "chain_id": web3AuthOptions.defaultChainId?.description ?? "",
                                 "dapp_url": loginParams.dappUrl ?? "",
                                 "chains": web3AuthOptions.chains?.description ?? "[]",
-                                "integration_type": "ios",
+                                "integration_type": web3AuthOptions.getSdkName(),
                                 "is_sfa": false
                             ]
 
@@ -499,7 +499,7 @@ public class Web3Auth: NSObject {
             "chain_id": web3AuthOptions.defaultChainId?.description ?? "",
             "dapp_url": loginParams.dappUrl ?? "",
             "chains": web3AuthOptions.chains?.description ?? "[]",
-            "integration_type": "ios",
+            "integration_type": web3AuthOptions.getSdkName(),
             "is_sfa": true
         ]
 
@@ -540,7 +540,7 @@ public class Web3Auth: NSObject {
         AnalyticsManager.shared.trackEvent(
             AnalyticsEvents.mfaEnablementStarted,
             properties: [
-                "integration_type": AnalyticsSdkType.ios,
+                "integration_type": web3AuthOptions.getSdkName(),
                 "dapp_url": loginParams?.dappUrl ?? "",
                 "connector": "auth",
                 "duration": duration
@@ -576,7 +576,7 @@ public class Web3Auth: NSObject {
             let newSessionId = try SessionManager.generateRandomSessionID()!
             let loginIdObject: [String: String?] = [
                 "loginId": newSessionId,
-                "platform": "iOS",
+                "platform": web3AuthOptions.getSdkName(),
             ]
             
             let jsonEncoder = JSONEncoder()
@@ -646,7 +646,7 @@ public class Web3Auth: NSObject {
                                     "chain_id": self.web3AuthOptions.defaultChainId?.description ?? "",
                                     "dapp_url": loginParams?.dappUrl ?? "",
                                     "chains": self.web3AuthOptions.chains?.description ?? "[]",
-                                    "integration_type": "ios",
+                                    "integration_type": self.web3AuthOptions.getSdkName(),
                                     "is_sfa": false
                                 ]
 
@@ -679,7 +679,7 @@ public class Web3Auth: NSObject {
         AnalyticsManager.shared.trackEvent(
             AnalyticsEvents.mfaManagementStarted,
             properties: [
-                "integration_type": "ios",
+                "integration_type": web3AuthOptions.getSdkName(),
                 "dapp_url": loginParams?.dappUrl ?? "",
                 "connector": "auth"
             ]
@@ -764,7 +764,7 @@ public class Web3Auth: NSObject {
                         "chain_id": self.web3AuthOptions.defaultChainId?.description ?? "",
                         "dapp_url": loginParams?.dappUrl ?? "",
                         "chains": self.web3AuthOptions.chains?.description ?? "[]",
-                        "integration_type": "ios",
+                        "integration_type": self.web3AuthOptions.getSdkName(),
                         "is_sfa": false
                     ]
 
@@ -800,7 +800,7 @@ public class Web3Auth: NSObject {
         AnalyticsManager.shared.trackEvent(
             AnalyticsEvents.walletUIClicked,
             properties: [
-                "integration_type": AnalyticsSdkType.ios,
+                "integration_type": web3AuthOptions.getSdkName(),
                 "dapp_url": loginParams?.dappUrl ?? ""
             ]
         )
@@ -868,7 +868,7 @@ public class Web3Auth: NSObject {
             AnalyticsManager.shared.trackEvent(
                 AnalyticsEvents.walletServicesFailed,
                 properties: [
-                    "integration_type": AnalyticsSdkType.ios,
+                    "integration_type": web3AuthOptions.getSdkName(),
                     "dapp_url": loginParams?.dappUrl ?? "",
                     "duration": Int(Date().timeIntervalSince1970 * 1000) - Int(startTime),
                     "error": "Wallet Services Error: SessionId not found. Please login first."
@@ -1038,31 +1038,26 @@ public class Web3Auth: NSObject {
                 // os_log("fetchProjectConfig API response is: %@", log: getTorusLogger(log: Web3AuthLogger.network, type: .info), type: .info, "\(String(describing: result))")
                 projectConfigResponse = result
                 AnalyticsManager.shared.setGlobalProperties([
-                    "sdk_name": AnalyticsSdkType.ios,
-                    "sdk_version": AnalyticsEvents.sdkVersion,
+                    "sdk_name": web3AuthOptions.getSdkName(),
+                    "sdk_version": web3AuthOptions.getSdkVersion(),
                     "web3auth_client_id": web3AuthOptions.clientId,
                     "web3auth_network": web3AuthOptions.web3AuthNetwork,
                     "team_id" : projectConfigResponse?.teamId.toString()
                 ])
                 
                 let duration = Int(Date().timeIntervalSince1970 * 1000) - Int(startTime)
-
+                let chainIds: [String] = web3AuthOptions.chains?.compactMap { $0.chainId } ?? []
                 let properties: [String: Any] = [
-                    "chain_ids": ["eip155", "solana", "other"],
+                    "chain_ids" : chainIds,
+                    "chain_nameSpaces": ["eip155", "solana", "other"],
                     "logging_enabled": web3AuthOptions.enableLogging,
                     "auth_build_env": web3AuthOptions.authBuildEnv?.rawValue,
-                    "auth_ux_mode": "popup",
-                    "auth_mfa_settings": [String](),
+                    "auth_mfa_settings": web3AuthOptions.mfaSettings,
                     "whitelabel_logo_light_enabled": web3AuthOptions.whiteLabel?.logoLight != nil,
                     "whitelabel_logo_dark_enabled": web3AuthOptions.whiteLabel?.logoDark != nil,
                     "whitelabel_theme_mode": web3AuthOptions.whiteLabel?.theme as Any,
-                    "ui_login_methods_order": [
-                        "google", "twitter", "facebook", "discord", "farcaster", "apple",
-                        "github", "reddit", "line", "kakao", "linkedin", "twitch",
-                        "wechat", "email_passwordless", "sms_passwordless"
-                    ],
                     "duration": duration,
-                    "integration_type": "ios",
+                    "integration_type": web3AuthOptions.getSdkName(),
                     "dapp_url": self.loginParams?.dappUrl as Any
                 ]
 
@@ -1074,6 +1069,8 @@ public class Web3Auth: NSObject {
                 web3AuthOptions.originData = result.whitelist.signedUrls.merging(web3AuthOptions.originData ?? [:]) { _, new in new }
                 web3AuthOptions.authConnectionConfig =
                     (web3AuthOptions.authConnectionConfig ?? []) + (projectConfigResponse?.embeddedWalletAuth ?? [])
+                web3AuthOptions.mfaSettings = web3AuthOptions.mfaSettings?.merge(with: projectConfigResponse?.mfaSettings)
+                    ?? projectConfigResponse?.mfaSettings
                 if let whiteLabelData = result.whitelabel {
                     web3AuthOptions.whiteLabel = web3AuthOptions.whiteLabel?.merge(with: whiteLabelData) ?? whiteLabelData
                     if web3AuthOptions.walletServicesConfig == nil {
@@ -1089,7 +1086,7 @@ public class Web3Auth: NSObject {
                 //print("Decoding failed: \(error)")
                 let duration = Int(Date().timeIntervalSince1970 * 1000) - Int(startTime)
                 let properties: [String: Any] = [
-                    "integration_type": AnalyticsSdkType.ios,
+                    "integration_type": web3AuthOptions.getSdkName(),
                     "dapp_url": self.loginParams?.dappUrl ?? "",
                     "duration": duration,
                     "error_message": error

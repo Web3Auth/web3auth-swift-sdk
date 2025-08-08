@@ -76,10 +76,11 @@ enum AnalyticsEvents {
     static let requestFunctionCompleted = "Request Function Completed"
     static let requestFunctionFailed = "Request Function Failed"
 
-    static let sdkVersion = "12.0.0"
+    static let iosSdkVersion = "12.0.0"
 }
 
 enum AnalyticsSdkType {
     static let ios = "ios"
+    static let flutter = "flutter"
 }
 

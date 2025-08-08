@@ -163,6 +163,26 @@ public struct AuthConnectionConfig: Codable {
 }
 
 public struct Web3AuthOptions: Codable {
+    
+    public var isFlutterAnalytics: Bool = false
+    public var sdkVersion: String? = nil
+    
+    public mutating func setFlutterAnalytics(_ isFlutter: Bool?, sdkVersion: String? = nil) {
+        self.isFlutterAnalytics = isFlutter ?? false
+        self.sdkVersion = sdkVersion
+    }
+    
+    public func getSdkName() -> String {
+        return isFlutterAnalytics ? AnalyticsSdkType.flutter : AnalyticsSdkType.ios
+    }
+    
+    public func getSdkVersion() -> String {
+        if let version = sdkVersion, !version.isEmpty {
+            return version // Flutter SDK version
+        }
+        return AnalyticsEvents.iosSdkVersion // Default iOS SDK version
+    }
+    
     public init(clientId: String, redirectUrl: String, originData: [String: String]? = nil, authBuildEnv: BuildEnv? = .production, sdkUrl: String? = nil,
                 storageServerUrl: String? = nil,sessionSocketUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,
                 whiteLabel: WhiteLabelData? = nil, dashboardUrl: String? = nil, accountAbstractionConfig: String? = nil, walletSdkUrl: String? = nil,
@@ -248,7 +268,7 @@ public struct Web3AuthOptions: Codable {
     var web3AuthNetwork: Web3AuthNetwork
     var useSFAKey: Bool?
     var walletServicesConfig: WalletServicesConfig?
-    let mfaSettings: MfaSettings?
+    var mfaSettings: MfaSettings?
 
     
     enum CodingKeys: String, CodingKey {
@@ -732,6 +752,7 @@ public struct ProjectConfigResponse: Codable {
     public var walletConnectProjectId: String? = nil
     public var whitelabel: WhiteLabelData? = nil
     public var teamId: Int? = nil
+    public var mfaSettings: MfaSettings?
 
     enum CodingKeys: String, CodingKey {
         case userDataInIdToken
@@ -747,6 +768,7 @@ public struct ProjectConfigResponse: Codable {
         case walletConnectProjectId
         case whitelabel
         case teamId
+        case mfaSettings
     }
     
     public init(from decoder: Decoder) throws {
@@ -764,6 +786,7 @@ public struct ProjectConfigResponse: Codable {
         self.walletConnectProjectId = try container.decodeIfPresent(String.self, forKey: .walletConnectProjectId)
         self.whitelabel = try container.decodeIfPresent(WhiteLabelData.self, forKey: .whitelabel)
         self.teamId = try container.decodeIfPresent(Int.self, forKey: .teamId)
+        self.mfaSettings = try container.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
     }
 }
 
@@ -811,5 +834,19 @@ public enum SmartAccountType: String, Codable {
 public struct Web3AuthSubVerifierInfo: Codable {
     var verifier: String
     var idToken: String
+}
+
+extension MfaSettings {
+    func merge(with other: MfaSettings?) -> MfaSettings {
+        guard let other = other else { return self }
+        return MfaSettings(
+            deviceShareFactor: other.deviceShareFactor ?? self.deviceShareFactor,
+            backUpShareFactor: other.backUpShareFactor ?? self.backUpShareFactor,
+            socialBackupFactor: other.socialBackupFactor ?? self.socialBackupFactor,
+            passwordFactor: other.passwordFactor ?? self.passwordFactor,
+            passkeysFactor: other.passkeysFactor ?? self.passkeysFactor,
+            authenticatorFactor: other.authenticatorFactor ?? self.authenticatorFactor
+        )
+    }
 }
 
