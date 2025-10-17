@@ -83,7 +83,7 @@ class ViewModel: ObservableObject {
         do {
             loggedIn = true
             privateKey = ((web3Auth?.getPrivateKey() != "") ? web3Auth?.getPrivateKey() : try web3Auth?.getWeb3AuthResponse().factorKey) ?? ""
-            ed25519PrivKey = web3Auth?.getEd25519PrivateKey() ?? ""
+            ed25519PrivKey = try web3Auth?.getEd25519PrivateKey() ?? ""
             userInfo = try web3Auth?.getUserInfo()
         } catch {
             errorMessage = error.localizedDescription

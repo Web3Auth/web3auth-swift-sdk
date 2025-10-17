@@ -834,13 +834,31 @@ public class Web3Auth: NSObject {
         return privateKey
     }
 
-    public func getEd25519PrivateKey() -> String {
-        if web3AuthResponse == nil {
-            return ""
+    public func getEd25519PrivateKey() throws -> String {
+        guard let web3AuthResponse = web3AuthResponse else {
+            throw Web3AuthError.noUserFound
         }
-        let ed25519Key: String = web3AuthOptions.useSFAKey == true ?
-        web3AuthResponse?.coreKitEd25519PrivKey ?? "" : web3AuthResponse?.ed25519PrivateKey ?? ""
-        return ed25519Key
+
+        if web3AuthOptions.useSFAKey == true {
+            // Check if isDefault == false, throw error
+            if let embeddedWalletAuth = projectConfigResponse?.embeddedWalletAuth,
+               let matchedAuth = embeddedWalletAuth.first(where: { $0.authConnectionId == web3AuthResponse.userInfo?.authConnectionId }),
+               matchedAuth.isDefault == false {
+                throw Web3AuthError.ed25519CustomAuthError
+            }
+
+            // Return coreKit Ed25519 private key
+            if let key = web3AuthResponse.coreKitEd25519PrivKey, !key.isEmpty {
+                return key
+            }
+        } else {
+            // Return regular Ed25519 private key
+            if let key = web3AuthResponse.ed25519PrivateKey, !key.isEmpty {
+                return key
+            }
+        }
+
+        throw Web3AuthError.ed25519KeyNotFound
     }
 
     public func getUserInfo() throws -> Web3AuthUserInfo {

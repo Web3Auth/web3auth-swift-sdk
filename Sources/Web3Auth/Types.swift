@@ -111,7 +111,8 @@ public struct WhiteLabelData: Codable {
 
 public struct AuthConnectionConfig: Codable {
     public init(authConnectionId: String, authConnection: AuthConnection, name: String? = nil, description: String? = nil, clientId: String, groupedAuthConnectionId: String? = nil , logoHover: String? = nil, logoLight: String? = nil, logoDark: String? = nil, mainOption: Bool? = nil,
-                showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil, jwtParameters: ExtraLoginOptions? = nil) {
+                showOnModal: Bool? = nil, showOnDesktop: Bool? = nil, showOnMobile: Bool? = nil, jwtParameters: ExtraLoginOptions? = nil,
+                isDefault: Bool? = nil) {
         self.authConnectionId = authConnectionId
         self.authConnection = authConnection
         self.name = name
@@ -126,6 +127,7 @@ public struct AuthConnectionConfig: Codable {
         self.showOnDesktop = showOnDesktop
         self.showOnMobile = showOnMobile
         self.jwtParameters = jwtParameters
+        self.isDefault = isDefault
     }
 
     let authConnectionId: String
@@ -142,6 +144,7 @@ public struct AuthConnectionConfig: Codable {
     let showOnDesktop: Bool?
     let showOnMobile: Bool?
     let jwtParameters: ExtraLoginOptions?
+    let isDefault: Bool?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -159,6 +162,8 @@ public struct AuthConnectionConfig: Codable {
         showOnDesktop = try values.decodeIfPresent(Bool.self, forKey: .showOnDesktop)
         showOnMobile = try values.decodeIfPresent(Bool.self, forKey: .showOnMobile)
         jwtParameters = try values.decodeIfPresent(ExtraLoginOptions.self, forKey: .jwtParameters)
+        isDefault = try values.decodeIfPresent(Bool.self, forKey: .isDefault)
+        
     }
 }
 
