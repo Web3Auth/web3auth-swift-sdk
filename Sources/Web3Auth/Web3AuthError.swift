@@ -15,6 +15,10 @@ public enum Web3AuthError: Error {
     case mfaAlreadyEnabled
     case mfaNotEnabled
     case invalidOrMissingRedirectURI
+    case inValidLogin
+    case enabledMfaNotAllowed
+    case ed25519KeyNotFound
+    case ed25519CustomAuthError
 }
 
 extension Web3AuthError: LocalizedError {
@@ -42,6 +46,14 @@ extension Web3AuthError: LocalizedError {
             return "MFA is not enabled. Please enable MFA first."
         case .invalidOrMissingRedirectURI:
             return "Invalid or missing redirect URI."
+        case .inValidLogin:
+            return "Invalid login credentials."
+        case .enabledMfaNotAllowed:
+            return "Enabling MFA is not allowed for this user."
+        case .ed25519CustomAuthError:
+            return "Ed25519 key is not available for custom auth connection"
+        case .ed25519KeyNotFound:
+            return "No valid Ed25519 private key found"
         }
     }
 }

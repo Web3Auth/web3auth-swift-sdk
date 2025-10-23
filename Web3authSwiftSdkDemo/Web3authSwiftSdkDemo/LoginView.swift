@@ -6,7 +6,7 @@ struct LoginView: View {
         List {
             Button(
                 action: {
-                    vm.login(provider: .EMAIL_PASSWORDLESS)
+                    vm.login(authConnection: .EMAIL_PASSWORDLESS)
                 },
                 label: {
                     Text("Sign In with Email Passwordless")
@@ -14,7 +14,7 @@ struct LoginView: View {
             )
             Button(
                 action: {
-                    vm.loginWithGoogle(provider: .GOOGLE)
+                    vm.loginWithGoogle(authConnection: .GOOGLE)
                 },
                 label: {
                     Text("Sign In with Google")
@@ -31,7 +31,7 @@ struct LoginView: View {
 
             Button(
                 action: {
-                    vm.login(provider: .APPLE)
+                    vm.login(authConnection: .APPLE)
                 },
                 label: {
                     Text("Sign In with Apple")
@@ -44,6 +44,15 @@ struct LoginView: View {
                 },
                 label: {
                     Text("Sign In with Whitelabel")
+                }
+            )
+            
+            Button(
+                action: {
+                    vm.sfaLogin()
+                },
+                label: {
+                    Text("SFA Login")
                 }
             )
         }

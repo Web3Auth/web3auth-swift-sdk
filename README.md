@@ -52,15 +52,15 @@ Checkout [SDK Reference](https://web3auth.io/docs/sdk/pnp/ios/install#configure-
 ```swift
 import Web3Auth
 
-let web3auth = try Web3Auth(W3AInitParams(
+let web3auth = try Web3Auth(Web3AuthOptions(
   // Get your Web3Auth Client Id from dashboard.web3auth.io
   clientId: "YOUR_WEB3AUTH_CLIENT_ID",
-  network: .sapphire_mainnet,
+  web3AuthNetwork: .sapphire_mainnet,
   redirectUrl: "bundleId://auth"
 ))
 
 // Login
-let result = try await web3Auth.login(W3ALoginParams(loginProvider: .GOOGLE))
+let result = try await web3Auth.login(LoginParams(loginProvider: .GOOGLE))
 
 // Logout
 try await web3auth.logout()
