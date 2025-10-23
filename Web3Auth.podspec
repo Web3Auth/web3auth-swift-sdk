@@ -14,5 +14,8 @@ Pod::Spec.new do |spec|
   spec.dependency 'curvelib.swift', '~> 2.0.0'
   spec.dependency 'TorusSessionManager', '~> 6.0.2'
   spec.dependency 'BigInt', '~> 5.2.0'
+  spec.dependency 'AnalyticsSwiftCocoapod', '~> 1.8.0'
+  spec.dependency 'JWTDecode', '~> 3.3.0'
+  spec.dependency 'Torus-utils', '~> 10.0.1'
   spec.exclude_files = [ 'docs/**' ]
 end
