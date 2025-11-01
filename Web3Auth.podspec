@@ -12,7 +12,7 @@ Pod::Spec.new do |spec|
   spec.source_files  = "Sources/Web3Auth/**/*.{swift}"
   spec.dependency 'KeychainSwift', '~> 20.0.0'
   spec.dependency 'curvelib.swift', '~> 2.0.0'
-  spec.dependency 'TorusSessionManager', '~> 6.0.2'
+  spec.dependency 'TorusSessionManager', '~> 6.1.0'
   spec.dependency 'BigInt', '~> 5.2.0'
   spec.dependency 'AnalyticsSwiftCocoapod', '~> 1.8.0'
   spec.dependency 'JWTDecode', '~> 3.3.0'

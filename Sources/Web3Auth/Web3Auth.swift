@@ -209,15 +209,16 @@ public class Web3Auth: NSObject {
 
      - parameter callback: Callback called with the result of the WebAuth flow.
      */
+    @MainActor
     public func login(loginParams: LoginParams) async throws -> Web3AuthResponse {
         self.loginParams = loginParams
-        // assign loginParams redirectUrl from intiParamas redirectUrl
         
+        // Restore saved dapp share if available
         if let authConnectionConfig = web3AuthOptions.authConnectionConfig?.first,
            let savedDappShare = KeychainManager.shared.getDappShare(authConnectionId: authConnectionConfig.authConnectionId) {
             self.loginParams?.dappShare = savedDappShare
         }
-    
+
         let sdkUrlParams = SdkUrlParams(options: web3AuthOptions, params: self.loginParams!, actionType: "login")
         let sessionId = try SessionManager.generateRandomSessionID()!
         let loginId = try await getLoginId(sessionId: sessionId, data: sdkUrlParams)
@@ -226,14 +227,28 @@ public class Web3Auth: NSObject {
             "loginId": loginId,
         ]
 
-        let url = try Web3Auth.generateAuthSessionURL(web3AuthOptions: web3AuthOptions, jsonObject: jsonObject, sdkUrl: web3AuthOptions.sdkUrl, path: "start")
+        let url = try Web3Auth.generateAuthSessionURL(
+            web3AuthOptions: web3AuthOptions,
+            jsonObject: jsonObject,
+            sdkUrl: web3AuthOptions.sdkUrl,
+            path: "start"
+        )
 
-        return try await withCheckedThrowingContinuation({ (continuation: CheckedContinuation<Web3AuthResponse, Error>) in
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Web3AuthResponse, Error>) in
+            DispatchQueue.main.async { [weak self] in
+                guard let self else {
+                    continuation.resume(throwing: Web3AuthError.unknownError)
+                    return
+                }
 
-            DispatchQueue.main.async { [self] in // Ensure the UI-related setup is on the main thread.
                 self.authSession = ASWebAuthenticationSession(
-                    url: url, callbackURLScheme: URL(string: self.web3AuthOptions.redirectUrl)?.scheme
-                ) { callbackURL, authError in
+                    url: url,
+                    callbackURLScheme: URL(string: self.web3AuthOptions.redirectUrl)?.scheme
+                ) { [weak self] callbackURL, authError in
+                    guard let self else {
+                        continuation.resume(throwing: Web3AuthError.unknownError)
+                        return
+                    }
 
                     guard
                         authError == nil,
@@ -253,7 +268,12 @@ public class Web3Auth: NSObject {
                     self.sessionManager.setSessionId(sessionId: sessionId)
                     SessionManager.saveSessionIdToStorage(sessionId)
 
-                    Task {
+                    Task { [weak self] in
+                        guard let self else {
+                            continuation.resume(throwing: Web3AuthError.unknownError)
+                            return
+                        }
+
                         do {
                             let loginDetails = try await self.getLoginDetails(callbackURL)
                             if let safeUserInfo = loginDetails.userInfo {
@@ -263,17 +283,17 @@ public class Web3Auth: NSObject {
                             self.web3AuthResponse = loginDetails
                             var analyticsProps: [String: Any] = [
                                 "connector": "auth",
-                                "auth_connection": loginParams.authConnection ?? "",
+                                "auth_connection": loginParams.authConnection,
                                 "auth_connection_id": loginParams.authConnectionId?.description ?? "",
                                 "group_auth_connection_id": loginParams.groupedAuthConnectionId?.description ?? "",
-                                "chain_id": web3AuthOptions.defaultChainId?.description ?? "",
+                                "chain_id": self.web3AuthOptions.defaultChainId?.description ?? "",
                                 "dapp_url": loginParams.dappUrl ?? "",
-                                "chains": web3AuthOptions.chains?.description ?? "[]",
-                                "integration_type": web3AuthOptions.getSdkName(),
+                                "chains": self.web3AuthOptions.chains?.description ?? "[]",
+                                "integration_type": self.web3AuthOptions.getSdkName(),
                                 "is_sfa": false
                             ]
 
-                            analyticsProps["duration"] = Int(Date().timeIntervalSince1970) * 1000 - Int(startTime)
+                            analyticsProps["duration"] = Int(Date().timeIntervalSince1970 * 1000) - Int(self.startTime)
 
                             AnalyticsManager.shared.trackEvent(
                                 AnalyticsEvents.connectionCompleted,
@@ -282,20 +302,20 @@ public class Web3Auth: NSObject {
 
                             continuation.resume(returning: loginDetails)
                         } catch {
-                            let duration = Date().timeIntervalSince1970 * 1000 - Double(startTime)
+                            let duration = Date().timeIntervalSince1970 * 1000 - Double(self.startTime)
 
                             let properties: [String: Any] = [
                                 "connector": "auth",
-                                "auth_connection": loginParams.authConnection ?? "",
+                                "auth_connection": loginParams.authConnection,
                                 "auth_connection_id": loginParams.authConnectionId?.description ?? "",
                                 "group_auth_connection_id": loginParams.groupedAuthConnectionId?.description ?? "",
-                                "chain_id": web3AuthOptions.defaultChainId?.description,
+                                "chain_id": self.web3AuthOptions.defaultChainId?.description ?? "",
                                 "dapp_url": loginParams.dappUrl ?? "",
-                                "chains": web3AuthOptions.chains?.description ?? "[]",
+                                "chains": self.web3AuthOptions.chains?.description ?? "[]",
                                 "auth_ux_mode": "popup",
                                 "is_sfa": false,
                                 "duration": duration,
-                                "error_message": error ?? Web3AuthError.unknownError
+                                "error_message": "\(error)"
                             ]
 
                             AnalyticsManager.shared.trackEvent(AnalyticsEvents.connectionFailed, properties: properties)
@@ -310,8 +330,9 @@ public class Web3Auth: NSObject {
                     continuation.resume(throwing: Web3AuthError.unknownError)
                 }
             }
-        })
+        }
     }
+
     
     public func connectTo(loginParams: LoginParams) async throws -> Web3AuthResponse {
         
@@ -462,15 +483,14 @@ public class Web3Auth: NSObject {
                                                     authConnectionId: loginParams.authConnectionId, userId: jwt.body["user_id"] as? String ?? "",
                                                     dappShare: nil, idToken: nil, oAuthIdToken: nil, oAuthAccessToken: nil, isMfaEnabled: false, authConnection: "custom", appState: nil)
         } catch {
-            throw Web3AuthError.inValidLogin
             let duration = Date().timeIntervalSince1970 * 1000 - Double(startTime)
 
             let properties: [String: Any] = [
                 "connector": "auth",
-                "auth_connection": loginParams.authConnection ?? "",
+                "auth_connection": loginParams.authConnection,
                 "auth_connection_id": loginParams.authConnectionId?.description ?? "",
                 "group_auth_connection_id": loginParams.groupedAuthConnectionId?.description ?? "",
-                "chain_id": web3AuthOptions.defaultChainId?.description,
+                "chain_id": web3AuthOptions.defaultChainId?.description ?? "",
                 "dapp_url": loginParams.dappUrl ?? "",
                 "chains": web3AuthOptions.chains?.description ?? "[]",
                 "auth_ux_mode": "popup",
@@ -480,6 +500,7 @@ public class Web3Auth: NSObject {
             ]
 
             AnalyticsManager.shared.trackEvent(AnalyticsEvents.connectionFailed, properties: properties)
+            throw Web3AuthError.inValidLogin
         }
         
         let sessionId = try SessionManager.generateRandomSessionID()!
@@ -533,6 +554,7 @@ public class Web3Auth: NSObject {
         }
     }
 
+    @MainActor
     public func enableMFA(_ loginParams: LoginParams? = nil) async throws -> Bool {
         // Note that this function can be called without login on restored session, so loginParams should not be optional.
         let duration = Date().timeIntervalSince1970 * 1000 - Double(startTime)
@@ -675,6 +697,7 @@ public class Web3Auth: NSObject {
         }
     }
     
+    @MainActor
     public func manageMFA(_ loginParams: LoginParams? = nil) async throws -> Bool {
         AnalyticsManager.shared.trackEvent(
             AnalyticsEvents.mfaManagementStarted,
@@ -796,6 +819,7 @@ public class Web3Auth: NSObject {
         }
     }
     
+    @MainActor
     public func showWalletUI(path: String? = "wallet") async throws {
         AnalyticsManager.shared.trackEvent(
             AnalyticsEvents.walletUIClicked,
@@ -1042,7 +1066,7 @@ public class Web3Auth: NSObject {
                     "sdk_version": web3AuthOptions.getSdkVersion(),
                     "web3auth_client_id": web3AuthOptions.clientId,
                     "web3auth_network": web3AuthOptions.web3AuthNetwork,
-                    "team_id" : projectConfigResponse?.teamId.toString()
+                    "team_id" : projectConfigResponse?.teamId.toString() ?? ""
                 ])
                 
                 let duration = Int(Date().timeIntervalSince1970 * 1000) - Int(startTime)
@@ -1050,9 +1074,9 @@ public class Web3Auth: NSObject {
                 let properties: [String: Any] = [
                     "chain_ids" : chainIds,
                     "chain_nameSpaces": ["eip155", "solana", "other"],
-                    "logging_enabled": web3AuthOptions.enableLogging,
-                    "auth_build_env": web3AuthOptions.authBuildEnv?.rawValue,
-                    "auth_mfa_settings": web3AuthOptions.mfaSettings,
+                    "logging_enabled": web3AuthOptions.enableLogging ?? "",
+                    "auth_build_env": web3AuthOptions.authBuildEnv?.rawValue ?? "",
+                    "auth_mfa_settings": web3AuthOptions.mfaSettings ?? "",
                     "whitelabel_logo_light_enabled": web3AuthOptions.whiteLabel?.logoLight != nil,
                     "whitelabel_logo_dark_enabled": web3AuthOptions.whiteLabel?.logoDark != nil,
                     "whitelabel_theme_mode": web3AuthOptions.whiteLabel?.theme as Any,
