@@ -57,12 +57,12 @@ public struct SignResponse: Codable {
     }
 }
 
-public enum SUPPORTED_KEY_CURVES: String, Codable {
+public enum SUPPORTED_KEY_CURVES: String, Codable, Sendable {
     case SECP256K1 = "secp256k1"
     case ED25519 = "ed25519"
 }
 
-public enum MFALevel: String, Codable {
+public enum MFALevel: String, Codable, Sendable {
     case DEFAULT = "default"
     case OPTIONAL = "optional"
     case MANDATORY = "mandatory"
@@ -438,7 +438,7 @@ public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
     }
 }
 
-public struct LoginParams: Codable {
+public struct LoginParams: Codable, Sendable {
     public init(authConnection: AuthConnection, authConnectionId: String? = nil, groupedAuthConnectionId: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, extraLoginOptions: ExtraLoginOptions? = nil, dappShare: String? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1,
     dappUrl: String? = nil, loginHint: String? = nil, idToken: String? = nil) {
@@ -483,7 +483,7 @@ public struct LoginParams: Codable {
     }
 }
 
-public struct ExtraLoginOptions: Codable {
+public struct ExtraLoginOptions: Codable, Sendable {
     public init(display: String? = nil, prompt: String? = nil, max_age: String? = nil, ui_locales: String? = nil,
                 id_token_hint: String? = nil, id_token: String? = nil, login_hint: String? = nil, acr_values: String? = nil, scope: String? = nil,
                 audience: String? = nil, connection: String? = nil, domain: String? = nil, client_id: String? = nil, redirect_uri: String? = nil, leeway: Int? = 0, userIdField: String? = nil, isUserIdCaseSensitive: Bool? = false, additionalParams: [String: String]? = nil, access_token: String? = nil,
