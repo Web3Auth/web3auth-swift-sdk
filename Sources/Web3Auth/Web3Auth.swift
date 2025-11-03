@@ -902,6 +902,7 @@ public class Web3Auth: NSObject {
         }
     }
 
+    @MainActor
     public func request(method: String, requestParams: [Any], path: String? = "wallet/request", appState: String? = nil) async throws -> SignResponse? {
         AnalyticsManager.shared.trackEvent(
             AnalyticsEvents.requestFunctionStarted
