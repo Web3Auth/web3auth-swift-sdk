@@ -470,8 +470,8 @@ public struct LoginParams: Codable, Sendable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         authConnection = try values.decode(String.self, forKey: .authConnection)
-        authConnectionId = try values.decode(String.self, forKey: .authConnectionId)
-        groupedAuthConnectionId = try values.decode(String.self, forKey: .groupedAuthConnectionId)
+        authConnectionId = try values.decodeIfPresent(String.self, forKey: .authConnectionId)
+        groupedAuthConnectionId = try values.decodeIfPresent(String.self, forKey: .groupedAuthConnectionId)
         appState = try values.decodeIfPresent(String.self, forKey: .appState)
         mfaLevel = try values.decodeIfPresent(MFALevel.self, forKey: .mfaLevel)
         extraLoginOptions = try values.decodeIfPresent(ExtraLoginOptions.self, forKey: .extraLoginOptions)
