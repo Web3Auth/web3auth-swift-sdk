@@ -41,7 +41,7 @@ https://github.com/web3auth/web3auth-swift-sdk
 If you are using cocoapods , open the pod file and add 
 
 ```
-pod 'Web3Auth', '9.0.0'
+pod 'Web3Auth', '~> 12.0.1'
 ```
 
 ## 🌟 Configuration
@@ -52,18 +52,22 @@ Checkout [SDK Reference](https://web3auth.io/docs/sdk/pnp/ios/install#configure-
 ```swift
 import Web3Auth
 
-let web3auth = try Web3Auth(Web3AuthOptions(
-  // Get your Web3Auth Client Id from dashboard.web3auth.io
-  clientId: "YOUR_WEB3AUTH_CLIENT_ID",
-  web3AuthNetwork: .sapphire_mainnet,
-  redirectUrl: "bundleId://auth"
-))
+let web3Auth = try await Web3Auth(
+  options: Web3AuthOptions(
+    // Get your Web3Auth Client Id from dashboard.web3auth.io
+    clientId: "YOUR_WEB3AUTH_CLIENT_ID",
+    web3AuthNetwork: .SAPPHIRE_MAINNET,
+    redirectUrl: "bundleId://auth"
+  )
+)
 
 // Login
-let result = try await web3Auth.login(LoginParams(loginProvider: .GOOGLE))
+let result = try await web3Auth.connectTo(
+  loginParams: LoginParams(authConnection: .GOOGLE)
+)
 
 // Logout
-try await web3auth.logout()
+try await web3Auth.logout()
 ```
 
 ## 🩹 Examples
