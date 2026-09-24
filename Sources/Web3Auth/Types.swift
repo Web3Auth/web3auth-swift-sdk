@@ -43,6 +43,17 @@ public struct ECIES: Codable {
 
 public struct SessionResponse: Codable {
     let sessionId: String
+    let accessToken: String?
+    let refreshToken: String?
+    let idToken: String?
+}
+
+public struct RedirectResponse: Codable {
+    let actionType: String
+    let sessionId: String?
+    let accessToken: String?
+    let refreshToken: String?
+    let idToken: String?
 }
 
 public struct SignResponse: Codable {
@@ -63,7 +74,6 @@ public enum SUPPORTED_KEY_CURVES: String, Codable, Sendable {
 }
 
 public enum MFALevel: String, Codable, Sendable {
-    case DEFAULT = "default"
     case OPTIONAL = "optional"
     case MANDATORY = "mandatory"
     case NONE = "none"
@@ -76,7 +86,7 @@ public enum ChainNamespace: String, Codable {
 }
 
 public struct WhiteLabelData: Codable {
-    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = Language.en, mode: ThemeModes? = ThemeModes.auto, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false) {
+    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = Language.en, mode: ThemeModes? = ThemeModes.auto, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false, consentRequired: Bool? = nil, tncLink: String? = nil, privacyPolicy: String? = nil) {
         self.appName = appName
         self.logoLight = logoLight
         self.logoDark = logoDark
@@ -85,6 +95,9 @@ public struct WhiteLabelData: Codable {
         self.theme = theme
         self.appUrl = appUrl
         self.useLogoLoader = useLogoLoader
+        self.consentRequired = consentRequired
+        self.tncLink = tncLink
+        self.privacyPolicy = privacyPolicy
     }
 
     let appName: String?
@@ -92,9 +105,12 @@ public struct WhiteLabelData: Codable {
     let logoDark: String?
     let defaultLanguage: Language?
     let mode: ThemeModes?
-    let theme: [String: String]?
+    var theme: [String: String]?
     let appUrl: String?
     let useLogoLoader: Bool?
+    let consentRequired: Bool?
+    let tncLink: String?
+    let privacyPolicy: String?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -106,6 +122,9 @@ public struct WhiteLabelData: Codable {
         theme = try values.decodeIfPresent([String: String].self, forKey: .theme)
         appUrl = try values.decodeIfPresent(String.self, forKey: .appUrl)
         useLogoLoader = try values.decodeIfPresent(Bool.self, forKey: .useLogoLoader)
+        consentRequired = try values.decodeIfPresent(Bool.self, forKey: .consentRequired)
+        tncLink = try values.decodeIfPresent(String.self, forKey: .tncLink)
+        privacyPolicy = try values.decodeIfPresent(String.self, forKey: .privacyPolicy)
     }
 }
 
@@ -189,10 +208,10 @@ public struct Web3AuthOptions: Codable {
     }
     
     public init(clientId: String, redirectUrl: String, originData: [String: String]? = nil, authBuildEnv: BuildEnv? = .production, sdkUrl: String? = nil,
-                storageServerUrl: String? = nil,sessionSocketUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,
+                storageServerUrl: String? = nil, sessionSocketUrl: String? = nil, citadelServerUrl: String? = nil, authConnectionConfig: [AuthConnectionConfig]? = nil,
                 whiteLabel: WhiteLabelData? = nil, dashboardUrl: String? = nil, accountAbstractionConfig: String? = nil, walletSdkUrl: String? = nil,
-                 includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = "0x1", enableLogging: Bool? = false, sessionTime: Int = 30 * 86400, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
-                mfaSettings: MfaSettings? = nil) {
+                 includeUserDataInToken: Bool? = true, chains: [Chains]? = nil, defaultChainId: String? = "0x1", enableLogging: Bool? = false, sessionTime: Int? = nil, web3AuthNetwork: Web3AuthNetwork, useSFAKey: Bool? = nil, walletServicesConfig: WalletServicesConfig? = nil,
+                mfaSettings: MfaSettings? = nil, sessionNamespace: String? = nil, wsEmbedDappClientId: String? = nil, useAAWithExternalWallet: Bool? = nil) {
         self.clientId = clientId
         self.redirectUrl = redirectUrl
         self.originData = originData
@@ -202,8 +221,9 @@ public struct Web3AuthOptions: Codable {
         } else {
             self.sdkUrl = getSdkUrl(buildEnv: self.authBuildEnv)
         }
-        self.storageServerUrl = storageServerUrl
-        self.sessionSocketUrl = sessionSocketUrl
+        self.storageServerUrl = (storageServerUrl?.isEmpty == false) ? storageServerUrl : Web3AuthUrls.storageServerUrl(self.authBuildEnv)
+        self.sessionSocketUrl = (sessionSocketUrl?.isEmpty == false) ? sessionSocketUrl : Web3AuthUrls.sessionSocketUrl(self.authBuildEnv)
+        self.citadelServerUrl = (citadelServerUrl?.isEmpty == false) ? citadelServerUrl : Web3AuthUrls.citadelServerUrl(self.authBuildEnv)
 
         self.authConnectionConfig = authConnectionConfig
         self.whiteLabel = whiteLabel
@@ -222,11 +242,18 @@ public struct Web3AuthOptions: Codable {
         self.chains = chains
         self.defaultChainId = defaultChainId
         self.enableLogging = enableLogging
-        self.sessionTime = min(sessionTime, 30 * 86400) // Clamp to max 30 days
+        if let sessionTime {
+            self.sessionTime = min(sessionTime, DEFAULT_SESSION_TIME)
+        } else {
+            self.sessionTime = nil
+        }
         self.web3AuthNetwork = web3AuthNetwork
         self.useSFAKey = useSFAKey
         self.walletServicesConfig = walletServicesConfig
         self.mfaSettings = mfaSettings
+        self.sessionNamespace = sessionNamespace
+        self.wsEmbedDappClientId = wsEmbedDappClientId
+        self.useAAWithExternalWallet = useAAWithExternalWallet
     }
 
     public init(clientId: String, web3AuthNetwork: Web3AuthNetwork, redirectUrl: String) {
@@ -235,8 +262,9 @@ public struct Web3AuthOptions: Codable {
         self.originData = nil
         self.authBuildEnv = BuildEnv.production
         sdkUrl = getSdkUrl(buildEnv: authBuildEnv)
-        self.storageServerUrl = nil
-        self.sessionSocketUrl = nil
+        self.storageServerUrl = Web3AuthUrls.storageServerUrl(authBuildEnv)
+        self.sessionSocketUrl = Web3AuthUrls.sessionSocketUrl(authBuildEnv)
+        self.citadelServerUrl = Web3AuthUrls.citadelServerUrl(authBuildEnv)
         self.authConnectionConfig = nil
         self.whiteLabel = nil
         dashboardUrl = getDashboardUrl(buildEnv: authBuildEnv)
@@ -246,11 +274,14 @@ public struct Web3AuthOptions: Codable {
         self.chains = nil
         self.defaultChainId = "0x1"
         self.enableLogging = false
-        self.sessionTime = 30 * 86400
+        self.sessionTime = nil
         self.web3AuthNetwork = web3AuthNetwork
         self.useSFAKey = false
         self.walletServicesConfig = nil
         self.mfaSettings = nil
+        self.sessionNamespace = nil
+        self.wsEmbedDappClientId = nil
+        self.useAAWithExternalWallet = nil
     }
 
     let clientId: String
@@ -260,6 +291,7 @@ public struct Web3AuthOptions: Codable {
     var sdkUrl: String?
     var storageServerUrl: String?
     var sessionSocketUrl: String?
+    var citadelServerUrl: String?
     var authConnectionConfig: [AuthConnectionConfig]?
     var whiteLabel: WhiteLabelData?
     var dashboardUrl: String?
@@ -269,11 +301,14 @@ public struct Web3AuthOptions: Codable {
     var chains: [Chains]? = nil
     var defaultChainId: String? = "0x1"
     let enableLogging: Bool?
-    let sessionTime: Int
+    var sessionTime: Int?
     var web3AuthNetwork: Web3AuthNetwork
     var useSFAKey: Bool?
     var walletServicesConfig: WalletServicesConfig?
     var mfaSettings: MfaSettings?
+    var sessionNamespace: String?
+    var wsEmbedDappClientId: String?
+    var useAAWithExternalWallet: Bool?
 
     
     enum CodingKeys: String, CodingKey {
@@ -284,6 +319,7 @@ public struct Web3AuthOptions: Codable {
             case sdkUrl
             case storageServerUrl
             case sessionSocketUrl
+            case citadelServerUrl
             case authConnectionConfig
             case whiteLabel
             case dashboardUrl
@@ -298,6 +334,9 @@ public struct Web3AuthOptions: Codable {
             case useSFAKey
             case walletServicesConfig
             case mfaSettings
+            case sessionNamespace
+            case wsEmbedDappClientId
+            case useAAWithExternalWallet
         }
 
     public init(from decoder: Decoder) throws {
@@ -313,11 +352,12 @@ public struct Web3AuthOptions: Codable {
             sdkUrl = getSdkUrl(buildEnv: authBuildEnv)
         }
 
-        storageServerUrl = try values.decodeIfPresent(String.self, forKey: .storageServerUrl)
-        sessionSocketUrl = try values.decodeIfPresent(String.self, forKey: .sessionSocketUrl)
+        storageServerUrl = try values.decodeIfPresent(String.self, forKey: .storageServerUrl) ?? Web3AuthUrls.storageServerUrl(authBuildEnv)
+        sessionSocketUrl = try values.decodeIfPresent(String.self, forKey: .sessionSocketUrl) ?? Web3AuthUrls.sessionSocketUrl(authBuildEnv)
+        citadelServerUrl = try values.decodeIfPresent(String.self, forKey: .citadelServerUrl) ?? Web3AuthUrls.citadelServerUrl(authBuildEnv)
         authConnectionConfig = try values.decodeIfPresent([AuthConnectionConfig].self, forKey: .authConnectionConfig)
         whiteLabel = try values.decodeIfPresent(WhiteLabelData.self, forKey: .whiteLabel)
-        dashboardUrl = try values.decodeIfPresent(String.self, forKey: .dashboardUrl)
+        dashboardUrl = try values.decodeIfPresent(String.self, forKey: .dashboardUrl) ?? getDashboardUrl(buildEnv: authBuildEnv)
         accountAbstractionConfig = try values.decodeIfPresent(String.self, forKey: .accountAbstractionConfig)
         
         if let customWalletSdkUrl = try values.decodeIfPresent(String.self, forKey: .walletSdkUrl) {
@@ -330,11 +370,14 @@ public struct Web3AuthOptions: Codable {
         chains = try values.decodeIfPresent([Chains].self, forKey: .chains)
         defaultChainId = try values.decodeIfPresent(String.self, forKey: .defaultChainId) ?? "0x1"
         enableLogging = try values.decodeIfPresent(Bool.self, forKey: .enableLogging)
-        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 30 * 86400
+        sessionTime = try values.decodeIfPresent(Int.self, forKey: .sessionTime)
         web3AuthNetwork = try values.decode(Web3AuthNetwork.self, forKey: .web3AuthNetwork)
         useSFAKey = try values.decodeIfPresent(Bool.self, forKey: .useSFAKey)
         walletServicesConfig = try values.decodeIfPresent(WalletServicesConfig.self, forKey: .walletServicesConfig)
         mfaSettings = try values.decodeIfPresent(MfaSettings.self, forKey: .mfaSettings)
+        sessionNamespace = try values.decodeIfPresent(String.self, forKey: .sessionNamespace)
+        wsEmbedDappClientId = try values.decodeIfPresent(String.self, forKey: .wsEmbedDappClientId)
+        useAAWithExternalWallet = try values.decodeIfPresent(Bool.self, forKey: .useAAWithExternalWallet)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -353,6 +396,7 @@ public struct Web3AuthOptions: Codable {
 
         try container.encodeIfPresent(storageServerUrl, forKey: .storageServerUrl)
         try container.encodeIfPresent(sessionSocketUrl, forKey: .sessionSocketUrl)
+        try container.encodeIfPresent(citadelServerUrl, forKey: .citadelServerUrl)
         try container.encodeIfPresent(authConnectionConfig, forKey: .authConnectionConfig)
         try container.encodeIfPresent(whiteLabel, forKey: .whiteLabel)
         try container.encodeIfPresent(dashboardUrl, forKey: .dashboardUrl)
@@ -367,7 +411,7 @@ public struct Web3AuthOptions: Codable {
         try container.encodeIfPresent(chains, forKey: .chains)
         try container.encodeIfPresent(defaultChainId, forKey: .defaultChainId)
         try container.encodeIfPresent(enableLogging, forKey: .enableLogging)
-        try container.encode(sessionTime, forKey: .sessionTime)
+        try container.encodeIfPresent(sessionTime, forKey: .sessionTime)
 
         // Encode as lowercase string
         try container.encode(web3AuthNetwork.lowercaseString, forKey: .web3AuthNetwork)
@@ -375,12 +419,22 @@ public struct Web3AuthOptions: Codable {
         try container.encodeIfPresent(useSFAKey, forKey: .useSFAKey)
         try container.encodeIfPresent(walletServicesConfig, forKey: .walletServicesConfig)
         try container.encodeIfPresent(mfaSettings, forKey: .mfaSettings)
+        try container.encodeIfPresent(sessionNamespace, forKey: .sessionNamespace)
+        try container.encodeIfPresent(wsEmbedDappClientId, forKey: .wsEmbedDappClientId)
+        try container.encodeIfPresent(useAAWithExternalWallet, forKey: .useAAWithExternalWallet)
     }
 }
 
 public struct WalletServicesConfig: Codable {
     var confirmationStrategy: ConfirmationStrategy? = .defaultStrategy
     var whiteLabel: WhiteLabelData? = nil
+    var enableKeyExport: Bool? = nil
+
+    public init(confirmationStrategy: ConfirmationStrategy? = .defaultStrategy, whiteLabel: WhiteLabelData? = nil, enableKeyExport: Bool? = nil) {
+        self.confirmationStrategy = confirmationStrategy
+        self.whiteLabel = whiteLabel
+        self.enableKeyExport = enableKeyExport
+    }
 }
 
 public enum ConfirmationStrategy: String, Codable {
@@ -397,8 +451,6 @@ public enum ConfirmationStrategy: String, Codable {
 }
 
 public func getSdkUrl(buildEnv: BuildEnv?) -> String {
-    let authServiceVersion = "v10"
-
     switch buildEnv {
     case .staging:
         return "https://staging-auth.web3auth.io/\(authServiceVersion)"
@@ -410,9 +462,8 @@ public func getSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
-    let walletServicesVersion = "v5"
     guard let buildEnv = buildEnv else {
-        return "https://wallet.web3auth.io"
+        return "https://wallet.web3auth.io/\(walletServicesVersion)"
     }
 
     switch buildEnv {
@@ -426,8 +477,6 @@ public func getWalletSdkUrl(buildEnv: BuildEnv?) -> String {
 }
 
 public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
-    let authDashboardVersion = "v10"
-    let walletAccountConstant = "wallet/account"
     switch buildEnv {
     case .staging:
         return "https://staging-account.web3auth.io/\(authDashboardVersion)/\(walletAccountConstant)"
@@ -441,7 +490,7 @@ public func getDashboardUrl(buildEnv: BuildEnv?) -> String {
 public struct LoginParams: Codable, Sendable {
     public init(authConnection: AuthConnection, authConnectionId: String? = nil, groupedAuthConnectionId: String? = nil, appState: String? = nil,
                 mfaLevel: MFALevel? = nil, extraLoginOptions: ExtraLoginOptions? = nil, dappShare: String? = nil, curve: SUPPORTED_KEY_CURVES = .SECP256K1,
-    dappUrl: String? = nil, loginHint: String? = nil, idToken: String? = nil) {
+    dappUrl: String? = nil, loginHint: String? = nil, idToken: String? = nil, recordId: String? = nil, loginSource: String? = nil) {
         self.authConnection = authConnection.rawValue
         self.authConnectionId = authConnectionId
         self.groupedAuthConnectionId = groupedAuthConnectionId
@@ -453,6 +502,8 @@ public struct LoginParams: Codable, Sendable {
         self.dappUrl = dappUrl
         self.loginHint = loginHint
         self.idToken = idToken
+        self.recordId = recordId
+        self.loginSource = loginSource
     }
 
     let authConnection: String
@@ -466,6 +517,8 @@ public struct LoginParams: Codable, Sendable {
     let dappUrl: String?
     var loginHint: String?
     var idToken: String?
+    var recordId: String?
+    var loginSource: String?
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -480,6 +533,8 @@ public struct LoginParams: Codable, Sendable {
         dappUrl = try values.decodeIfPresent(String.self, forKey: .dappUrl)
         loginHint = try values.decodeIfPresent(String.self, forKey: .loginHint)
         idToken = try values.decodeIfPresent(String.self, forKey: .idToken)
+        recordId = try values.decodeIfPresent(String.self, forKey: .recordId)
+        loginSource = try values.decodeIfPresent(String.self, forKey: .loginSource)
     }
 }
 
@@ -653,6 +708,7 @@ public struct WalletUiConfig: Codable {
     public var enableSendButton: Bool?
     public var enableSwapButton: Bool?
     public var enableReceiveButton: Bool?
+    public var enableDefiPositionsDisplay: Bool?
     public var portfolioWidgetPosition: ButtonPositionType?
     public var defaultPortfolio: DefaultPortfolioType?
 
@@ -667,6 +723,7 @@ public struct WalletUiConfig: Codable {
         enableSendButton: Bool? = nil,
         enableSwapButton: Bool? = nil,
         enableReceiveButton: Bool? = nil,
+        enableDefiPositionsDisplay: Bool? = nil,
         portfolioWidgetPosition: ButtonPositionType? = nil,
         defaultPortfolio: DefaultPortfolioType? = nil
     ) {
@@ -680,6 +737,7 @@ public struct WalletUiConfig: Codable {
         self.enableSendButton = enableSendButton
         self.enableSwapButton = enableSwapButton
         self.enableReceiveButton = enableReceiveButton
+        self.enableDefiPositionsDisplay = enableDefiPositionsDisplay
         self.portfolioWidgetPosition = portfolioWidgetPosition
         self.defaultPortfolio = defaultPortfolio
     }
@@ -695,6 +753,7 @@ public enum ButtonPositionType: String, Codable {
 public enum DefaultPortfolioType: String, Codable {
     case token = "token"
     case nft = "nft"
+    case defi = "defi"
 }
 
 struct SdkUrlParams: Codable {
@@ -724,12 +783,14 @@ struct SetUpMFAParams: Codable {
     let params: [String: String?]
     let actionType: String
     let sessionId: String
+    let accessToken: String?
 
     enum CodingKeys: String, CodingKey {
         case options
         case params
         case actionType
         case sessionId
+        case accessToken
     }
 }
 
@@ -737,13 +798,18 @@ public struct Whitelist: Codable {
     let urls: [String]
     let signedUrls: [String: String]
 
+    public init(urls: [String] = [], signedUrls: [String: String] = [:]) {
+        self.urls = urls
+        self.signedUrls = signedUrls
+    }
+
     enum CodingKeys: String, CodingKey {
         case urls
         case signedUrls = "signed_urls"
     }
 }
 
-public struct ProjectConfigResponse: Codable {
+public struct ProjectConfigResponse: Decodable {
     public var userDataInIdToken: Bool? = true
     public var sessionTime: Int? = 86400
     public var enableKeyExport: Bool? = false
@@ -761,6 +827,7 @@ public struct ProjectConfigResponse: Codable {
 
     enum CodingKeys: String, CodingKey {
         case userDataInIdToken
+        case userDataIncludedInToken
         case sessionTime
         case enableKeyExport
         case whitelist
@@ -778,10 +845,12 @@ public struct ProjectConfigResponse: Codable {
     
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.userDataInIdToken = try container.decodeIfPresent(Bool.self, forKey: .userDataInIdToken) ?? true
-        self.sessionTime = try container.decodeIfPresent(Int.self, forKey: .sessionTime) ?? 86400
+        self.userDataInIdToken = try container.decodeIfPresent(Bool.self, forKey: .userDataInIdToken)
+            ?? container.decodeIfPresent(Bool.self, forKey: .userDataIncludedInToken)
+            ?? true
+        self.sessionTime = try container.decodeIfPresent(Int.self, forKey: .sessionTime)
         self.enableKeyExport = try container.decodeIfPresent(Bool.self, forKey: .enableKeyExport) ?? false
-        self.whitelist = try container.decode(Whitelist.self, forKey: .whitelist)
+        self.whitelist = try container.decodeIfPresent(Whitelist.self, forKey: .whitelist) ?? Whitelist()
         self.chains = try container.decodeIfPresent([Chains].self, forKey: .chains)
         self.smartAccounts = try container.decodeIfPresent(SmartAccountsConfig.self, forKey: .smartAccounts)
         self.walletUiConfig = try container.decodeIfPresent(WalletUiConfig.self, forKey: .walletUiConfig)
@@ -798,10 +867,14 @@ public struct ProjectConfigResponse: Codable {
 public struct SmartAccountsConfig: Codable {
     public var smartAccountType: SmartAccountType
     public var chains: [ChainConfig]
+    public var eipStandard: String?
+    public var walletScope: SmartAccountWalletScope?
 
     enum CodingKeys: String, CodingKey {
         case smartAccountType
         case chains
+        case eipStandard
+        case walletScope
     }
 }
 
@@ -834,6 +907,11 @@ public enum SmartAccountType: String, Codable {
     case light = "light"
     case simple = "simple"
     case nexus = "nexus"
+}
+
+public enum SmartAccountWalletScope: String, Codable {
+    case embedded = "embedded"
+    case all = "all"
 }
 
 public struct Web3AuthSubVerifierInfo: Codable {

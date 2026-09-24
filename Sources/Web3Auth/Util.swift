@@ -52,15 +52,24 @@ func web3AuthNetworkFromString(_ string: String) -> Web3AuthNetwork? {
 
 extension WhiteLabelData {
     func merge(with other: WhiteLabelData) -> WhiteLabelData {
+        var mergedTheme: [String: String]?
+        if let thisTheme = theme, let otherTheme = other.theme {
+            mergedTheme = otherTheme.merging(thisTheme) { _, new in new }
+        } else {
+            mergedTheme = theme ?? other.theme
+        }
         return WhiteLabelData(
             appName: appName ?? other.appName,
             logoLight: logoLight ?? other.logoLight,
             logoDark: logoDark ?? other.logoDark,
             defaultLanguage: defaultLanguage ?? other.defaultLanguage,
             mode: mode ?? other.mode,
-            theme: theme ?? other.theme,
+            theme: mergedTheme,
             appUrl: appUrl ?? other.appUrl,
-            useLogoLoader: useLogoLoader ?? other.useLogoLoader
+            useLogoLoader: useLogoLoader ?? other.useLogoLoader,
+            consentRequired: consentRequired ?? other.consentRequired,
+            tncLink: tncLink ?? other.tncLink,
+            privacyPolicy: privacyPolicy ?? other.privacyPolicy
         )
     }
 }

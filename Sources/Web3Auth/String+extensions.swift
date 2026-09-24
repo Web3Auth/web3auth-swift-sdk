@@ -40,4 +40,16 @@ internal extension String {
             return self
         }
     }
+
+    /// Wallet Services pads with `padStart(64)` and does not strip a `0x` prefix.
+    /// Passing `0x`-prefixed ids (session-manager 7.x) mangles the key.
+    func strip0xForWalletSession() -> String {
+        let stripped: String
+        if lowercased().hasPrefix("0x") {
+            stripped = String(dropFirst(2))
+        } else {
+            stripped = self
+        }
+        return String(stripped.padStart(toLength: 64, padString: "0").prefix(64))
+    }
 }

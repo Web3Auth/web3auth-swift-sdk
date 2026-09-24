@@ -48,5 +48,15 @@ class Web3AuthTests: XCTestCase {
 
         let sessionId = "654c2aed4d904fd7cd50edae39c15e13810715bd553ea03f52fbed5cd9d17fd9"
         XCTAssertEqual(sessionId, decodedState?.sessionId)
+
+        let encoded = "{\"sessionId\":\"654c2aed4d904fd7cd50edae39c15e13810715bd553ea03f52fbed5cd9d17fd9\",\"accessToken\":\"at\",\"refreshToken\":\"rt\",\"idToken\":\"idt\"}"
+        let tokenCallback = "com.web3auth.sdkapp://auth/#b64Params=" + (encoded.data(using: .utf8)?.toBase64URL() ?? "")
+        let tokenState = try Web3Auth.decodeStateFromCallbackURL(URL(string: tokenCallback)!)
+        XCTAssertEqual("at", tokenState.accessToken)
+        XCTAssertEqual("rt", tokenState.refreshToken)
+        XCTAssertEqual("idt", tokenState.idToken)
+
+        XCTAssertEqual("abc".strip0xForWalletSession().count, 64)
+        XCTAssertEqual("0xabc".strip0xForWalletSession().hasPrefix("0"), true)
     }
 }

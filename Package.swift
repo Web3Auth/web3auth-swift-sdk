@@ -14,10 +14,11 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "KeychainSwift", url: "https://github.com/evgenyneu/keychain-swift.git", from: "20.0.0"),
-        .package(name:"SessionManager",url: "https://github.com/Web3Auth/session-manager-swift.git",from: "6.1.0"),
+        .package(name:"SessionManager",url: "https://github.com/Web3Auth/session-manager-swift.git",from: "7.0.1"),
         .package(name: "curvelib.swift", url: "https://github.com/tkey/curvelib.swift", from: "2.0.0"),
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
-        .package(url: "https://github.com/torusresearch/torus-utils-swift.git", from: "10.0.1"),
+        .package(url: "https://github.com/torusresearch/fetch-node-details-swift.git", from: "9.0.1"),
+        .package(url: "https://github.com/torusresearch/torus-utils-swift.git", from: "11.0.0"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.0.0"),
         .package(url: "https://github.com/auth0/JWTDecode.swift.git", from: "3.2.0"),
         .package(url: "https://github.com/segmentio/analytics-swift.git", from: "1.8.0")
@@ -30,6 +31,7 @@ let package = Package(
                 .product(name: "curveSecp256k1", package: "curvelib.swift"),
                 "SessionManager",
                 "BigInt",
+                .product(name: "FetchNodeDetails", package: "fetch-node-details-swift"),
                 .product(name: "TorusUtils", package: "torus-utils-swift"),
                 .product(name: "JWTDecode", package: "JWTDecode.swift"),
                 .product(name: "Segment", package: "analytics-swift")

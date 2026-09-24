@@ -17,7 +17,7 @@ class ViewModel: ObservableObject {
     private var clientID: String = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ"
     private var redirectUrl: String = "com.web3auth.sdkapp://auth"
     private var web3AuthNetwork: Web3AuthNetwork = .SAPPHIRE_MAINNET
-    private var buildEnv: BuildEnv = .testing
+    private var buildEnv: Web3AuthBuildEnv = .production
     let TORUS_TEST_EMAIL = "devnettestuser@tor.us"
     let TEST_VERIFIER = "torus-test-health"
     let TEST_AGGREGRATE_VERIFIER = "torus-aggregate-sapphire-mainnet"
@@ -65,26 +65,39 @@ class ViewModel: ObservableObject {
             isLoading = true
             navigationTitle = "Loading"
         })
-        web3Auth = try await Web3Auth(options: .init(clientId: clientID, redirectUrl: "com.web3auth.sdkapp://auth", authBuildEnv: buildEnv, authConnectionConfig: authConfig, defaultChainId: "0x1", web3AuthNetwork: web3AuthNetwork,
-                                            // sdkUrl: URL(string: "https://auth.mocaverse.xyz"),
-                                            // walletSdkUrl: URL(string: "https://lrc-mocaverse.web3auth.io"),
-                                            useSFAKey: useCoreKit))
+        web3Auth = try await Web3Auth(options: .init(
+            clientId: clientID,
+            redirectUrl: "com.web3auth.sdkapp://auth",
+            authBuildEnv: .production,
+            authConnectionConfig: authConfig,
+            whiteLabel: WhiteLabelData(
+                appName: "Web3Auth Sample App",
+                defaultLanguage: .en,
+                mode: .light,
+                theme: ["primary": "#123456", "onPrimary": "#0000FF"],
+                consentRequired: false,
+                tncLink: "https://web3auth.io/docs/legal/terms-and-conditions",
+                privacyPolicy: "https://web3auth.io/docs/legal/privacy-policy"
+            ),
+            defaultChainId: "0x1",
+            web3AuthNetwork: web3AuthNetwork,
+            useSFAKey: useCoreKit
+        ))
+        if web3Auth?.web3AuthResponse != nil {
+            await handleUserDetails()
+        }
         await MainActor.run(body: {
-            if self.web3Auth?.web3AuthResponse != nil {
-                handleUserDetails()
-                loggedIn = true
-            }
             isLoading = false
             navigationTitle = loggedIn ? "UserInfo" : "SignIn"
         })
     }
 
-    @MainActor func handleUserDetails() {
+    @MainActor func handleUserDetails() async {
         do {
             loggedIn = true
             privateKey = ((web3Auth?.getPrivateKey() != "") ? web3Auth?.getPrivateKey() : try web3Auth?.getWeb3AuthResponse().factorKey) ?? ""
             ed25519PrivKey = try web3Auth?.getEd25519PrivateKey() ?? ""
-            userInfo = try web3Auth?.getUserInfo()
+            userInfo = try await web3Auth?.getUserInfoAsync()
         } catch {
             errorMessage = error.localizedDescription
             showError = true
@@ -95,12 +108,16 @@ class ViewModel: ObservableObject {
         Task {
             do {
                 _ = try await web3Auth?.login(loginParams: LoginParams(authConnection: authConnection,
-                                                          mfaLevel: .DEFAULT, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "hello@tor.us", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil),
+                                                          mfaLevel: .OPTIONAL, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: "hello@tor.us", acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil),
                                                              curve: .SECP256K1
                     ))
                 await handleUserDetails()
             } catch {
-                print("Error")
+                print("Login failed: \(error)")
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
             }
         }
     }
@@ -135,12 +152,12 @@ class ViewModel: ObservableObject {
                 _ = try await web3Auth?.login(loginParams: LoginParams(authConnection: .GOOGLE,
                                                           authConnectionId: "w3ads",
                                                           groupedAuthConnectionId: "aggregate-mobile",
-                                                          mfaLevel: .DEFAULT, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: "https://web3auth.au.auth0.com/", client_id: nil, redirect_uri: nil, leeway: nil, userIdField: "email", isUserIdCaseSensitive: false, additionalParams: nil),
+                                                          mfaLevel: .OPTIONAL, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: "https://web3auth.au.auth0.com/", client_id: nil, redirect_uri: nil, leeway: nil, userIdField: "email", isUserIdCaseSensitive: false, additionalParams: nil),
                                                              curve: .SECP256K1
                     ))
                 await handleUserDetails()
             } catch {
-                print("Error")
+                print("Login failed: \(error)")
             }
         }
     }
@@ -164,12 +181,12 @@ class ViewModel: ObservableObject {
                 _ = try await web3Auth?.login(
                     loginParams: LoginParams(
                         authConnection: .GOOGLE,
-                        mfaLevel: .DEFAULT, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil), dappShare: nil,
+                        mfaLevel: .OPTIONAL, extraLoginOptions: ExtraLoginOptions(display: nil, prompt: nil, max_age: nil, ui_locales: nil, id_token_hint: nil, id_token: nil, login_hint: nil, acr_values: nil, scope: nil, audience: nil, connection: nil, domain: nil, client_id: nil, redirect_uri: nil, leeway: nil, userIdField: nil, isUserIdCaseSensitive: nil, additionalParams: nil), dappShare: nil,
                         curve: .SECP256K1
                     ))
                 await handleUserDetails()
             } catch {
-                print("Error")
+                print("Login failed: \(error)")
             }
         }
     }
