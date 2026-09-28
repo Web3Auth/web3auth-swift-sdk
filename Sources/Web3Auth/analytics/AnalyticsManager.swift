@@ -80,12 +80,6 @@ enum AnalyticsEvents {
     static let identityTokenCompleted = "Identity Token Completed"
     static let identityTokenFailed = "Identity Token Failed"
     static let mfaManagementSelected = "MFA Management Selected"
-    static let userConsentStarted = "User Consent Started"
-    static let userConsentAccepted = "User Consent Accepted"
-    static let userConsentDeclined = "User Consent Declined"
-    static let userConsentErrored = "User Consent Errored"
-    static let termsOfServiceClicked = "Terms of Service Clicked"
-    static let privacyPolicyClicked = "Privacy Policy Clicked"
 
     static let iosSdkVersion = "13.0.0"
 }

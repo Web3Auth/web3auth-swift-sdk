@@ -213,10 +213,6 @@ public class Web3Auth: NSObject {
         let loginSource = resolveLoginSource(loginParams)
         let loginId = try await getLoginId(sessionId: sessionId, data: sdkUrlParams)
 
-        if web3AuthOptions.whiteLabel?.consentRequired == true {
-            AnalyticsManager.shared.trackEvent(AnalyticsEvents.userConsentStarted)
-        }
-
         let jsonObject = makeStartConfigParams(loginId: loginId, recordId: recordId, loginSource: loginSource)
 
         let url = try Web3Auth.generateAuthSessionURL(
@@ -249,10 +245,8 @@ public class Web3Auth: NSObject {
                     else {
                         let authError = authError ?? Web3AuthError.unknownError
                         if case ASWebAuthenticationSessionError.canceledLogin = authError {
-                            self.trackConsentIfNeeded(AnalyticsEvents.userConsentDeclined)
                             continuation.resume(throwing: Web3AuthError.userCancelled)
                         } else {
-                            self.trackConsentIfNeeded(AnalyticsEvents.userConsentErrored)
                             continuation.resume(throwing: authError)
                         }
                         return
@@ -272,7 +266,6 @@ public class Web3Auth: NSObject {
                             }
 
                             self.web3AuthResponse = loginDetails
-                            self.trackConsentIfNeeded(AnalyticsEvents.userConsentAccepted)
                             var analyticsProps: [String: Any] = [
                                 "connector": "auth",
                                 "auth_connection": loginParams.authConnection,
@@ -1503,12 +1496,6 @@ private extension Web3Auth {
            let data = try? JSONEncoder().encode(smartAccounts),
            let json = String(data: data, encoding: .utf8) {
             web3AuthOptions.accountAbstractionConfig = json
-        }
-    }
-
-    func trackConsentIfNeeded(_ event: String) {
-        if web3AuthOptions.whiteLabel?.consentRequired == true {
-            AnalyticsManager.shared.trackEvent(event)
         }
     }
 
