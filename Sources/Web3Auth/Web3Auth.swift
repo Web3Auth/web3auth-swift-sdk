@@ -94,8 +94,8 @@ public class Web3Auth: NSObject {
             do {
                 web3AuthResponse = try await authorizeSession()
             } catch {
-                try? await authSessionManager.clearSessionData()
-                StorageManager<Web3AuthResponse>.deleteSessionIdFromStorage()
+                // Leave session data intact so the next launch can retry.
+                // Only a deliberate logout should wipe tokens.
             }
         }
     }
@@ -1187,14 +1187,12 @@ public class Web3Auth: NSObject {
         }
     }
 
-    /// Re-authorizes the current citadel session. Clears tokens on failure.
     public func refreshSession() async throws -> Web3AuthResponse {
         do {
             let response = try await authorizeSession()
             web3AuthResponse = response
             return response
         } catch {
-            try? await authSessionManager.logout()
             web3AuthResponse = nil
             throw error
         }
@@ -1336,12 +1334,12 @@ private extension Web3Auth {
         guard let sessionId, !sessionId.isEmpty, accessToken != nil || refreshToken != nil else {
             return nil
         }
-        do {
-            let refresh = try await authSessionManager.ensureRefresh(skipIfFresh: false)
-            return try decodeCitadelSession(sessionId: sessionId, sessionData: refresh.session_data)
-        } catch {
-            return nil
-        }
+        // Propagate errors so the caller knows whether the failure is transient
+        // (network) vs. definitive (no session). Returning nil only when there
+        // are genuinely no citadel credentials means a transient refresh error
+        // no longer silently falls through to the session-service path.
+        let refresh = try await authSessionManager.ensureRefresh(skipIfFresh: false)
+        return try decodeCitadelSession(sessionId: sessionId, sessionData: refresh.session_data)
     }
 
     func decodeCitadelSession(sessionId: String, sessionData: String) throws -> Web3AuthResponse {
@@ -1429,15 +1427,15 @@ private extension Web3Auth {
     }
 
     func applyProjectConfigToWalletOptions(_ initOptionsJson: inout [String: Any]) throws {
-        if projectConfigResponse?.chains == nil {
-            throw Web3AuthError.runtimeError("Project config not found")
-        }
-        if let chains = projectConfigResponse?.chains {
+        let chains = projectConfigResponse?.chains ?? web3AuthOptions.chains
+        if let chains = chains {
             let chainsData = try JSONEncoder().encode(chains)
             let chainsJson = try JSONSerialization.jsonObject(with: chainsData) as! [Any]
             initOptionsJson["chains"] = chainsJson
             initOptionsJson["chainId"] = chains.first?.chainId ?? web3AuthOptions.defaultChainId ?? "0x1"
             initOptionsJson["defaultChainId"] = chains.first?.chainId ?? web3AuthOptions.defaultChainId ?? "0x1"
+        } else {
+            throw Web3AuthError.runtimeError("No chains configured")
         }
 
         if let embeddedWalletAuth = projectConfigResponse?.embeddedWalletAuth {
@@ -1542,7 +1540,13 @@ private extension Web3Auth {
     func mergeWalletServicesFromProjectConfig(_ response: ProjectConfigResponse?) {
         guard let walletUi = response?.walletUiConfig else { return }
         let existing = web3AuthOptions.walletServicesConfig
-        var whiteLabelMap: [String: String] = existing?.whiteLabel?.theme ?? [:]
+        // Seed from the developer's whiteLabel colors first, then let the
+        // wallet-services config theme (more specific) override them, so
+        // dashboard UI flags layer on top without discarding user-set colors.
+        var whiteLabelMap: [String: String] = web3AuthOptions.whiteLabel?.theme ?? [:]
+        if let existingTheme = existing?.whiteLabel?.theme {
+            whiteLabelMap.merge(existingTheme) { _, new in new }
+        }
 
         func putBool(_ key: String, invertedEnable: Bool?) {
             if let invertedEnable {
@@ -1583,7 +1587,7 @@ private extension Web3Auth {
         }
 
         web3AuthOptions.walletServicesConfig = WalletServicesConfig(
-            confirmationStrategy: existing?.confirmationStrategy ?? confirmation,
+            confirmationStrategy: confirmation,
             whiteLabel: mergedWhiteLabel,
             enableKeyExport: existing?.enableKeyExport ?? response?.enableKeyExport
         )
