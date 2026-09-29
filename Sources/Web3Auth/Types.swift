@@ -86,7 +86,7 @@ public enum ChainNamespace: String, Codable {
 }
 
 public struct WhiteLabelData: Codable {
-    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = Language.en, mode: ThemeModes? = ThemeModes.auto, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false, consentRequired: Bool? = nil, tncLink: String? = nil, privacyPolicy: String? = nil) {
+    public init(appName: String? = nil, logoLight: String? = nil, logoDark: String? = nil, defaultLanguage: Language? = Language.en, mode: ThemeModes? = ThemeModes.auto, theme: [String: String]? = nil, appUrl: String? = nil, useLogoLoader: Bool? = false, tncLink: String? = nil, privacyPolicy: String? = nil) {
         self.appName = appName
         self.logoLight = logoLight
         self.logoDark = logoDark
@@ -95,7 +95,6 @@ public struct WhiteLabelData: Codable {
         self.theme = theme
         self.appUrl = appUrl
         self.useLogoLoader = useLogoLoader
-        self.consentRequired = consentRequired
         self.tncLink = tncLink
         self.privacyPolicy = privacyPolicy
     }
@@ -108,7 +107,6 @@ public struct WhiteLabelData: Codable {
     var theme: [String: String]?
     let appUrl: String?
     let useLogoLoader: Bool?
-    let consentRequired: Bool?
     let tncLink: String?
     let privacyPolicy: String?
 
@@ -122,7 +120,6 @@ public struct WhiteLabelData: Codable {
         theme = try values.decodeIfPresent([String: String].self, forKey: .theme)
         appUrl = try values.decodeIfPresent(String.self, forKey: .appUrl)
         useLogoLoader = try values.decodeIfPresent(Bool.self, forKey: .useLogoLoader)
-        consentRequired = try values.decodeIfPresent(Bool.self, forKey: .consentRequired)
         tncLink = try values.decodeIfPresent(String.self, forKey: .tncLink)
         privacyPolicy = try values.decodeIfPresent(String.self, forKey: .privacyPolicy)
     }

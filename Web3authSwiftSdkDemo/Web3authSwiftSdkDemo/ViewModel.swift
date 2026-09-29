@@ -75,7 +75,6 @@ class ViewModel: ObservableObject {
                 defaultLanguage: .en,
                 mode: .light,
                 theme: ["primary": "#123456", "onPrimary": "#0000FF"],
-                consentRequired: false,
                 tncLink: "https://web3auth.io/docs/legal/terms-and-conditions",
                 privacyPolicy: "https://web3auth.io/docs/legal/privacy-policy"
             ),

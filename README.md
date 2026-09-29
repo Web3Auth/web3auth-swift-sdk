@@ -23,11 +23,10 @@ This iOS release is **13.0.0** (next major after 12.x) and targets Auth **v11**.
 3. Stop hard-coding `/v10` auth or dashboard URLs. Rely on SDK defaults from `authBuildEnv` (`production` / `staging` use `/v11`; `testing` stays unversioned).
 4. Constructing `Web3Auth(options:)` already rehydrates the session via citadel (SFA falls back to session-service when citadel authorize fails).
 5. Prefer `getAccessToken()` and `getUserInfoAsync()` when you need token-backed identity data. Use `refreshSession()` to re-authorize; `logout()` clears citadel tokens and invalidates the session-service row.
-6. Optional whitelabel consent:
+6. Optional whitelabel legal links:
    ```swift
    WhiteLabelData(
        appName: "My App",
-       consentRequired: true,
        tncLink: "https://example.com/terms",
        privacyPolicy: "https://example.com/privacy"
    )
@@ -44,7 +43,7 @@ This iOS release is **13.0.0** (next major after 12.x) and targets Auth **v11**.
 | Wallet Services | Host `/v6`; launch passes citadel `sessionId` + `accessToken` |
 | MFA | `MFALevel.DEFAULT` removed |
 | Login audit | `/start` `b64Params` include `recordId` and `loginSource` (`web3auth-ios` / `web3auth-flutter`) |
-| Whitelabel | Optional `consentRequired`, `tncLink`, `privacyPolicy` |
+| Whitelabel | Optional `tncLink`, `privacyPolicy` |
 | Project config | Fetched from dashboard public API by `buildEnv` |
 
 

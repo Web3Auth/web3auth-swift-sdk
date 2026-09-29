@@ -1524,7 +1524,6 @@ private extension Web3Auth {
             "whitelabel_app_name": wl?.appName as Any,
             "whitelabel_tnc_link_enabled": !(wl?.tncLink?.isEmpty ?? true),
             "whitelabel_privacy_policy_enabled": !(wl?.privacyPolicy?.isEmpty ?? true),
-            "whitelabel_consent_required": wl?.consentRequired ?? false,
             "aa_smart_account_type": sa?.smartAccountType.rawValue as Any,
             "aa_eip_standard": sa?.eipStandard as Any,
             "aa_wallet_scope": sa?.walletScope?.rawValue as Any,

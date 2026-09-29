@@ -67,7 +67,6 @@ extension WhiteLabelData {
             theme: mergedTheme,
             appUrl: appUrl ?? other.appUrl,
             useLogoLoader: useLogoLoader ?? other.useLogoLoader,
-            consentRequired: consentRequired ?? other.consentRequired,
             tncLink: tncLink ?? other.tncLink,
             privacyPolicy: privacyPolicy ?? other.privacyPolicy
         )
