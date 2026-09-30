@@ -30,11 +30,11 @@
       },
       {
         "package": "FetchNodeDetails",
-        "repositoryURL": "https://github.com/torusresearch/fetch-node-details-swift",
+        "repositoryURL": "https://github.com/torusresearch/fetch-node-details-swift.git",
         "state": {
           "branch": null,
-          "revision": "5b42dd1675f8a51ffe64feb688db7b1d764d5fc0",
-          "version": "8.0.1"
+          "revision": "a7561e641863baddab80ac00d83aee398e62d083",
+          "version": "9.0.1"
         }
       },
       {
@@ -78,8 +78,8 @@
         "repositoryURL": "https://github.com/Web3Auth/session-manager-swift.git",
         "state": {
           "branch": null,
-          "revision": "de18a6b3d98f67b3c77f84ebab73f7a51807a503",
-          "version": "6.1.0"
+          "revision": "c4a9401e660624269e5367d0f439b647b6a0a419",
+          "version": "7.0.1"
         }
       },
       {
@@ -114,8 +114,8 @@
         "repositoryURL": "https://github.com/torusresearch/torus-utils-swift.git",
         "state": {
           "branch": null,
-          "revision": "235a70839d3ff5723402df95d665b15b8c551ad8",
-          "version": "10.0.1"
+          "revision": "61d9ea26a8fb90ff50c3b2c4d3ec456060bf7a25",
+          "version": "11.0.0"
         }
       }
     ]

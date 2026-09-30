@@ -76,7 +76,16 @@ enum AnalyticsEvents {
     static let requestFunctionCompleted = "Request Function Completed"
     static let requestFunctionFailed = "Request Function Failed"
 
-    static let iosSdkVersion = "12.0.0"
+    static let identityTokenStarted = "Identity Token Started"
+    static let identityTokenCompleted = "Identity Token Completed"
+    static let identityTokenFailed = "Identity Token Failed"
+    static let mfaManagementSelected = "MFA Management Selected"
+
+    static let iosSdkVersion = "13.0.0"
+}
+
+enum AnalyticsIntegrationType {
+    static let nativeSDK = "Native SDK"
 }
 
 enum AnalyticsSdkType {

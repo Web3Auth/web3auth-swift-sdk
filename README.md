@@ -6,6 +6,47 @@ Web3Auth is where passwordless auth meets non-custodial key infrastructure for W
 
 Checkout the official [Web3Auth Documentation](https://web3auth.io/docs) and [SDK Reference](https://web3auth.io/docs/sdk/ios/) to get started!
 
+## 🔁 Migrating from v10 → v11
+
+Auth v11 uses **citadel** session tokens (`sessionId`, `accessToken`, `refreshToken`, `idToken`) and Wallet Services **v6**.
+
+This iOS release is **13.0.0** (next major after 12.x) and targets Auth **v11**.
+
+### Steps
+
+1. Bump the dependency to **13.x**:
+   ```
+   pod 'Web3Auth', '13.0.0'
+   ```
+   SPM: update the `web3auth-swift-sdk` package (requires `session-manager-swift` 7.0.1, `torus-utils-swift` 11.0.0, and `fetch-node-details-swift` 9.0.1).
+2. Remove any `MFALevel.DEFAULT` usages. Use only `OPTIONAL`, `MANDATORY`, or `NONE`.
+3. Stop hard-coding `/v10` auth or dashboard URLs. Rely on SDK defaults from `authBuildEnv` (`production` / `staging` use `/v11`; `testing` stays unversioned).
+4. Constructing `Web3Auth(options:)` already rehydrates the session via citadel (SFA falls back to session-service when citadel authorize fails).
+5. Prefer `getAccessToken()` and `getUserInfoAsync()` when you need token-backed identity data. Use `refreshSession()` to re-authorize; `logout()` clears citadel tokens and invalidates the session-service row.
+6. Optional whitelabel legal links:
+   ```swift
+   WhiteLabelData(
+       appName: "My App",
+       tncLink: "https://example.com/terms",
+       privacyPolicy: "https://example.com/privacy"
+   )
+   ```
+7. Re-test login, session restore, MFA, `showWalletUI()` / `request()`, and logout on staging and production.
+
+### Breaking notes
+
+| Area | Change |
+| --- | --- |
+| Session | Citadel tokens via `AuthSessionManager` (SFA still falls back to session-service) |
+| Key reconstruction | `torus-utils-swift` 11.0.0 + `fetch-node-details-swift` 9.0.1 (SFA `retrieveShares` now sends `recordId` + `authConnection`) |
+| Auth / dashboard URLs | `/v11` (do not hard-code `/v10`) |
+| Wallet Services | Host `/v6`; launch passes citadel `sessionId` + `accessToken` |
+| MFA | `MFALevel.DEFAULT` removed |
+| Login audit | `/start` `b64Params` include `recordId` and `loginSource` (`web3auth-ios` / `web3auth-flutter`) |
+| Whitelabel | Optional `tncLink`, `privacyPolicy` |
+| Project config | Fetched from dashboard public API by `buildEnv` |
+
+
 ## 💡 Features
 - Plug and Play, OAuth based Web3 Authentication Service
 - Fully decentralized, non-custodial key infrastructure
@@ -41,7 +82,7 @@ https://github.com/web3auth/web3auth-swift-sdk
 If you are using cocoapods , open the pod file and add 
 
 ```
-pod 'Web3Auth', '9.0.0'
+pod 'Web3Auth', '13.0.0'
 ```
 
 ## 🌟 Configuration

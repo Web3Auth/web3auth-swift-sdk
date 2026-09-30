@@ -11,7 +11,7 @@ public struct Web3AuthUserInfo: Codable {
     public let userId: String?
     public let email: String?
     public let dappShare: String?
-    public let idToken: String?
+    public var idToken: String?
     public let oAuthIdToken: String?
     public let oAuthAccessToken: String?
     public let isMfaEnabled: Bool?
