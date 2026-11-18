@@ -2,7 +2,7 @@
 import XCTest
 
 /**
- JWT / SFA MFA parity with Web Auth and Android — no Torus or network.
+ JWT / SFA MFA helpers — no Torus or network.
  */
 final class SfaJwtMfaSupportTests: XCTestCase {
     func testJwtConnectDefaultsToAuthFirstToAvoidTokenIsUsed() {

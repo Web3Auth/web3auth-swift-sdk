@@ -368,7 +368,7 @@ public class Web3Auth: NSObject {
             }
         }
 
-        // Case 2: Custom JWT — Auth `/start` first (Web `connectWithJwtLogin` parity).
+        // Case 2: Custom JWT — Auth `/start` first.
         // Calling getTorusKey before Auth consumes the JWT and Auth fails with "token is used".
         if jwtAuthFirst {
             analyticsProps["is_sfa"] = false
@@ -408,7 +408,7 @@ public class Web3Auth: NSObject {
     }
 
     /**
-     Custom JWT login via Auth `/start` (Web `connectWithJwtLogin` parity).
+     Custom JWT login via Auth `/start`.
      Must run *before* any local Torus retrieveShares — that call marks the JWT
      used and Auth then fails with "token is used".
      */
@@ -795,7 +795,6 @@ public class Web3Auth: NSObject {
             ]
         )
         AnalyticsManager.shared.trackEvent(AnalyticsEvents.mfaManagementSelected)
-        // Match Web Auth: allow manageMFA for JWT/SFA when MFA is already enabled.
         if web3AuthResponse?.userInfo?.isMfaEnabled == false {
             throw Web3AuthError.mfaNotEnabled
         }
@@ -1278,7 +1277,7 @@ public class Web3Auth: NSObject {
         return userInfo
     }
 
-    /// Auth v11 parity: returns user info and backfills `idToken` from citadel storage when missing.
+    /// Returns user info and backfills `idToken` from citadel storage when missing.
     public func getUserInfoAsync() async throws -> Web3AuthUserInfo {
         guard var userInfo = web3AuthResponse?.userInfo else { throw Web3AuthError.noUserFound }
         if userInfo.idToken == nil || userInfo.idToken?.isEmpty == true,
@@ -1430,9 +1429,8 @@ private extension Web3Auth {
         ))
     }
 
-    /// Android `authorize()` returns decrypted JSON and Gson-parses it. Swift
     /// `AuthSessionManager<T>.authorize()` swallows decrypt/decode errors and
-    /// returns nil, so we refresh + decrypt ourselves and parse like Android.
+    /// returns nil, so we refresh + decrypt ourselves and parse the session.
     func authorizeSession() async throws -> Web3AuthResponse {
         if let response = try await authorizeFromCitadel() {
             try validateAuthorizedResponse(response)

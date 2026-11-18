@@ -1,8 +1,7 @@
 import Foundation
 
 /**
- Pure helpers that align iOS SFA / custom-JWT MFA with Web Auth (`@web3auth/auth`)
- and Android `SfaJwtMfaSupport`. Extracted for unit tests without Torus or UI.
+ Pure helpers for SFA / custom-JWT MFA. Extracted for unit tests without Torus or UI.
  */
 enum SfaJwtMfaSupport {
     /**
@@ -15,7 +14,7 @@ enum SfaJwtMfaSupport {
     }
 
     /**
-     Custom JWT login goes Auth-first (Web `connectWithJwtLogin`) by default.
+     Custom JWT login goes Auth-first by default.
      Local Torus retrieval first consumes the JWT so Auth MFA then fails with
      "token is used". Opt into silent local SFA with `MFALevel.NONE` only when
      the user is known not to have MFA.
@@ -27,7 +26,7 @@ enum SfaJwtMfaSupport {
     }
 
     /**
-     Build Auth `/start` login params for custom JWT (Web parity).
+     Build Auth `/start` login params for custom JWT.
      Puts credentials in `ExtraLoginOptions`; does not force MFA level unless set.
      */
     static func buildJwtAuthLoginParams(
@@ -63,8 +62,8 @@ enum SfaJwtMfaSupport {
     }
 
     /**
-     Merge JWT credentials into extraLoginOptions (mirrors Web:
-     `id_token`, `login_hint`, optional `client_id`).
+     Merge JWT credentials into extraLoginOptions
+     (`id_token`, `login_hint`, optional `client_id`).
      */
     static func mergeJwtExtraLoginOptions(
         existing: ExtraLoginOptions?,
@@ -111,7 +110,7 @@ enum SfaJwtMfaSupport {
         userInfo: Web3AuthUserInfo?,
         storedLoginExtraIdToken: String? = nil
     ) -> String? {
-        [
+        let candidates: [String?] = [
             paramsIdToken,
             paramsExtraIdToken,
             storedLoginIdToken,
@@ -119,7 +118,8 @@ enum SfaJwtMfaSupport {
             userInfo?.oAuthIdToken,
             // Last resort only — may be a session JWT after Auth rehydrate.
             userInfo?.idToken,
-        ].first { nonBlank($0) != nil }
+        ]
+        return candidates.first { nonBlank($0) != nil }.flatMap { $0 }
     }
 
     /**
