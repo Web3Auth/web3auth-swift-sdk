@@ -567,14 +567,15 @@ public struct ExtraLoginOptions: Codable, Sendable {
     let max_age: String?
     let ui_locales: String?
     let id_token_hint: String?
-    let id_token: String?
+    /// Custom / Firebase JWT for Auth `/start` (SFA + enableMFA).
+    var id_token: String?
     var login_hint: String?
     let acr_values: String?
     let scope: String?
     let audience: String?
     let connection: String?
     let domain: String?
-    let client_id: String?
+    var client_id: String?
     let redirect_uri: String?
     let leeway: Int?
     let userIdField: String?
