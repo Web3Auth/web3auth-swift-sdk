@@ -97,11 +97,38 @@ enum SfaJwtMfaSupport {
     }
 
     /**
+     True when MFA should treat the session as custom JWT (Firebase / SFA JWT).
+
+     Social PnP sessions often have `oAuthIdToken` / session `idToken`; those must
+     not be injected as `extraLoginOptions.id_token` or Auth `/start` takes the
+     JWT path incorrectly.
+     */
+    static func isCustomJwtMfaContext(
+        paramsIdToken: String?,
+        paramsExtraIdToken: String?,
+        storedLoginIdToken: String?,
+        storedLoginExtraIdToken: String? = nil,
+        authConnection: String? = nil
+    ) -> Bool {
+        if nonBlank(paramsIdToken) != nil
+            || nonBlank(paramsExtraIdToken) != nil
+            || nonBlank(storedLoginIdToken) != nil
+            || nonBlank(storedLoginExtraIdToken) != nil {
+            return true
+        }
+        // After process death, loginParams may be gone; custom Auth-first users
+        // still report authConnection "custom".
+        return authConnection?.lowercased() == "custom"
+    }
+
+    /**
      Resolve a JWT for MFA Auth from enable/manage params or the current user.
 
      Prefer `oAuthIdToken` over `idToken`: after Auth-first login, `idToken` is
      often the Web3Auth session JWT, while `oAuthIdToken` holds the provider /
      Firebase JWT needed in `extraLoginOptions.id_token`.
+
+     Call only when [isCustomJwtMfaContext] is true.
      */
     static func resolveJwtForMfa(
         paramsIdToken: String?,

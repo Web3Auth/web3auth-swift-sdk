@@ -434,12 +434,9 @@ public class Web3Auth: NSObject {
 
     private func resolveAuthConnectionClientId(_ authConnectionId: String?) -> String? {
         guard let authConnectionId, !authConnectionId.isEmpty else { return nil }
-        if let match = web3AuthOptions.authConnectionConfig?
+        return web3AuthOptions.authConnectionConfig?
             .first(where: { $0.authConnectionId == authConnectionId })?
-            .clientId {
-            return match
-        }
-        return web3AuthOptions.authConnectionConfig?.first?.clientId
+            .clientId
     }
 
     
@@ -636,17 +633,26 @@ public class Web3Auth: NSObject {
         // Snapshot before refreshSession — on failure it clears web3AuthResponse,
         // which would wipe JWT / authConnection identity needed for Auth MFA.
         let preRefreshResponse = web3AuthResponse
-        let preRefreshLoginParams = self.loginParams
+        let storedLoginParams = self.loginParams
         do {
             _ = try await refreshSession()
         } catch {
-            let jwt = SfaJwtMfaSupport.resolveJwtForMfa(
+            let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
                 paramsIdToken: loginParams?.idToken,
                 paramsExtraIdToken: loginParams?.extraLoginOptions?.id_token,
-                storedLoginIdToken: preRefreshLoginParams?.idToken,
-                userInfo: preRefreshResponse?.userInfo,
-                storedLoginExtraIdToken: preRefreshLoginParams?.extraLoginOptions?.id_token
+                storedLoginIdToken: storedLoginParams?.idToken,
+                storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token,
+                authConnection: preRefreshResponse?.userInfo?.authConnection
             )
+            let jwt = isCustomJwt
+                ? SfaJwtMfaSupport.resolveJwtForMfa(
+                    paramsIdToken: loginParams?.idToken,
+                    paramsExtraIdToken: loginParams?.extraLoginOptions?.id_token,
+                    storedLoginIdToken: storedLoginParams?.idToken,
+                    userInfo: preRefreshResponse?.userInfo,
+                    storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token
+                )
+                : nil
             let hasLocalSession = SfaJwtMfaSupport.hasLocalSessionForMfaFallback(
                 storageSessionId: StorageManager<Web3AuthResponse>.getSessionIdFromStorage(),
                 privateKey: preRefreshResponse?.privateKey,
@@ -663,19 +669,26 @@ public class Web3Auth: NSObject {
             }
         }
 
-        if loginParams != nil {
-            self.loginParams = loginParams
-        }
+        // Resolve JWT from stored login *before* overwriting self.loginParams.
         var extraLoginOptions = loginParams?.extraLoginOptions
-            ?? self.loginParams?.extraLoginOptions
+            ?? storedLoginParams?.extraLoginOptions
             ?? ExtraLoginOptions()
-        let jwt = SfaJwtMfaSupport.resolveJwtForMfa(
+        let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
             paramsIdToken: loginParams?.idToken,
             paramsExtraIdToken: extraLoginOptions.id_token,
-            storedLoginIdToken: self.loginParams?.idToken,
-            userInfo: web3AuthResponse?.userInfo,
-            storedLoginExtraIdToken: self.loginParams?.extraLoginOptions?.id_token
+            storedLoginIdToken: storedLoginParams?.idToken,
+            storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token,
+            authConnection: web3AuthResponse?.userInfo?.authConnection
         )
+        let jwt = isCustomJwt
+            ? SfaJwtMfaSupport.resolveJwtForMfa(
+                paramsIdToken: loginParams?.idToken,
+                paramsExtraIdToken: extraLoginOptions.id_token,
+                storedLoginIdToken: storedLoginParams?.idToken,
+                userInfo: web3AuthResponse?.userInfo,
+                storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token
+            )
+            : nil
         let clientId = resolveAuthConnectionClientId(
             web3AuthResponse?.userInfo?.authConnectionId ?? loginParams?.authConnectionId
         )
@@ -685,6 +698,9 @@ public class Web3Auth: NSObject {
             loginHint: web3AuthResponse?.userInfo?.userId,
             clientId: clientId
         )
+        if let loginParams {
+            self.loginParams = loginParams
+        }
 
         let jsonData = try? JSONEncoder().encode(extraLoginOptions)
         let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
@@ -803,17 +819,26 @@ public class Web3Auth: NSObject {
         }
 
         let preRefreshResponse = web3AuthResponse
-        let preRefreshLoginParams = self.loginParams
+        let storedLoginParams = self.loginParams
         do {
             _ = try await refreshSession()
         } catch {
-            let jwt = SfaJwtMfaSupport.resolveJwtForMfa(
+            let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
                 paramsIdToken: loginParams?.idToken,
                 paramsExtraIdToken: loginParams?.extraLoginOptions?.id_token,
-                storedLoginIdToken: preRefreshLoginParams?.idToken,
-                userInfo: preRefreshResponse?.userInfo,
-                storedLoginExtraIdToken: preRefreshLoginParams?.extraLoginOptions?.id_token
+                storedLoginIdToken: storedLoginParams?.idToken,
+                storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token,
+                authConnection: preRefreshResponse?.userInfo?.authConnection
             )
+            let jwt = isCustomJwt
+                ? SfaJwtMfaSupport.resolveJwtForMfa(
+                    paramsIdToken: loginParams?.idToken,
+                    paramsExtraIdToken: loginParams?.extraLoginOptions?.id_token,
+                    storedLoginIdToken: storedLoginParams?.idToken,
+                    userInfo: preRefreshResponse?.userInfo,
+                    storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token
+                )
+                : nil
             let hasLocalSession = SfaJwtMfaSupport.hasLocalSessionForMfaFallback(
                 storageSessionId: StorageManager<Web3AuthResponse>.getSessionIdFromStorage(),
                 privateKey: preRefreshResponse?.privateKey,
@@ -830,7 +855,7 @@ public class Web3Auth: NSObject {
             }
         }
 
-        var modifiedLoginParams = self.loginParams
+        var modifiedLoginParams = storedLoginParams
         var modifiedInitParams = web3AuthOptions
 
         if loginParams != nil {
@@ -840,13 +865,22 @@ public class Web3Auth: NSObject {
         var extraLoginOptions = modifiedLoginParams?.extraLoginOptions
             ?? loginParams?.extraLoginOptions
             ?? ExtraLoginOptions()
-        let jwt = SfaJwtMfaSupport.resolveJwtForMfa(
+        let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
             paramsIdToken: loginParams?.idToken,
             paramsExtraIdToken: extraLoginOptions.id_token,
-            storedLoginIdToken: self.loginParams?.idToken,
-            userInfo: web3AuthResponse?.userInfo,
-            storedLoginExtraIdToken: self.loginParams?.extraLoginOptions?.id_token
+            storedLoginIdToken: storedLoginParams?.idToken,
+            storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token,
+            authConnection: web3AuthResponse?.userInfo?.authConnection
         )
+        let jwt = isCustomJwt
+            ? SfaJwtMfaSupport.resolveJwtForMfa(
+                paramsIdToken: loginParams?.idToken,
+                paramsExtraIdToken: extraLoginOptions.id_token,
+                storedLoginIdToken: storedLoginParams?.idToken,
+                userInfo: web3AuthResponse?.userInfo,
+                storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token
+            )
+            : nil
         let clientId = resolveAuthConnectionClientId(
             web3AuthResponse?.userInfo?.authConnectionId ?? loginParams?.authConnectionId
         )

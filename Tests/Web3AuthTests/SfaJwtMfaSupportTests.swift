@@ -203,6 +203,85 @@ final class SfaJwtMfaSupportTests: XCTestCase {
         XCTAssertFalse(SfaJwtMfaSupport.canLaunchMfaWithoutCitadel(jwt: "", hasActiveLocalSession: true))
     }
 
+    func testIsCustomJwtMfaContextIgnoresSocialOAuthTokensAlone() {
+        // Social PnP: Google oAuthIdToken must not count as custom JWT context.
+        XCTAssertFalse(
+            SfaJwtMfaSupport.isCustomJwtMfaContext(
+                paramsIdToken: nil,
+                paramsExtraIdToken: nil,
+                storedLoginIdToken: nil,
+                storedLoginExtraIdToken: nil,
+                authConnection: "google"
+            )
+        )
+        XCTAssertTrue(
+            SfaJwtMfaSupport.isCustomJwtMfaContext(
+                paramsIdToken: "firebase-jwt",
+                paramsExtraIdToken: nil,
+                storedLoginIdToken: nil,
+                authConnection: "google"
+            )
+        )
+        XCTAssertTrue(
+            SfaJwtMfaSupport.isCustomJwtMfaContext(
+                paramsIdToken: nil,
+                paramsExtraIdToken: nil,
+                storedLoginIdToken: "stored-firebase-jwt",
+                authConnection: nil
+            )
+        )
+        // Process death after Auth-first custom JWT: authConnection remains "custom".
+        XCTAssertTrue(
+            SfaJwtMfaSupport.isCustomJwtMfaContext(
+                paramsIdToken: nil,
+                paramsExtraIdToken: nil,
+                storedLoginIdToken: nil,
+                authConnection: "custom"
+            )
+        )
+    }
+
+    func testSocialMfaDoesNotInjectOAuthIdTokenAsCustomJwt() {
+        let socialUser = Web3AuthUserInfo(
+            email: "user@gmail.com",
+            name: nil,
+            profileImage: nil,
+            groupedAuthConnectionId: nil,
+            authConnectionId: "google",
+            userId: "google-sub",
+            dappShare: nil,
+            idToken: "session-jwt",
+            oAuthIdToken: "google-oauth-token",
+            oAuthAccessToken: nil,
+            isMfaEnabled: false,
+            authConnection: "google",
+            appState: nil
+        )
+        let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
+            paramsIdToken: nil,
+            paramsExtraIdToken: nil,
+            storedLoginIdToken: nil,
+            authConnection: socialUser.authConnection
+        )
+        XCTAssertFalse(isCustomJwt)
+        let jwt = isCustomJwt
+            ? SfaJwtMfaSupport.resolveJwtForMfa(
+                paramsIdToken: nil,
+                paramsExtraIdToken: nil,
+                storedLoginIdToken: nil,
+                userInfo: socialUser
+            )
+            : nil
+        let merged = SfaJwtMfaSupport.mergeJwtExtraLoginOptions(
+            existing: ExtraLoginOptions(),
+            idToken: jwt,
+            loginHint: socialUser.userId,
+            clientId: nil
+        )
+        XCTAssertNil(merged.id_token)
+        XCTAssertEqual(merged.login_hint, "google-sub")
+    }
+
     private func sampleJwtLoginParams() -> LoginParams {
         LoginParams(
             authConnection: .CUSTOM,
