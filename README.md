@@ -10,13 +10,13 @@ Checkout the official [Web3Auth Documentation](https://web3auth.io/docs) and [SD
 
 Auth v11 uses **citadel** session tokens (`sessionId`, `accessToken`, `refreshToken`, `idToken`) and Wallet Services **v6**.
 
-This iOS release is **13.0.0** (next major after 12.x) and targets Auth **v11**.
+This iOS release is **13.0.1** (Auth **v11**; patch after 13.0.0).
 
 ### Steps
 
 1. Bump the dependency to **13.x**:
    ```
-   pod 'Web3Auth', '13.0.0'
+   pod 'Web3Auth', '13.0.1'
    ```
    SPM: update the `web3auth-swift-sdk` package (requires `session-manager-swift` 7.0.1, `torus-utils-swift` 11.0.0, and `fetch-node-details-swift` 9.0.1).
 2. Remove any `MFALevel.DEFAULT` usages. Use only `OPTIONAL`, `MANDATORY`, or `NONE`.
@@ -82,7 +82,7 @@ https://github.com/web3auth/web3auth-swift-sdk
 If you are using cocoapods , open the pod file and add 
 
 ```
-pod 'Web3Auth', '13.0.0'
+pod 'Web3Auth', '13.0.1'
 ```
 
 ## 🌟 Configuration

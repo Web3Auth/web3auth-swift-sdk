@@ -81,7 +81,7 @@ enum AnalyticsEvents {
     static let identityTokenFailed = "Identity Token Failed"
     static let mfaManagementSelected = "MFA Management Selected"
 
-    static let iosSdkVersion = "13.0.0"
+    static let iosSdkVersion = "13.0.1"
 }
 
 enum AnalyticsIntegrationType {
