@@ -1030,7 +1030,7 @@ public class Web3Auth: NSObject {
         jsonObject["idToken"] = creds.idToken
         jsonObject["refreshToken"] = creds.refreshToken
         
-        if let isSFA = KeychainHelper.shared.get(forKey: "isSFA", as: Bool.self), isSFA {
+        if let isSFA = KeychainHelper.shared.get(forKey: KeychainKeys.isSFA, as: Bool.self), isSFA {
             jsonObject["sessionNamespace"] = "sfa"
         }
 
@@ -1089,7 +1089,7 @@ public class Web3Auth: NSObject {
             signMessageMap["refreshToken"] = refreshToken
         }
         
-        if let isSFA = KeychainHelper.shared.get(forKey: "isSFA", as: Bool.self), isSFA {
+        if let isSFA = KeychainHelper.shared.get(forKey: KeychainKeys.isSFA, as: Bool.self), isSFA {
             signMessageMap["sessionNamespace"] = "sfa"
         }
 
