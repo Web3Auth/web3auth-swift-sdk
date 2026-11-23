@@ -320,11 +320,19 @@ public class Web3Auth: NSObject {
 
     
     public func connectTo(loginParams: LoginParams) async throws -> Web3AuthResponse {
+        let jwtAuthFirst = SfaJwtMfaSupport.shouldUseAuthFirstForJwt(
+            idToken: loginParams.idToken,
+            mfaLevel: loginParams.mfaLevel
+        )
         storageManager = try createStorageManager(
-            sessionNamespace: (loginParams.idToken?.isEmpty == false) ? "sfa" : resolveSessionNamespace()
+            sessionNamespace: {
+                if jwtAuthFirst { return resolveSessionNamespace() }
+                if let idToken = loginParams.idToken, !idToken.isEmpty { return "sfa" }
+                return resolveSessionNamespace()
+            }()
         )
         authSessionManager = createAuthSessionManager()
-        
+
         var analyticsProps: [String: Any] = [
             "connector": "auth",
             "auth_connection": loginParams.authConnection,
@@ -335,8 +343,8 @@ public class Web3Auth: NSObject {
             "chains": web3AuthOptions.chains?.description ?? "[]",
             "auth_ux_mode": "popup"
         ]
-        
-        // Case 1: No idToken provided
+
+        // Case 1: No idToken provided — PnP Auth login
         if loginParams.idToken?.isEmpty ?? true {
             analyticsProps["is_sfa"] = false
             AnalyticsManager.shared.trackEvent(
@@ -344,30 +352,42 @@ public class Web3Auth: NSObject {
                 properties: analyticsProps
             )
             if let loginHint = loginParams.loginHint, !loginHint.isEmpty {
-                // Create or update extraLoginOptions with loginHint
                 var updatedExtraLoginOptions = loginParams.extraLoginOptions
                 if updatedExtraLoginOptions == nil {
                     updatedExtraLoginOptions = ExtraLoginOptions(login_hint: loginHint)
                 } else {
                     updatedExtraLoginOptions?.login_hint = loginHint
                 }
-                
+
                 var updatedLoginParams = loginParams
                 updatedLoginParams.extraLoginOptions = updatedExtraLoginOptions
-                
-                return try await login(loginParams: updatedLoginParams) // PnP login
+
+                return try await login(loginParams: updatedLoginParams)
             } else {
-                return try await login(loginParams: loginParams) // PnP login
+                return try await login(loginParams: loginParams)
             }
         }
-        
-        // Case 2: idToken exists
-        if let groupedId = loginParams.groupedAuthConnectionId, !groupedId.isEmpty {
-            analyticsProps["is_sfa"] = true
+
+        // Case 2: Custom JWT — Auth `/start` first.
+        // Calling getTorusKey before Auth consumes the JWT and Auth fails with "token is used".
+        if jwtAuthFirst {
+            analyticsProps["is_sfa"] = false
+            analyticsProps["is_jwt_auth"] = true
             AnalyticsManager.shared.trackEvent(
                 AnalyticsEvents.connectionStarted,
                 properties: analyticsProps
             )
+            return try await launchJwtAuthLogin(loginParams: loginParams)
+        }
+
+        // Case 3: Silent SFA opt-in (mfaLevel=NONE) — local shares only, not for MFA users.
+        KeychainHelper.shared.save(true, forKey: KeychainKeys.isSFA)
+        analyticsProps["is_sfa"] = true
+        AnalyticsManager.shared.trackEvent(
+            AnalyticsEvents.connectionStarted,
+            properties: analyticsProps
+        )
+        if let groupedId = loginParams.groupedAuthConnectionId, !groupedId.isEmpty {
             let newLoginParams = LoginParams(
                 authConnection: .CUSTOM,
                 authConnectionId: groupedId,
@@ -381,17 +401,42 @@ public class Web3Auth: NSObject {
                     idToken: loginParams.idToken ?? ""
                 )
             ]
-            KeychainHelper.shared.save(true, forKey: KeychainKeys.isSFA)
             return try await connect(loginParams: newLoginParams, subVerifierInfoArray: subVerifierInfoArray)
         } else {
-            analyticsProps["is_sfa"] = true
-            AnalyticsManager.shared.trackEvent(
-                AnalyticsEvents.connectionStarted,
-                properties: analyticsProps
-            )
-            KeychainHelper.shared.save(true, forKey: KeychainKeys.isSFA)
-            return try await connect(loginParams: loginParams) // SFA login fallback
+            return try await connect(loginParams: loginParams)
         }
+    }
+
+    /**
+     Custom JWT login via Auth `/start`.
+     Must run *before* any local Torus retrieveShares — that call marks the JWT
+     used and Auth then fails with "token is used".
+     */
+    private func launchJwtAuthLogin(
+        loginParams: LoginParams,
+        forceMfaMandatory: Bool = false
+    ) async throws -> Web3AuthResponse {
+        let loginHint = loginParams.idToken.flatMap { getUserId(from: $0) }
+            ?? loginParams.loginHint
+            ?? loginParams.extraLoginOptions?.login_hint
+        let clientId = resolveAuthConnectionClientId(loginParams.authConnectionId)
+        let authParams = SfaJwtMfaSupport.buildJwtAuthLoginParams(
+            loginParams: loginParams,
+            loginHint: loginHint,
+            clientId: clientId,
+            forceMfaMandatory: forceMfaMandatory
+        )
+        // Citadel Auth session (not pure SFA session-service).
+        KeychainHelper.shared.save(false, forKey: KeychainKeys.isSFA)
+        storageManager = try createStorageManager(sessionNamespace: resolveSessionNamespace())
+        return try await login(loginParams: authParams)
+    }
+
+    private func resolveAuthConnectionClientId(_ authConnectionId: String?) -> String? {
+        guard let authConnectionId, !authConnectionId.isEmpty else { return nil }
+        return web3AuthOptions.authConnectionConfig?
+            .first(where: { $0.authConnectionId == authConnectionId })?
+            .clientId
     }
 
     
@@ -453,7 +498,10 @@ public class Web3Auth: NSObject {
             )
         }
         
-        if retrieveSharesResponse.metadata.upgraded == true {
+        // Local SFA (mfaLevel=NONE) hit an MFA-upgraded key. The JWT is already
+        // consumed by Torus — do not open Auth with it ("token is used"). Caller
+        // should retry connectTo with a fresh idToken (Auth-first default).
+        if SfaJwtMfaSupport.requiresAuthMfaFlow(isUpgraded: retrieveSharesResponse.metadata.upgraded) {
             throw Web3AuthError.mfaAlreadyEnabled
         }
 
@@ -481,12 +529,13 @@ public class Web3Auth: NSObject {
         
         do {
             let jwt = try decode(jwt: loginParams.idToken!)
+            let jwtToken = loginParams.idToken
             decodedUserInfo = Web3AuthUserInfo.init(email: jwt.body["email"] as? String ?? "",
                                                     name: jwt.body["name"] as? String ?? "",
                                                     profileImage: jwt.body["picture"] as? String ?? "",
                                                     groupedAuthConnectionId: loginParams.groupedAuthConnectionId,
                                                     authConnectionId: loginParams.authConnectionId, userId: jwt.body["user_id"] as? String ?? "",
-                                                    dappShare: nil, idToken: nil, oAuthIdToken: nil, oAuthAccessToken: nil, isMfaEnabled: false, authConnection: "custom", appState: nil)
+                                                    dappShare: nil, idToken: jwtToken, oAuthIdToken: jwtToken, oAuthAccessToken: nil, isMfaEnabled: false, authConnection: "custom", appState: nil)
         } catch {
             let duration = Date().timeIntervalSince1970 * 1000 - Double(startTime)
 
@@ -573,37 +622,91 @@ public class Web3Auth: NSObject {
             ]
         )
 
+
         if web3AuthResponse?.userInfo?.isMfaEnabled == true {
             throw Web3AuthError.mfaAlreadyEnabled
-        }
-        
-        if let idToken = self.loginParams?.idToken, !idToken.isEmpty {
-            throw Web3AuthError.enabledMfaNotAllowed
-        }
-        if KeychainHelper.shared.get(forKey: KeychainKeys.isSFA, as: Bool.self) == true {
-            throw Web3AuthError.enabledMfaNotAllowed
         }
         guard await hasActiveSession() else {
             throw Web3AuthError.noUserFound
         }
-        _ = try await refreshSession()
 
-        if loginParams != nil {
+        // Snapshot before refreshSession — on failure it clears web3AuthResponse,
+        // which would wipe JWT / authConnection identity needed for Auth MFA.
+        let preRefreshResponse = web3AuthResponse
+        let storedLoginParams = self.loginParams
+        do {
+            _ = try await refreshSession()
+        } catch {
+            let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
+                paramsIdToken: loginParams?.idToken,
+                paramsExtraIdToken: loginParams?.extraLoginOptions?.id_token,
+                storedLoginIdToken: storedLoginParams?.idToken,
+                storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token,
+                authConnection: preRefreshResponse?.userInfo?.authConnection
+            )
+            let jwt = isCustomJwt
+                ? SfaJwtMfaSupport.resolveJwtForMfa(
+                    paramsIdToken: loginParams?.idToken,
+                    paramsExtraIdToken: loginParams?.extraLoginOptions?.id_token,
+                    storedLoginIdToken: storedLoginParams?.idToken,
+                    userInfo: preRefreshResponse?.userInfo,
+                    storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token
+                )
+                : nil
+            let hasLocalSession = SfaJwtMfaSupport.hasLocalSessionForMfaFallback(
+                storageSessionId: StorageManager<Web3AuthResponse>.getSessionIdFromStorage(),
+                privateKey: preRefreshResponse?.privateKey,
+                factorKey: preRefreshResponse?.factorKey
+            )
+            guard SfaJwtMfaSupport.canLaunchMfaWithoutCitadel(
+                jwt: jwt,
+                hasActiveLocalSession: hasLocalSession
+            ) else {
+                throw Web3AuthError.noUserFound
+            }
+            if let preRefreshResponse {
+                web3AuthResponse = preRefreshResponse
+            }
+        }
+
+        // Resolve JWT from stored login *before* overwriting self.loginParams.
+        var extraLoginOptions = loginParams?.extraLoginOptions
+            ?? storedLoginParams?.extraLoginOptions
+            ?? ExtraLoginOptions()
+        let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
+            paramsIdToken: loginParams?.idToken,
+            paramsExtraIdToken: extraLoginOptions.id_token,
+            storedLoginIdToken: storedLoginParams?.idToken,
+            storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token,
+            authConnection: web3AuthResponse?.userInfo?.authConnection
+        )
+        let jwt = isCustomJwt
+            ? SfaJwtMfaSupport.resolveJwtForMfa(
+                paramsIdToken: loginParams?.idToken,
+                paramsExtraIdToken: extraLoginOptions.id_token,
+                storedLoginIdToken: storedLoginParams?.idToken,
+                userInfo: web3AuthResponse?.userInfo,
+                storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token
+            )
+            : nil
+        let clientId = resolveAuthConnectionClientId(
+            web3AuthResponse?.userInfo?.authConnectionId ?? loginParams?.authConnectionId
+        )
+        extraLoginOptions = SfaJwtMfaSupport.mergeJwtExtraLoginOptions(
+            existing: extraLoginOptions,
+            idToken: jwt,
+            loginHint: web3AuthResponse?.userInfo?.userId,
+            clientId: clientId
+        )
+        if let loginParams {
             self.loginParams = loginParams
         }
-        var extraLoginOptions: ExtraLoginOptions? = ExtraLoginOptions()
-        if loginParams?.extraLoginOptions != nil {
-            extraLoginOptions = loginParams?.extraLoginOptions
-        } else {
-            extraLoginOptions = self.loginParams?.extraLoginOptions
-        }
-        extraLoginOptions?.login_hint = web3AuthResponse?.userInfo?.userId
 
         let jsonData = try? JSONEncoder().encode(extraLoginOptions)
         let _extraLoginOptions = String(data: jsonData!, encoding: .utf8)
-        
+
         let redirectUrl = web3AuthOptions.redirectUrl
-        
+
         let newSessionId = try StorageManager<Web3AuthResponse>.generateRandomSessionKey()
         let recordId = loginParams?.recordId?.isEmpty == false ? loginParams!.recordId! : generateRecordId()
         let loginSource = resolveLoginSource(loginParams)
@@ -611,10 +714,10 @@ public class Web3Auth: NSObject {
             "loginId": newSessionId,
             "platform": web3AuthOptions.getSdkName(),
         ]
-        
+
         let jsonEncoder = JSONEncoder()
         let data = try? jsonEncoder.encode(loginIdObject)
-        
+
         let params: [String: String?] = [
             "authConnection": web3AuthResponse?.userInfo?.authConnection,
             "authConnectionId": web3AuthResponse?.userInfo?.authConnectionId,
@@ -711,27 +814,82 @@ public class Web3Auth: NSObject {
         if web3AuthResponse?.userInfo?.isMfaEnabled == false {
             throw Web3AuthError.mfaNotEnabled
         }
-        
-        if let idToken = self.loginParams?.idToken, !idToken.isEmpty {
-            throw Web3AuthError.enabledMfaNotAllowed
-        }
-        if KeychainHelper.shared.get(forKey: KeychainKeys.isSFA, as: Bool.self) == true {
-            throw Web3AuthError.enabledMfaNotAllowed
-        }
         guard await hasActiveSession() else {
             throw Web3AuthError.noUserFound
         }
-        _ = try await refreshSession()
 
-        var modifiedLoginParams = self.loginParams
+        let preRefreshResponse = web3AuthResponse
+        let storedLoginParams = self.loginParams
+        do {
+            _ = try await refreshSession()
+        } catch {
+            let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
+                paramsIdToken: loginParams?.idToken,
+                paramsExtraIdToken: loginParams?.extraLoginOptions?.id_token,
+                storedLoginIdToken: storedLoginParams?.idToken,
+                storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token,
+                authConnection: preRefreshResponse?.userInfo?.authConnection
+            )
+            let jwt = isCustomJwt
+                ? SfaJwtMfaSupport.resolveJwtForMfa(
+                    paramsIdToken: loginParams?.idToken,
+                    paramsExtraIdToken: loginParams?.extraLoginOptions?.id_token,
+                    storedLoginIdToken: storedLoginParams?.idToken,
+                    userInfo: preRefreshResponse?.userInfo,
+                    storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token
+                )
+                : nil
+            let hasLocalSession = SfaJwtMfaSupport.hasLocalSessionForMfaFallback(
+                storageSessionId: StorageManager<Web3AuthResponse>.getSessionIdFromStorage(),
+                privateKey: preRefreshResponse?.privateKey,
+                factorKey: preRefreshResponse?.factorKey
+            )
+            guard SfaJwtMfaSupport.canLaunchMfaWithoutCitadel(
+                jwt: jwt,
+                hasActiveLocalSession: hasLocalSession
+            ) else {
+                throw Web3AuthError.noUserFound
+            }
+            if let preRefreshResponse {
+                web3AuthResponse = preRefreshResponse
+            }
+        }
+
+        var modifiedLoginParams = storedLoginParams
         var modifiedInitParams = web3AuthOptions
 
         if loginParams != nil {
             modifiedLoginParams = loginParams
         }
 
-        var extraLoginOptions: ExtraLoginOptions? = modifiedLoginParams?.extraLoginOptions ?? loginParams?.extraLoginOptions ?? ExtraLoginOptions()
-        extraLoginOptions?.login_hint = web3AuthResponse?.userInfo?.userId
+        var extraLoginOptions = modifiedLoginParams?.extraLoginOptions
+            ?? loginParams?.extraLoginOptions
+            ?? ExtraLoginOptions()
+        let isCustomJwt = SfaJwtMfaSupport.isCustomJwtMfaContext(
+            paramsIdToken: loginParams?.idToken,
+            paramsExtraIdToken: extraLoginOptions.id_token,
+            storedLoginIdToken: storedLoginParams?.idToken,
+            storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token,
+            authConnection: web3AuthResponse?.userInfo?.authConnection
+        )
+        let jwt = isCustomJwt
+            ? SfaJwtMfaSupport.resolveJwtForMfa(
+                paramsIdToken: loginParams?.idToken,
+                paramsExtraIdToken: extraLoginOptions.id_token,
+                storedLoginIdToken: storedLoginParams?.idToken,
+                userInfo: web3AuthResponse?.userInfo,
+                storedLoginExtraIdToken: storedLoginParams?.extraLoginOptions?.id_token
+            )
+            : nil
+        let clientId = resolveAuthConnectionClientId(
+            web3AuthResponse?.userInfo?.authConnectionId ?? loginParams?.authConnectionId
+        )
+        extraLoginOptions = SfaJwtMfaSupport.mergeJwtExtraLoginOptions(
+            existing: extraLoginOptions,
+            idToken: jwt,
+            loginHint: web3AuthResponse?.userInfo?.userId,
+            clientId: clientId
+        )
 
         let jsonData = try? JSONEncoder().encode(extraLoginOptions)
         let _extraLoginOptions = jsonData.flatMap { String(data: $0, encoding: .utf8) }
@@ -872,7 +1030,7 @@ public class Web3Auth: NSObject {
         jsonObject["idToken"] = creds.idToken
         jsonObject["refreshToken"] = creds.refreshToken
         
-        if let isSFA = KeychainHelper.shared.get(forKey: "isSFA", as: Bool.self), isSFA {
+        if let isSFA = KeychainHelper.shared.get(forKey: KeychainKeys.isSFA, as: Bool.self), isSFA {
             jsonObject["sessionNamespace"] = "sfa"
         }
 
@@ -931,7 +1089,7 @@ public class Web3Auth: NSObject {
             signMessageMap["refreshToken"] = refreshToken
         }
         
-        if let isSFA = KeychainHelper.shared.get(forKey: "isSFA", as: Bool.self), isSFA {
+        if let isSFA = KeychainHelper.shared.get(forKey: KeychainKeys.isSFA, as: Bool.self), isSFA {
             signMessageMap["sessionNamespace"] = "sfa"
         }
 
@@ -1153,7 +1311,7 @@ public class Web3Auth: NSObject {
         return userInfo
     }
 
-    /// Auth v11 parity: returns user info and backfills `idToken` from citadel storage when missing.
+    /// Returns user info and backfills `idToken` from citadel storage when missing.
     public func getUserInfoAsync() async throws -> Web3AuthUserInfo {
         guard var userInfo = web3AuthResponse?.userInfo else { throw Web3AuthError.noUserFound }
         if userInfo.idToken == nil || userInfo.idToken?.isEmpty == true,
@@ -1295,6 +1453,8 @@ private extension Web3Auth {
 
     func persistAuthTokens(_ sessionResponse: SessionResponse) async throws {
         StorageManager<Web3AuthResponse>.saveSessionIdToStorage(sessionResponse.sessionId)
+        // Auth `/start` success creates a citadel session — leave pure-SFA mode.
+        KeychainHelper.shared.save(false, forKey: KeychainKeys.isSFA)
         try await authSessionManager.setTokens(AuthTokens(
             sessionId: sessionResponse.sessionId,
             accessToken: sessionResponse.accessToken,
@@ -1303,9 +1463,8 @@ private extension Web3Auth {
         ))
     }
 
-    /// Android `authorize()` returns decrypted JSON and Gson-parses it. Swift
     /// `AuthSessionManager<T>.authorize()` swallows decrypt/decode errors and
-    /// returns nil, so we refresh + decrypt ourselves and parse like Android.
+    /// returns nil, so we refresh + decrypt ourselves and parse the session.
     func authorizeSession() async throws -> Web3AuthResponse {
         if let response = try await authorizeFromCitadel() {
             try validateAuthorizedResponse(response)
